@@ -87,8 +87,10 @@ reports/{公司名}/
 ## GitHub 操作
 
 - 本地克隆路径：`~/ai-berkshire/`
-- 远程仓库：`https://github.com/xbtlin/ai-berkshire.git`
-- 推送前先 `git pull --rebase origin main`（远程经常有新提交）
+- **双 remote 配置**：
+  - `origin` = 自己的 fork `git@github.com:whiteihat/ai-berkshire.git`（**推送目标**）
+  - `upstream` = 原仓库 `git@github.com:xbtlin/ai-berkshire.git`（**同步源**，经常有新提交）
+- 推送前先 `git pull --rebase upstream main`（同步原仓库新提交）
 - commit message 用中文，描述清楚改了什么
 - 不要推送中间过程文件（如 data_collection.md），只推最终报告
 
@@ -99,8 +101,8 @@ reports/{公司名}/
 cd ~/ai-berkshire
 git add reports/xxx.md
 git commit -m "添加xxx报告"
-git pull --rebase origin main
-git push origin main
+git pull --rebase upstream main   # 同步原仓库新提交
+git push origin main              # 推送到自己的 fork
 ```
 
 ## 注意事项
