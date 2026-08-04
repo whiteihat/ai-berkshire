@@ -10,24 +10,46 @@
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **macrotrends** | macrotrends.net/stocks/charts/{ticker} | 直接访问，无需注册 |
-| 2（副） | **stockanalysis** | stockanalysis.com/stocks/{ticker}/financials | 直接访问，无需注册 |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/搜索可用，财务视接口权限退化 |
+| 2（副） | **macrotrends** | macrotrends.net/stocks/charts/{ticker} | 直接访问，无需注册 |
+| 3（副） | **stockanalysis** | stockanalysis.com/stocks/{ticker}/financials | 直接访问，无需注册 |
 | 原始一手 | SEC EDGAR | sec.gov/cgi-bin/browse-edgar | 10-K / 10-Q 原文 |
 
 ### 港股（腾讯0700、网易9999、美团3690等）
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **aastocks** | aastocks.com/tc/stocks/analysis/company-fundamental | 直接访问 |
-| 2（副） | **macrotrends**（ADR代码） | 腾讯用TCEHY，网易用NTES | 直接访问 |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/搜索可用，财务视接口权限退化 |
+| 2（副） | **aastocks** | aastocks.com/tc/stocks/analysis/company-fundamental | 直接访问 |
+| 3（副） | **macrotrends**（ADR代码） | 腾讯用TCEHY，网易用NTES | 直接访问 |
 | 原始一手 | HKEX披露易 | hkexnews.hk | 年报PDF |
 
 ### A股（三七互娱、吉比特等）
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **东方财富** | eastmoney.com → 搜股票代码 → 财务报表 | 直接访问 |
-| 2（副） | **巨潮资讯** | cninfo.com.cn | 原始年报/季报PDF |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/估值/财务/分红/搜索全接口 |
+| 2（副） | **东方财富** | eastmoney.com → 搜股票代码 → 财务报表 | 直接访问 |
+| 原始一手 | **巨潮资讯** | cninfo.com.cn | 原始年报/季报PDF |
+
+**Tushare 取数工具**（A股/港股/美股通用，分析三大市场时优先调用；依赖用 uv 管理）：
+
+```bash
+uv run python tools/tushare_data.py quote 600519        # A股行情 + 市值验算
+uv run python tools/tushare_data.py valuation 600519    # PE/PB/市值/52周高低
+uv run python tools/tushare_data.py financials 600519   # 近5年年度核心财务
+uv run python tools/tushare_data.py dividend 600519     # 分红送配（仅A股有标准接口）
+uv run python tools/tushare_data.py search 茅台          # 搜索代码（A股+港股+美股）
+uv run python tools/tushare_data.py quote 00700.HK      # 港股行情
+uv run python tools/tushare_data.py quote AAPL          # 美股行情
+```
+
+市场覆盖与权限退化：
+
+1. **数据源优先级**：ttshare 代理（授权码）→ 官方 tushare（token）→ 两者都失败时工具输出明确退化提示与本节备选来源，**不静默给空数据**
+2. **token 只存本机、严禁提交到 git**（`local/` 已被 `.gitignore` 永久排除）：代理授权码放 `local/ttshare_token.txt`（环境变量 `TTSHARE_TOKEN`）；官方 token 放 `local/tushare_token.txt`（环境变量 `TUSHARE_TOKEN`，与官方 tushare 库默认读取变量一致）
+3. **A股全接口可用**；港股/美股行情、搜索可用，估值/财务接口视权限——无权限时回到对应市场副源交叉验证
+4. 依赖安装：`uv add ttshare tushare`（ttshare 第三方源已在 pyproject.toml 配置，勿用 pip 直接装）
 
 ### 台股（台积电2330、联发科2454、大立光3008等）
 
@@ -141,11 +163,11 @@ python3 tools/twstock_data.py search 台積        # 搜索股票代码（注意
 
 | 场景 | 主要来源 | 备用来源 |
 |------|---------|---------|
-| PDD / 拼多多 | macrotrends.net/stocks/charts/PDD | stockanalysis.com/stocks/pdd |
-| 腾讯 | macrotrends.net/stocks/charts/TCEHY | aastocks（0700.HK） |
-| 网易 | macrotrends.net/stocks/charts/NTES | aastocks（9999.HK） |
-| 三七互娱 | eastmoney.com（002555） | cninfo.com.cn |
-| 吉比特 | eastmoney.com（603444） | cninfo.com.cn |
+| PDD / 拼多多 | tools/tushare_data.py（PDD，美股） | macrotrends（PDD）/ stockanalysis |
+| 腾讯 | tools/tushare_data.py（00700.HK） | aastocks（0700.HK）/ macrotrends（TCEHY） |
+| 网易 | tools/tushare_data.py（09999.HK） | aastocks（9999.HK）/ macrotrends（NTES） |
+| 三七互娱 | tools/tushare_data.py（002555） | eastmoney.com（002555）/ cninfo.com.cn |
+| 吉比特 | tools/tushare_data.py（603444） | eastmoney.com（603444）/ cninfo.com.cn |
 | Nintendo | macrotrends.net/stocks/charts/NTDOY | stockanalysis.com/stocks/ntdoy |
 | Capcom | macrotrends（CCOEY） | stockanalysis（CCOEY） |
 | 台积电 | tools/twstock_data.py（2330） | goodinfo.tw / macrotrends（TSM，注意1 ADR=5股） |

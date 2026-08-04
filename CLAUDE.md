@@ -109,4 +109,5 @@ git push origin main
 - 货币单位要明确（港币/人民币/美元/新台币），防止混淆
 - PE/ROE等指标用 tools/financial_rigor.py 精确计算
 - 台股数据用 tools/twstock_data.py（FinMind）获取，并按 skills/financial-data.md 台股章节交叉验证
+- A股/港股/美股数据优先用 tools/tushare_data.py（ttshare 代理优先、官方 API 兜底；无权限接口按 skills/financial-data.md 对应市场来源退化），依赖用 `uv run` 调用
 - 报告写完后主动询问是否推送到GitHub
