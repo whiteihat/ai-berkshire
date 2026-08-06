@@ -78,6 +78,78 @@ python3 tools/twstock_data.py search 台積        # 搜索股票代码（注意
 4. FinMind 未注册可直接用（有小时级限额）。注册后的 API token **只存本机、严禁提交到 git**，工具按优先级自动读取：①环境变量 `FINMIND_TOKEN`；②本地文件 `local/finmind_token.txt`（`local/` 已被 `.gitignore` 永久排除，把 token 单独一行写入该文件即可）。token 不得出现在报告、skill、commit 中
 5. 交叉验证：FinMind 数值与 Goodinfo（或 macrotrends 上的 ADR，如 TSM）对照，误差规则同下；台积电等有 ADR 的公司注意 ADR 与台股原股的汇率/存托比率差异（1 TSM ADR = 5 股 2330）
 
+### 基金与指数（ETF/LOF/主动基金，index-fund-research / active-fund-research 专用）
+
+| 优先级 | 来源 | URL | 获取方式 |
+|--------|------|-----|---------|
+| 1（主） | **Tushare 基金/指数接口** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | fundinfo/fundnav/funddaily/fundshares/fundholdings/fundmanager/fundholder/fundsearch/fundtracking/indexinfo/indexdaily/indexvaluation/indexweight |
+| 2（副） | **TickFlow**（场内行情/指数K线备源） | `tools/tickflow_data.py`，免费层日K即可用 | 补 fund_daily/index_daily 无权限或盘中实时缺口；**只有行情类数据**（无净值/持仓/估值分位） |
+| 3（副） | **天天基金** | fund.eastmoney.com（搜基金代码） | 净值/费率/规模/经理/持仓/持有人/限购——tushare 无权限接口（fund_basic/portfolio/manager/holder/share）的第一副源 |
+| 4（副） | **东方财富数据中心** | data.eastmoney.com | 场内行情、ETF份额、基金规模 |
+| 5（副） | **乐咕乐股** | legulegu.com | 指数估值与历史分位（index_dailybasic 无权限时） |
+| 6（副） | **集思录** | jisilu.cn | 场内基金折溢价、申赎套利 |
+| 原始一手 | **证监会基金信息披露平台** | fund.csrc.gov.cn | 基金合同/招募说明书/季报/半年报/年报 PDF |
+
+**Tushare 基金/指数取数工具**（基金/指数分析时优先调用）：
+
+```bash
+uv run python tools/tushare_data.py fundinfo 510300     # 基金基本盘（类型/费率/经理/跟踪指数）
+uv run python tools/tushare_data.py fundnav 012414.OF   # 净值与业绩（复权净值/区间收益/回撤）
+uv run python tools/tushare_data.py funddaily 510300    # 场内行情/流动性/折溢价
+uv run python tools/tushare_data.py fundshares 510300   # 份额与规模变动（近8期）
+uv run python tools/tushare_data.py fundholdings 161725 # 季报前十大持仓
+uv run python tools/tushare_data.py fundmanager 161725  # 历任基金经理档案
+uv run python tools/tushare_data.py fundholder 161725   # 持有人结构
+uv run python tools/tushare_data.py fundsearch 白酒      # 搜索基金与指数代码
+uv run python tools/tushare_data.py fundtracking 012414.OF --index 399997.SZ  # 跟踪误差
+uv run python tools/tushare_data.py indexinfo 000300.SH # 指数基本盘
+uv run python tools/tushare_data.py indexdaily 000300.SH   # 指数行情与区间收益
+uv run python tools/tushare_data.py indexvaluation 000300.SH  # 指数估值与历史分位
+uv run python tools/tushare_data.py indexweight 000300.SH    # 成分权重与集中度
+```
+
+**接口权限退化表**（实测 ttshare 代理现状，随授权码变化）：
+
+| 接口 | 命令 | 官方积分门槛 | ttshare 实测 | 无权限/无数据时的副源 |
+|------|------|------------|-------------|---------------------|
+| fund_daily | funddaily | ~2000 | ✅ 可用 | 东方财富数据中心；盘中实时 TickFlow |
+| fund_nav | fundnav/fundtracking/折溢价 | ~2000 | ⚠️ 场外基金可用，**场内ETF返回空** | 天天基金历史净值页 |
+| fund_basic | fundinfo | ~2000 | ❌ 无权限 | 天天基金基金档案页（费率/经理/基准/跟踪指数） |
+| fund_share | fundshares | ~2000 | ❌ 无权限 | 天天基金规模变动页 |
+| fund_portfolio | fundholdings | ~5000 | ❌ 无权限 | 天天基金持仓明细页 |
+| fund_manager | fundmanager | ~5000 | ❌ 无权限 | 天天基金基金经理页 |
+| fund_holder | fundholder | ~5000 | ❌ 无权限 | 天天基金持有人结构页 |
+| index_daily | indexdaily/fundtracking | 免费 | ✅ 可用 | 中证指数官网；TickFlow 日K |
+| index_basic | indexinfo | ~2000 | ✅ 可用 | 中证指数官网 csi.com.cn |
+| index_dailybasic | indexvaluation | ~2000 | ✅ 可用 | 乐咕乐股指数估值页 |
+| index_weight | indexweight | ~2000 | ✅ 可用 | 中证指数官网成分列表，或跟踪ETF的 fundholdings 兜底 |
+
+**TickFlow 能力边界**（`tools/tickflow_data.py`）：只有 ETF/指数/个股**实时行情与日K**（免费层日K+标的信息，完整服务实时行情）；**没有**场外净值/持仓/份额/经理/指数估值分位/成分权重——那些仍走 tushare fund_* 命令或天天基金。token 放 `local/tickflow_key.txt`（环境变量 `TICKFLOW_API_KEY`），同 local/ 保密规则。
+
+**基金特有规则**：
+
+1. **场内价格实时、净值 T+1 披露**（QDII 更久）→ 折溢价基于 T-1 净值计算，必须标注滞后；盘中实时折溢价用 TickFlow 实时价 × tushare 净值
+2. **基金业绩一律用复权净值（adj_nav）**口径（含分红再投）；指数收益为价格口径，长期对比注明"是否含股息"（全收益指数用中证指数官网副源）
+3. **指数估值分位窗口必须标注**（1y/3y/5y/all），分位低≠便宜——盈利下滑时低分位是价值陷阱
+4. **代码后缀规则**：基金接口（fund_*）ts_code 用 `.OF` 后缀；场内行情/指数用 `.SH/.SZ`；`5x→.SH`、`1x→.SZ`、`0x/2x/3x→场外`；H 开头指数为 `.CSI` 系列
+5. tushare **无换手率/限购/申赎费**接口 → 一律用天天基金副源
+6. 基金数据与股票数据**工具隔离**：`fund_*`/`index_*` 命令与股票命令（quote/valuation 等）完全独立，基金代码误传股票命令会得到引导提示
+
+### 基金产品体检指标清单（index-fund-research / active-fund-research 共享）
+
+两个基金 skill 的"产品体检"步骤统一按此清单执行，指标口径与健康阈值以本表为准：
+
+| 指标 | 口径 | 健康阈值（参考） | 来源 |
+|------|------|----------------|------|
+| 综合费率 | 管理费+托管费+销售服务费 | 被动 ≤0.5%、主动 ≤1.5%（申赎费另计，副源） | fundinfo + 天天基金 |
+| 规模 | 最新资产净值 | >2亿（防清盘）；主动 >100亿警惕策略容量 | fundshares + 天天基金 |
+| 流动性 | 近20日日均成交额 | 场内 >1000万/日 | funddaily |
+| 折溢价 | (场内价−T-1净值)/净值 | ±1%以内（T-1口径标注） | funddaily + 天天基金 |
+| 跟踪误差 | 年化日收益差标准差 | 宽基 <1% | fundtracking |
+| 持有人结构 | 机构/个人占比及趋势 | 机构占比适中且稳定（上升=机构认可信号） | fundholder + 天天基金 |
+| 份额变动 | 近8期份额环比 | 无持续大幅净流出 | fundshares |
+| 分红记录 | 历史分红金额/次数 | 与合同约定一致 | 天天基金 |
+
 ---
 
 ## 执行规范
@@ -172,3 +244,6 @@ python3 tools/twstock_data.py search 台積        # 搜索股票代码（注意
 | Capcom | macrotrends（CCOEY） | stockanalysis（CCOEY） |
 | 台积电 | tools/twstock_data.py（2330） | goodinfo.tw / macrotrends（TSM，注意1 ADR=5股） |
 | 联发科 | tools/twstock_data.py（2454） | goodinfo.tw |
+| 沪深300ETF | tools/tushare_data.py（510300） | 天天基金 fund.eastmoney.com / TickFlow |
+| 招商白酒LOF | tools/tushare_data.py（161725 / 012414.OF） | 天天基金 fund.eastmoney.com |
+| 指数估值分位 | tools/tushare_data.py indexvaluation | 乐咕乐股 legulegu.com |

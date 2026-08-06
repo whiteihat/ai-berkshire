@@ -166,13 +166,13 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 
 **三层设计哲学**：
-- **Skill 层**：把"你要做什么"抽象成 20 个明确入口——深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
+- **Skill 层**：把"你要做什么"抽象成 22 个明确入口——深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
 - **Agent 层**：团队型 skill（如 `/investment-team`、`/earnings-team`）由 Team Lead 并行调度 4 个大师视角 Agent——各自独立搜索、独立判断、互相挑战，最后综合研判；轻量 skill 不经过这一层，直连工具快进快出
 - **工具层**：精确计算、实时检索、报告抽检——保证每份报告的数据严谨性可验证
 
 ---
 
-## Skills 一览（20个）
+## Skills 一览（22个）
 
 ### 🔬 深度研究类
 
@@ -183,6 +183,8 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 | [`/management-deep-dive`](skills/management-deep-dive.md) | 管理层纵深研究 | "买股票就是买人"——当管理层是核心变量时深挖 |
 | [`/private-company-research`](skills/private-company-research.md) | 未上市公司深度研究 | 研究蚂蚁、SpaceX等信息稀缺的未上市公司 |
 | [`/deep-company-series`](skills/deep-company-series.md) | 8篇长文系列拆一家公司 | 公众号级深度系列，12万字从认知重置到决策闭环 |
+| [`/index-fund-research`](skills/index-fund-research.md) | 被动指数基金研究（ETF/指数LOF） | 分析对象是指数：成分/权重/估值分位 + 基金产品体检（跟踪误差/折溢价/费率） |
+| [`/active-fund-research`](skills/active-fund-research.md) | 主动基金研究 | 买基金就是买基金经理：经理画像/言行一致/持仓分析 + 产品体检 |
 
 ### 📊 财报分析类
 
