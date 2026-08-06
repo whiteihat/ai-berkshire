@@ -637,11 +637,11 @@ def _resolve_fund_code(code):
 
 
 def _resolve_index_code(code):
-    """解析指数代码 → ts_code。规则：显式后缀优先；H 开头→.CSI；000xx/5x→.SH；其余→.SZ。"""
+    """解析指数代码 → ts_code。规则：显式后缀优先（SH/SZ/CSI/CNI）；H 开头→.CSI；000xx/5x→.SH；其余→.SZ。"""
     c = code.strip().upper()
     base = c.split(".")[0]
     suffix = c.split(".")[1] if "." in c else ""
-    if suffix in ("SH", "SZ", "CSI"):
+    if suffix in ("SH", "SZ", "CSI", "CNI"):
         return f"{base}.{suffix}"
     if base.startswith("H"):
         return f"{base}.CSI"
