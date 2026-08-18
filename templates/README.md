@@ -2,6 +2,8 @@
 
 本目录包含所有投研 Skill 生成报告的标准模板。Agent 在生成报告时应参照对应模板的结构和格式，确保跨公司、跨时间的阅读一致性。
 
+> **规则**：所有 Skill 生成的研报必须按对应模板的章节结构输出。遇到新报告类型时，先完成报告，再将其结构提炼为模板存入本目录并更新此索引。
+
 ## 模板清单
 
 | 模板文件 | 对应 Skill | 用途 | 文件命名 |
@@ -17,8 +19,8 @@
 | [management-deep-dive.md](management-deep-dive.md) | `/management-deep-dive` | 管理层纵深研究 | `{公司名}-management-{YYYYMMDD}.md` |
 | [industry-research.md](industry-research.md) | `/industry-research` | 产业链全景研究 | `{行业名}-industry-{YYYYMMDD}.md` |
 | [industry-funnel.md](industry-funnel.md) | `/industry-funnel` | 漏斗式筛选 | `{行业名}-funnel-{YYYYMMDD}.md` |
-| [index-fund-research.md](index-fund-research.md) | `/index-fund-research` | 指数基金研究 | `{基金名}-indexfund-{YYYYMMDD}.md` |
-| [active-fund-research.md](active-fund-research.md) | `/active-fund-research` | 主动基金研究 | `{基金名}-activefund-{YYYYMMDD}.md` |
+| [index-fund-research.md](index-fund-research.md) | `/index-fund-research` | 指数基金研究 | `reports/00-ETF-LOF/{基金名}-indexfund-{YYYYMMDD}.md` |
+| [active-fund-research.md](active-fund-research.md) | `/active-fund-research` | 主动基金研究 | `reports/00-ETF-LOF/{基金名}-activefund-{YYYYMMDD}.md` |
 | [portfolio-review.md](portfolio-review.md) | `/portfolio-review` | 投资组合审视 | `portfolio-latest.md` |
 | [private-company-research.md](private-company-research.md) | `/private-company-research` | 未上市公司研究 | `{公司名}-private-{YYYYMMDD}.md` |
 

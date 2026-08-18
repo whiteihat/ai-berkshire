@@ -20,6 +20,10 @@ assets/          — 图片等静态资源
 
 ```
 reports/
+├── 00-ETF-LOF/              — 指数基金/主动基金/ETF/LOF 研报统一存放
+│   ├── 华泰柏瑞沪深300ETF-indexfund-20260806.md
+│   ├── 易方达蓝筹精选-activefund-20260806.md
+│   └── ...
 ├── AI产业研究/              — AI产业链全景研究（置顶）
 │   ├── AI五层蛋糕-产业全景研究-20260605.md
 │   └── AI五层蛋糕-公众号-20260605.md
@@ -51,8 +55,8 @@ reports/
 | /earnings-team | `{公司名}/` 目录内含4个大师视角+研究底稿+公众号文章+读者评审 | `reports/腾讯/腾讯-earnings-2025Q4.md`（公众号定稿） |
 | /thesis-tracker | `{公司名}-thesis.md`（长期维护） | `reports/腾讯/腾讯-thesis.md` |
 | /portfolio-review | `portfolio-latest.md`（根目录，持续更新） | `reports/portfolio-latest.md` |
-| /index-fund-research | `{基金名}-indexfund-{YYYYMMDD}.md`（根目录） | `reports/华泰柏瑞沪深300ETF-indexfund-20260806.md` |
-| /active-fund-research | `{基金名}-activefund-{YYYYMMDD}.md`（根目录） | `reports/易方达蓝筹精选-activefund-20260806.md` |
+| /index-fund-research | `{基金名}-indexfund-{YYYYMMDD}.md`（`reports/00-ETF-LOF/`） | `reports/00-ETF-LOF/华泰柏瑞沪深300ETF-indexfund-20260806.md` |
+| /active-fund-research | `{基金名}-activefund-{YYYYMMDD}.md`（`reports/00-ETF-LOF/`） | `reports/00-ETF-LOF/易方达蓝筹精选-activefund-20260806.md` |
 | /management-deep-dive | `{公司名}-management-{YYYYMMDD}.md` | `reports/腾讯/腾讯-management-20260409.md` |
 
 ## /investment-team 文件结构
@@ -85,6 +89,16 @@ reports/{公司名}/
 - 估计值必须注明"估计"
 - 评分使用★符号（★1-5），不含半星
 - 穿插巴菲特/芒格/段永平/李录的语录点评
+
+## 研报模板规范（templates/）
+
+**所有 Skill 生成的研报必须参照 `templates/` 下的对应模板**：
+
+- 模板定义了每种报告的**标准结构**（章节顺序、表格格式、评分体系）
+- 生成报告时，按模板的 `{{PLACEHOLDER}}` 填入实际数据和分析
+- 可以根据实际情况**增补章节**（如特殊行业需要额外分析），但不得**删减**模板中的核心章节
+- **新报告类型**：如果遇到 `templates/` 中没有的报告类型，先按合理结构完成报告，然后将该报告的结构提炼为模板存入 `templates/`，并更新 `templates/README.md` 索引
+- 模板文件清单见 [templates/README.md](templates/README.md)
 
 ## GitHub 操作
 
