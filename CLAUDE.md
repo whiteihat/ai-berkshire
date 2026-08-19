@@ -16,53 +16,60 @@ assets/          — 图片等静态资源
 
 ## 报告目录结构
 
-所有报告按**公司名**建文件夹，公司相关的所有报告放在对应文件夹内：
-
 ```
 reports/
 ├── 00-ETF-LOF/              — 指数基金/主动基金/ETF/LOF 研报统一存放
-│   ├── 华泰柏瑞沪深300ETF-indexfund-20260806.md
-│   ├── 易方达蓝筹精选-activefund-20260806.md
-│   └── ...
-├── AI产业研究/              — AI产业链全景研究（置顶）
-│   ├── AI五层蛋糕-产业全景研究-20260605.md
-│   └── AI五层蛋糕-公众号-20260605.md
-├── 腾讯/                    — 腾讯所有研究报告
-│   ├── 腾讯-research-20260408.md
-│   ├── 腾讯-earnings-2025Q4.md
-│   ├── 腾讯-management-20260409.md
-│   └── 腾讯-thesis.md
-├── 拼多多/                  — 拼多多所有研究报告
-├── 泡泡玛特/                — 泡泡玛特所有研究报告
+├── 01-单公司分析/            — 单公司Pipeline研报（quality-screen→research→checklist→thesis等）
+│   ├── 腾讯/                — 腾讯所有研究报告
+│   │   ├── README.md
+│   │   ├── 腾讯-quality-screen-20260408.md
+│   │   ├── 腾讯-research-20260408.md
+│   │   ├── 腾讯-checklist-20260408.md
+│   │   ├── 腾讯-earnings-2025Q4.md
+│   │   ├── 腾讯-thesis.md
+│   │   └── ...
+│   ├── 分众传媒/
+│   ├── 双汇发展/
+│   └── ...（共65+家公司）
+├── AI产业研究/              — AI产业链全景研究（行业/主题报告）
 ├── 核电-industry-20260409.md — 行业报告放根目录
 ├── AI算力-funnel-20260509.md  — 漏斗筛选报告放根目录
-├── AI-轮动判断-20260509.md    — 主题级综合判断报告放根目录
 ├── portfolio-latest.md       — 组合报告放根目录
-└── 多公司对比-checklist-20260408.md — 多公司报告放根目录
+└── ...
 ```
+
+**关键规则**：走Pipeline流程（quality-screen → investment-research → investment-checklist → investment-team → earnings-review → thesis-tracker → news-pulse）的单公司研报，**一律输出到 `reports/01-单公司分析/{公司名}/`**。
 
 ## 报告命名规范
 
+### 单公司Pipeline研报（输出到 `reports/01-单公司分析/{公司名}/`）
+
 | Skill | 文件命名格式 | 示例 |
 |------|---------|------|
-| /investment-team | `{公司名}/` 目录内含4个视角+最终报告 | `reports/拼多多/最终报告.md` |
-| /investment-research | `{公司名}-research-{YYYYMMDD}.md` | `reports/腾讯/腾讯-research-20260408.md` |
-| /investment-checklist | `{公司名}-checklist-{YYYYMMDD}.md` | `reports/腾讯/腾讯-checklist-20260408.md` |
+| /quality-screen | `{公司名}-quality-screen-{YYYYMMDD}.md` | `reports/01-单公司分析/分众传媒/分众传媒-quality-screen-20260818.md` |
+| /investment-research | `{公司名}-research-{YYYYMMDD}.md` | `reports/01-单公司分析/腾讯/腾讯-research-20260408.md` |
+| /investment-checklist | `{公司名}-checklist-{YYYYMMDD}.md` | `reports/01-单公司分析/腾讯/腾讯-checklist-20260408.md` |
+| /investment-team | `{公司名}/` 目录内含4个视角+最终报告 | `reports/01-单公司分析/拼多多/最终报告.md` |
+| /earnings-review | `{公司名}-earnings-{期间}.md` | `reports/01-单公司分析/腾讯/腾讯-earnings-2025Q4.md` |
+| /thesis-tracker | `{公司名}-thesis.md`（长期维护） | `reports/01-单公司分析/腾讯/腾讯-thesis.md` |
+| /news-pulse | `{公司名}-news-{YYYYMMDD}.md` | `reports/01-单公司分析/分众传媒/分众传媒-news-20260818.md` |
+| /management-deep-dive | `{公司名}-management-{YYYYMMDD}.md` | `reports/01-单公司分析/腾讯/腾讯-management-20260409.md` |
+| /private-company-research | `{公司名}-private-{YYYYMMDD}.md` | `reports/01-单公司分析/字节跳动/字节跳动-private-20260408.md` |
+
+### 行业/主题/组合研报（输出到 `reports/` 根目录或专属目录）
+
+| Skill | 文件命名格式 | 示例 |
+|------|---------|------|
 | /industry-research | `{行业名}-industry-{YYYYMMDD}.md`（根目录） | `reports/核电-industry-20260409.md` |
 | /industry-funnel | `{行业名}-funnel-{YYYYMMDD}.md`（根目录） | `reports/AI算力-funnel-20260509.md` |
-| /private-company-research | `{公司名}-private-{YYYYMMDD}.md` | `reports/字节跳动/字节跳动-private-20260408.md` |
-| /earnings-review | `{公司名}-earnings-{期间}.md` | `reports/腾讯/腾讯-earnings-2025Q4.md` |
-| /earnings-team | `{公司名}/` 目录内含4个大师视角+研究底稿+公众号文章+读者评审 | `reports/腾讯/腾讯-earnings-2025Q4.md`（公众号定稿） |
-| /thesis-tracker | `{公司名}-thesis.md`（长期维护） | `reports/腾讯/腾讯-thesis.md` |
 | /portfolio-review | `portfolio-latest.md`（根目录，持续更新） | `reports/portfolio-latest.md` |
 | /index-fund-research | `{基金名}-indexfund-{YYYYMMDD}.md`（`reports/00-ETF-LOF/`） | `reports/00-ETF-LOF/华泰柏瑞沪深300ETF-indexfund-20260806.md` |
 | /active-fund-research | `{基金名}-activefund-{YYYYMMDD}.md`（`reports/00-ETF-LOF/`） | `reports/00-ETF-LOF/易方达蓝筹精选-activefund-20260806.md` |
-| /management-deep-dive | `{公司名}-management-{YYYYMMDD}.md` | `reports/腾讯/腾讯-management-20260409.md` |
 
 ## /investment-team 文件结构
 
 ```
-reports/{公司名}/
+reports/01-单公司分析/{公司名}/
 ├── README.md                         — 研究框架概览+核心结论
 ├── 01-商业模式分析-段永平视角.md
 ├── 02-财务估值分析-巴菲特视角.md
