@@ -19,6 +19,8 @@
     │   │   └── fund_basic.json         # 基金基本信息
     │   ├── nav/
     │   │   └── fund_nav_latest.json    # 近期净值（最近 N 天）
+    │   ├── daily/
+    │   │   └── fund_daily_latest.json  # 场内行情（近 40 天）
     │   ├── portfolio/
     │   │   └── fund_holdings_{period}.json  # 季报持仓（按报告期）
     │   ├── shares/
@@ -92,7 +94,7 @@ def _get_client():
     # 2. cheapyun 代理
     try:
         import tushare as ts
-        tok = _read_token("CHEAPYUN_TOKEN", "tushare_token_tmp.txt")
+        tok = _read_token("CHEAPYUN_TOKEN", "tushare_token_cheapyun.txt")
         if tok:
             sources.append(("cheapyun代理", ts, tok, "http://cheap-host1.cheapyun.com:42461"))
     except ImportError:
@@ -128,6 +130,33 @@ def _read_token(env_var, filename):
         return None
 
 
+def _adapt_params_for_cheapyun(api, kwargs):
+    """cheapyun 代理参数适配。
+
+    cheapyun 基金接口的特殊行为：
+    - fund_basic: 使用 .OF 后缀（与官方一致），但全量查询时返回所有基金
+    - fund_nav/portfolio/share/manager/daily: 使用 .SH/.SZ 后缀（与官方不同）
+    - fund_holder: 返回 500 错误（不支持）
+    """
+    adapted = dict(kwargs)
+    if api == "fund_basic":
+        # cheapyun fund_basic 不支持 ts_code 过滤，全量查询后本地匹配
+        adapted.pop("ts_code", None)
+    elif api == "fund_holder":
+        # fund_holder cheapyun 返回 500，直接跳过
+        pass
+    elif "ts_code" in adapted:
+        # 其他 fund 接口：.OF → .SH/.SZ
+        code = adapted["ts_code"]
+        if code.upper().endswith(".OF"):
+            base = code[:-3]
+            if base.startswith("5"):
+                adapted["ts_code"] = f"{base}.SH"
+            elif base.startswith("1"):
+                adapted["ts_code"] = f"{base}.SZ"
+    return adapted
+
+
 def _call_api(sources, api, **kwargs):
     """带多源重试和限流的接口调用。返回 (来源标签, DataFrame 或 None)。"""
     for label, mod, tok, base_url in sources:
@@ -138,9 +167,14 @@ def _call_api(sources, api, **kwargs):
             pro = mod.pro_api()
             if base_url:
                 pro._DataApi__http_url = base_url
-            df = getattr(pro, api)(**kwargs)
+            # cheapyun 代理参数适配
+            call_kwargs = _adapt_params_for_cheapyun(api, kwargs) if "cheapyun" in label else kwargs
+            df = getattr(pro, api)(**call_kwargs)
             if df is not None and len(df):
+                # 统一列名为大写（cheapyun 返回小写列名，官方返回大写）
+                df.columns = [c.upper() for c in df.columns]
                 return label, df
+            logging.info(f"    {api} via {label} → 空数据（已尝试，该源无权限或无数据）")
         except Exception as e:
             logging.warning(f"  {api} via {label} 失败: {e}")
     return sources[0][0], None
@@ -241,6 +275,7 @@ def fetch_fund(code, years=3, skip_existing=True):
 
     _ensure_dir(os.path.join(fund_dir, "raw", "meta"))
     _ensure_dir(os.path.join(fund_dir, "raw", "nav"))
+    _ensure_dir(os.path.join(fund_dir, "raw", "daily"))
     _ensure_dir(os.path.join(fund_dir, "raw", "portfolio"))
     _ensure_dir(os.path.join(fund_dir, "raw", "shares"))
     _ensure_dir(os.path.join(fund_dir, "raw", "manager"))
@@ -250,10 +285,16 @@ def fetch_fund(code, years=3, skip_existing=True):
     manifest = _load_manifest(fund_dir)
 
     # 获取基金名称（用于日志）
+    # cheapyun 不支持 ts_code 过滤，需全量查询后本地匹配
     fund_name = of_ts
     label, df = _call_api(sources, "fund_basic", ts_code=of_ts, fields="ts_code,name")
     if df is not None and len(df):
-        fund_name = str(df.iloc[0].get("NAME", of_ts))
+        if "TS_CODE" in df.columns:
+            match = df[df["TS_CODE"].astype(str).str.upper() == of_ts.upper()]
+            if len(match):
+                fund_name = str(match.iloc[0].get("NAME", of_ts))
+        elif len(df) == 1:
+            fund_name = str(df.iloc[0].get("NAME", of_ts))
 
     sep = "=" * 60
     logging.info(sep)
@@ -265,15 +306,23 @@ def fetch_fund(code, years=3, skip_existing=True):
     stats = {"success": 0, "empty": 0, "failed": 0, "skipped": 0}
 
     # 1. 基金基本信息（fund_basic）
-    logging.info("\n[1/6] 基金基本信息")
+    # cheapyun 不支持 ts_code 过滤，返回全量 → 需本地过滤
+    logging.info("\n[1/7] 基金基本信息")
     filepath = os.path.join(fund_dir, "raw", "meta", "fund_basic.json")
     if not (skip_existing and os.path.exists(filepath)):
         label, df = _call_api(sources, "fund_basic", ts_code=of_ts)
         if df is not None and len(df):
-            _save_json(_df_to_records(df), filepath)
-            manifest["metadata"]["fund_basic"] = True
-            logging.info(f"  ✅ fund_basic → {len(df)} 条")
-            stats["success"] += 1
+            # 过滤：cheapyun 返回全量，需按 ts_code 筛选目标基金
+            if len(df) > 1 and "TS_CODE" in df.columns:
+                df = df[df["TS_CODE"].astype(str).str.upper() == of_ts.upper()]
+            if len(df):
+                _save_json(_df_to_records(df), filepath)
+                manifest["metadata"]["fund_basic"] = True
+                logging.info(f"  ✅ fund_basic → {len(df)} 条")
+                stats["success"] += 1
+            else:
+                logging.warning(f"  ⚠️  fund_basic → 全量有数据但未匹配到 {of_ts}")
+                stats["empty"] += 1
         else:
             logging.warning(f"  ⚠️  fund_basic → 无数据")
             stats["empty"] += 1
@@ -282,7 +331,7 @@ def fetch_fund(code, years=3, skip_existing=True):
         stats["skipped"] += 1
 
     # 2. 净值与业绩（fund_nav）— 近 N 天
-    logging.info("\n[2/6] 净值与业绩")
+    logging.info("\n[2/7] 净值与业绩")
     nav_dir = os.path.join(fund_dir, "raw", "nav")
     nav_path = os.path.join(nav_dir, "fund_nav_latest.json")
     if not (skip_existing and os.path.exists(nav_path)):
@@ -307,8 +356,32 @@ def fetch_fund(code, years=3, skip_existing=True):
         logging.info(f"  ⏭️  fund_nav → 已存在，跳过")
         stats["skipped"] += 1
 
-    # 3. 季报持仓（fund_portfolio）— 按报告期分文件
-    logging.info("\n[3/6] 季报持仓")
+    # 3. 场内行情与流动性（fund_daily）— 近 40 天
+    logging.info("\n[3/7] 场内行情与流动性")
+    daily_dir = os.path.join(fund_dir, "raw", "daily")
+    daily_path = os.path.join(daily_dir, "fund_daily_latest.json")
+    _ensure_dir(daily_dir)
+    if not (skip_existing and os.path.exists(daily_path)):
+        start_str = (date.today() - timedelta(days=40)).strftime("%Y%m%d")
+        label, df = _call_api(sources, "fund_daily", ts_code=of_ts, start_date=start_str)
+        if df is not None and len(df):
+            df = df.sort_values("TRADE_DATE", ascending=True)
+            _save_json(_df_to_records(df), daily_path)
+            manifest["metadata"]["fund_daily"] = {
+                "last_fetch": datetime.now().strftime("%Y-%m-%d"),
+                "count": len(df),
+            }
+            logging.info(f"  ✅ fund_daily → {len(df)} 条（{df.iloc[0].get('TRADE_DATE', '?')} ~ {df.iloc[-1].get('TRADE_DATE', '?')}）")
+            stats["success"] += 1
+        else:
+            logging.warning(f"  ⚠️  fund_daily → 无数据（可能为场外基金，无场内行情）")
+            stats["empty"] += 1
+    else:
+        logging.info(f"  ⏭️  fund_daily → 已存在，跳过")
+        stats["skipped"] += 1
+
+    # 4. 季报持仓（fund_portfolio）— 按报告期分文件
+    logging.info("\n[4/7] 季报持仓")
     portfolio_dir = os.path.join(fund_dir, "raw", "portfolio")
     label, df = _call_api(sources, "fund_portfolio", ts_code=of_ts)
     if df is not None and len(df):
@@ -339,8 +412,8 @@ def fetch_fund(code, years=3, skip_existing=True):
         logging.warning(f"  ⚠️  fund_portfolio → 无数据")
         stats["empty"] += 1
 
-    # 4. 份额与规模变动（fund_share）
-    logging.info("\n[4/6] 份额与规模变动")
+    # 5. 份额与规模变动（fund_share）
+    logging.info("\n[5/7] 份额与规模变动")
     filepath = os.path.join(fund_dir, "raw", "shares", "fund_shares.json")
     if not (skip_existing and os.path.exists(filepath)):
         label, df = _call_api(sources, "fund_share", ts_code=of_ts)
@@ -360,8 +433,8 @@ def fetch_fund(code, years=3, skip_existing=True):
         logging.info(f"  ⏭️  fund_share → 已存在，跳过")
         stats["skipped"] += 1
 
-    # 5. 基金经理（fund_manager）
-    logging.info("\n[5/6] 基金经理")
+    # 6. 基金经理（fund_manager）
+    logging.info("\n[6/7] 基金经理")
     filepath = os.path.join(fund_dir, "raw", "manager", "fund_manager.json")
     if not (skip_existing and os.path.exists(filepath)):
         label, df = _call_api(sources, "fund_manager", ts_code=of_ts)
@@ -377,8 +450,8 @@ def fetch_fund(code, years=3, skip_existing=True):
         logging.info(f"  ⏭️  fund_manager → 已存在，跳过")
         stats["skipped"] += 1
 
-    # 6. 持有人结构（fund_holder）
-    logging.info("\n[6/6] 持有人结构")
+    # 7. 持有人结构（fund_holder）
+    logging.info("\n[7/7] 持有人结构")
     filepath = os.path.join(fund_dir, "raw", "holder", "fund_holder.json")
     if not (skip_existing and os.path.exists(filepath)):
         label, df = _call_api(sources, "fund_holder", ts_code=of_ts)
@@ -449,6 +522,7 @@ def check_fund(code):
     checks = [
         ("meta/fund_basic.json", "基金基本信息", "fund_basic"),
         ("nav/fund_nav_latest.json", "净值与业绩", "fund_nav"),
+        ("daily/fund_daily_latest.json", "场内行情", "fund_daily"),
         ("shares/fund_shares.json", "份额与规模", "fund_share"),
         ("manager/fund_manager.json", "基金经理", "fund_manager"),
         ("holder/fund_holder.json", "持有人结构", "fund_holder"),
@@ -480,7 +554,7 @@ def check_fund(code):
     print()
     if issues:
         print(f"⚠️  缺失 {len(issues)} 项: {', '.join(issues)}")
-        print(f"  建议执行: python tools/fund_fetcher.py update {code}")
+        print(f"  建议执行: python tools/fund_data_fetcher.py update {code}")
     else:
         print("✅ 数据完整")
     print(sep)
@@ -569,6 +643,16 @@ def load_fund_basic(code):
 def load_fund_nav(code, limit=90):
     """从落盘目录读取近期净值。"""
     path = os.path.join(_LOCAL_DIR, f"fund_{code}", "raw", "nav", "fund_nav_latest.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data[-limit:] if limit else data
+
+
+def load_fund_daily(code, limit=40):
+    """从落盘目录读取场内行情。"""
+    path = os.path.join(_LOCAL_DIR, f"fund_{code}", "raw", "daily", "fund_daily_latest.json")
     if not os.path.exists(path):
         return []
     with open(path, "r", encoding="utf-8") as f:

@@ -74,7 +74,7 @@ def _rate_limit():
 def _get_pro():
     """获取 Tushare pro_api（cheapyun 代理优先，官方兜底）。
 
-    优先级：cheapyun（tushare_token_tmp.txt）→ 官方（tushare_token.txt）
+    优先级：cheapyun（tushare_token_cheapyun.txt）→ 官方（tushare_token.txt）
     """
     import tushare as ts
 
@@ -90,7 +90,7 @@ def _get_pro():
             return None
 
     # cheapyun 代理
-    cheapyun_tok = _read("CHEAPYUN_TOKEN", "tushare_token_tmp.txt")
+    cheapyun_tok = _read("CHEAPYUN_TOKEN", "tushare_token_cheapyun.txt")
     if cheapyun_tok:
         ts.set_token(cheapyun_tok)
         pro = ts.pro_api()
