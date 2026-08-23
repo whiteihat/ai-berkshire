@@ -49,8 +49,9 @@
 
 ### 前置条件
 
-- `tools/tushare_data.py` 的 `_Client` 类已封装 Tushare 代理调用（ttshare 优先 + 官方兜底）
-- Token 已配置：`local/ttshare_token.txt`（代理）+ `local/tushare_token.txt`（官方）
+- `tools/tushare_data.py` 的 `_Client` 类已封装 Tushare 代理调用（ttshare → cheapyun → 官方三源自动切换）
+- Token 已配置：`local/ttshare_token.txt`（ttshare，已过期）+ `local/tushare_token_tmp.txt`（cheapyun，全接口可用 ✅）+ `local/tushare_token.txt`（官方，部分接口）
+- `python tools/tushare_data.py check` 可一键检测各 token 可用性
 - `local/` 已被 `.gitignore` 排除，安全存放本地数据
 
 ### 第一步：定义落盘范围（接口清单）
@@ -264,14 +265,16 @@ python tools/fundamental_fetcher.py check 600938 中国海油
 
 ## 三、实施优先级
 
-| 阶段 | 任务 | 预估工时 | 依赖 |
-|------|------|---------|------|
-| P0 | `tools/fundamental_fetcher.py` 核心落盘逻辑 | 2-3h | 复用 `_Client` |
-| P0 | 单股测试（选 1 只 A 股验证全流程） | 0.5h | P0 完成 |
-| P1 | 批量模式 + manifest 增量更新 | 1h | P0 完成 |
-| P1 | 日志系统 | 0.5h | P0 完成 |
-| P2 | 报告生成集成（从落盘数据读取） | 1h | P0 完成 |
-| P3 | 公告落盘（复用东方财富/巨潮 API） | 2-3h | 独立模块 |
+| 阶段 | 任务 | 预估工时 | 依赖 | 状态 |
+|------|------|---------|------|------|
+| P0 | `tools/fundamental_fetcher.py` 核心落盘逻辑 | 2-3h | 复用 `_Client` | ✅ 已完成 |
+| P0 | 单股测试（选 1 只 A 股验证全流程） | 0.5h | P0 完成 | ✅ 600938 中国海油 43 条 |
+| P1 | 批量模式 + manifest 增量更新 | 1h | P0 完成 | ✅ 已完成 |
+| P1 | 日志系统 | 0.5h | P0 完成 | ✅ 已完成 |
+| P1 | `_Client` cheapyun 代理 + check 命令 | 1h | — | ✅ 超额完成 |
+| P1 | `stocks.txt` 批量样本 | 0.5h | — | ✅ 已创建 |
+| P2 | 报告生成集成（`load_financial_data`） | 1h | P0 完成 | ✅ 已完成 |
+| P3 | 公告落盘（东方财富 API） | 0.5h | 已集成 | ✅ 已完成 |
 
 ---
 

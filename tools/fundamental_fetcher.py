@@ -5,9 +5,11 @@
 报告生成时直接从 local/ 读取落盘数据，不再实时调用接口。
 
 用法：
-    python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘
+    python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘（含公告）
     python tools/fundamental_fetcher.py fetch 600938 中国海油 --years 10  # 指定年数
     python tools/fundamental_fetcher.py update 600938 中国海油       # 增量更新（只拉缺失期间）
+    python tools/fundamental_fetcher.py anns 600938 中国海油         # 单独拉取公告
+    python tools/fundamental_fetcher.py anns 600938 中国海油 --limit 50  # 指定条数
     python tools/fundamental_fetcher.py check 600938 中国海油        # 检查落盘完整性
     python tools/fundamental_fetcher.py batch stocks.txt            # 批量落盘
     python tools/fundamental_fetcher.py list                        # 列出已落盘的股票
@@ -17,7 +19,8 @@
     ├── raw/
     │   ├── financial/       # 财务主表（income/balance/cashflow/fina_indicator/forecast/express/dividend）
     │   ├── daily/           # 日线行情（daily_basic）
-    │   └── meta/            # 元数据（stock_basic）
+    │   ├── meta/            # 元数据（stock_basic）
+    │   └── announcements.json  # 公告元数据（东方财富 API）
     └── manifest.json        # 落盘记录
 
 依赖：tushare（含 pandas）。其余仅 stdlib。
@@ -105,6 +108,74 @@ def _get_pro():
         "未配置 Tushare token。请设置环境变量 CHEAPYUN_TOKEN 或 TUSHARE_TOKEN，"
         "或在 local/ 下放置对应 token 文件。"
     )
+
+
+# ---------------------------------------------------------------------------
+# 东方财富公告 API（免费，无需 token）
+# ---------------------------------------------------------------------------
+
+_EASTMONEY_ANN_URL = "https://np-anotice-stock.eastmoney.com/api/security/ann"
+_EASTMONEY_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Referer": "https://data.eastmoney.com/",
+    "Accept": "application/json, text/plain, */*",
+}
+
+
+def _fetch_eastmoney_anns(ts_code_6, limit=30):
+    """从东方财富获取公告列表（免费 API，无需 token）。
+
+    Args:
+        ts_code_6: 6位纯数字股票代码，如 "600938"
+        limit: 获取条数（最大 50）
+
+    Returns:
+        list[dict]: 公告列表，每条包含 art_code/title/notice_date/columns/url
+    """
+    import urllib.request
+    import urllib.parse
+
+    params = urllib.parse.urlencode({
+        "sr": "-1",
+        "page_size": min(limit, 50),
+        "page_index": "1",
+        "ann_type": "A",
+        "client_source": "web",
+        "stock_list": ts_code_6,
+        "f_node": "0",
+        "s_node": "0",
+    })
+    url = f"{_EASTMONEY_ANN_URL}?{params}"
+    req = urllib.request.Request(url, headers=_EASTMONEY_HEADERS)
+
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        logging.warning(f"  东方财富公告 API 请求失败: {e}")
+        return []
+
+    if not (data.get("success") and data.get("data") and data["data"].get("list")):
+        return []
+
+    anns = []
+    for item in data["data"]["list"]:
+        art_code = item.get("art_code", "")
+        notice_date = item.get("notice_date", "")
+        # 格式化日期：可能是 "2026-08-19 10:30:00" 或时间戳
+        if " " in str(notice_date):
+            notice_date = str(notice_date).split(" ")[0]
+        elif isinstance(notice_date, (int, float)):
+            notice_date = datetime.fromtimestamp(notice_date / 1000).strftime("%Y-%m-%d")
+
+        anns.append({
+            "art_code": art_code,
+            "title": item.get("title", ""),
+            "notice_date": str(notice_date),
+            "columns": item.get("columns", ""),
+            "url": f"https://data.eastmoney.com/notices/detail/{ts_code_6}/{art_code}.html",
+        })
+    return anns
 
 
 def _call_with_retry(pro, api, max_retries=3, **kwargs):
@@ -288,7 +359,7 @@ def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
         stats["skipped"] += 1
 
     # 4. 近 30 天每日指标（daily_basic）
-    logging.info("\n[4/4] 近期日线指标")
+    logging.info("\n[4/5] 近期日线指标")
     daily_dir = os.path.join(stock_dir, "raw", "daily")
     today_str = date.today().strftime("%Y%m%d")
     from datetime import timedelta
@@ -310,6 +381,27 @@ def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
             stats["empty"] += 1
     else:
         logging.info(f"  ⏭️  daily_basic → 已存在，跳过")
+        stats["skipped"] += 1
+
+    # 5. 公告列表（东方财富 API，免费）
+    logging.info("\n[5/5] 公告列表")
+    ann_path = os.path.join(stock_dir, "raw", "announcements.json")
+    if not (skip_existing and os.path.exists(ann_path)):
+        anns = _fetch_eastmoney_anns(ts_code_6, limit=30)
+        if anns:
+            _save_json(anns, ann_path)
+            manifest["announcements"] = {
+                "last_fetch": datetime.now().strftime("%Y-%m-%d"),
+                "count": len(anns),
+                "latest_date": anns[0]["notice_date"] if anns else None,
+            }
+            logging.info(f"  ✅ announcements → {len(anns)} 条（最新: {anns[0]['notice_date']}）")
+            stats["success"] += 1
+        else:
+            logging.warning(f"  ⚠️  announcements → 无数据")
+            stats["empty"] += 1
+    else:
+        logging.info(f"  ⏭️  announcements → 已存在，跳过")
         stats["skipped"] += 1
 
     # 更新 manifest
@@ -339,6 +431,42 @@ def update_stock(ts_code_6, name):
     logging.info(f"上次落盘: {manifest['last_fetch']}")
     logging.info(f"已有期间: {len(manifest.get('periods', {}))} 个")
     return fetch_stock(ts_code_6, name, skip_existing=True)
+
+
+def fetch_announcements(ts_code_6, name, limit=30):
+    """单独拉取公告列表（东方财富 API）。"""
+    stock_dir = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}")
+    _ensure_dir(os.path.join(stock_dir, "raw"))
+
+    sep = "=" * 60
+    print(sep)
+    print(f"拉取公告: {name} ({ts_code_6})  条数: {limit}")
+    print(sep)
+
+    anns = _fetch_eastmoney_anns(ts_code_6, limit=limit)
+    if not anns:
+        print("  ⚠️  未获取到公告")
+        return
+
+    ann_path = os.path.join(stock_dir, "raw", "announcements.json")
+    _save_json(anns, ann_path)
+
+    # 更新 manifest
+    manifest = _load_manifest(stock_dir)
+    manifest["announcements"] = {
+        "last_fetch": datetime.now().strftime("%Y-%m-%d"),
+        "count": len(anns),
+        "latest_date": anns[0]["notice_date"] if anns else None,
+    }
+    _save_manifest(stock_dir, manifest)
+
+    print(f"  ✅ 已保存 {len(anns)} 条公告到 {ann_path}")
+    print(f"\n  最近公告:")
+    for i, ann in enumerate(anns[:10], 1):
+        print(f"  {i:2d}. [{ann['notice_date']}] {ann['title'][:60]}")
+    if len(anns) > 10:
+        print(f"  ...共 {len(anns)} 条")
+    print(sep)
 
 
 def check_stock(ts_code_6, name):
@@ -398,6 +526,17 @@ def check_stock(ts_code_6, name):
     else:
         print(f"  ❌ {'dividend':20s} → 缺失")
         issues.append("dividend")
+
+    # 检查 announcements
+    ann_path = os.path.join(stock_dir, "raw", "announcements.json")
+    if os.path.exists(ann_path):
+        with open(ann_path, "r", encoding="utf-8") as f:
+            ann_count = len(json.load(f))
+        ann_info = manifest.get("announcements", {})
+        latest = ann_info.get("latest_date", "?")
+        print(f"  ✅ {'announcements':20s} → {ann_count} 条（最新: {latest}）")
+    else:
+        print(f"  ℹ️  {'announcements':20s} → 未拉取（可选）")
 
     print()
     if issues:
@@ -469,6 +608,55 @@ def list_stocks():
     print(sep)
 
 
+def load_financial_data(ts_code_6, name, period):
+    """从落盘目录读取财务数据（供报告生成 Skill 调用）。
+
+    Args:
+        ts_code_6: 6位代码，如 "600938"
+        name: 公司名称，如 "中国海油"
+        period: 报告期，如 "20241231"
+
+    Returns:
+        dict: {api_name: [record, ...], ...}，未找到的接口不包含在结果中
+    """
+    base = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "financial")
+    data = {}
+    for api in FINANCIAL_APIS:
+        filepath = os.path.join(base, f"{api}_{period}.json")
+        if os.path.exists(filepath):
+            with open(filepath, "r", encoding="utf-8") as f:
+                data[api] = json.load(f)
+    return data
+
+
+def load_stock_meta(ts_code_6, name):
+    """从落盘目录读取股票元数据。"""
+    path = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "meta", "stock_basic.json")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return None
+
+
+def load_announcements(ts_code_6, name, limit=20):
+    """从落盘目录读取最近 N 条公告（供报告生成 Skill 调用）。
+
+    Args:
+        ts_code_6: 6位代码，如 "600938"
+        name: 公司名称，如 "中国海油"
+        limit: 返回条数（默认 20）
+
+    Returns:
+        list[dict]: 公告列表，按日期降序
+    """
+    path = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "announcements.json")
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        anns = json.load(f)
+    return anns[:limit]
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="A股基本面数据批量落盘工具",
@@ -495,6 +683,11 @@ def main():
 
     sub.add_parser("list", help="列出已落盘的股票")
 
+    p_anns = sub.add_parser("anns", help="单独拉取公告（东方财富 API）")
+    p_anns.add_argument("ts_code", help="6位股票代码")
+    p_anns.add_argument("name", help="公司名称")
+    p_anns.add_argument("--limit", type=int, default=30, help="获取条数（默认30，最大50）")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -507,6 +700,8 @@ def main():
             update_stock(args.ts_code, args.name)
         elif args.command == "check":
             check_stock(args.ts_code, args.name)
+        elif args.command == "anns":
+            fetch_announcements(args.ts_code, args.name, limit=args.limit)
         elif args.command == "batch":
             batch_fetch(args.file)
         elif args.command == "list":

@@ -647,24 +647,24 @@ def cmd_check():
         ("tushare官方", "TUSHARE_TOKEN", "tushare_token.txt", "tushare"),
     ]
 
-    # 测试接口列表：(接口名, 参数, 推断的积分门槛, 说明)
+    # 测试接口列表：(接口名, 参数, 官方积分门槛, 说明)
     test_apis = [
         ("stock_basic", {"limit": 1, "exchange": "", "fields": "ts_code,name"},
          "免费", "基础连接"),
-        ("income", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
-         "~2000", "A股利润表"),
         ("daily_basic", {"ts_code": "000001.SZ", "start_date": "20260801", "limit": 1},
-         "~2000", "A股估值指标"),
+         "120", "A股估值指标（PE/PB/市值）"),
         ("dividend", {"ts_code": "000001.SZ", "limit": 1},
-         "~2000", "A股分红"),
-        ("forecast", {"ts_code": "000001.SZ", "limit": 1},
-         "~2000", "A股业绩预告"),
-        ("fina_indicator", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
-         "~2000", "A股财务指标"),
+         "120", "A股分红送配"),
+        ("income", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "1200", "A股利润表"),
         ("balancesheet", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
-         "~2000", "A股资产负债表"),
+         "1200", "A股资产负债表"),
         ("cashflow", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
-         "~2000", "A股现金流量表"),
+         "1200", "A股现金流量表"),
+        ("fina_indicator", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "1200", "A股财务指标（ROE/EPS/毛利率）"),
+        ("forecast", {"ts_code": "000001.SZ", "limit": 1},
+         "1200", "A股业绩预告"),
     ]
 
     for src_label, env_name, filename, mod_name in source_defs:
