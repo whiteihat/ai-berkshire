@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
-"""A股/港股/美股数据工具 — Tushare 数据源（ttshare 代理优先，官方 API 兜底）。
+"""A股/港股/美股数据工具 — Tushare 数据源（多源：ttshare代理/cheapyun代理/官方 API）。
 
 为 Claude Code Skills 提供 A股/港股/美股行情、估值、财务、分红、搜索数据。
 设计原则：独立模块，不影响现有工具；与 twstock_data.py / ashare_data.py 同风格。
 
 数据源优先级：
     1. ttshare（第三方代理，需授权码，接口覆盖更全）
-    2. tushare 官方（需官方 token，部分接口有积分限制）
-    代理调用失败或返回空时自动切换到官方重试；官方也无数据则输出退化提示。
+    2. cheapyun（cheapyun 代理，需卡号，接口较全）
+    3. tushare 官方（需官方 token，部分接口有积分限制）
+    代理调用失败或返回空时自动切换到下一个源重试；全部失败则输出退化提示。
 
 依赖安装（uv 管理依赖，勿直接用 pip install）：
     uv add ttshare tushare      # 或直接 uv sync（ttshare 源已在 pyproject.toml 配置）
 
 token 读取（token 只存本机，严禁提交到 git；local/ 已被 .gitignore 永久排除）：
     代理授权码（ttshare_token）：①环境变量 TTSHARE_TOKEN  ②本地文件 local/ttshare_token.txt
+    cheapyun 代理（cheapyun_token）：①环境变量 CHEAPYUN_TOKEN  ②本地文件 local/tushare_token_tmp.txt
     官方 token（tushare_token）：①环境变量 TUSHARE_TOKEN  ②本地文件 local/tushare_token.txt
-    两者都没配则报错退出（tushare 必须 token，不匿名访问）。
-    命名与包名一致：ttshare_* 是代理授权码，tushare_* 是官方 token。
+    三者都没配则报错退出（tushare 必须 token，不匿名访问）。
     TUSHARE_TOKEN 环境变量恰好也是官方 tushare 库的默认读取变量，语义一致，不会冲突。
+
+Token 可用性检测：
+    python3 tools/tushare_data.py check     # 检测所有 token 的可用性和接口权限
 
 用法（由 Skills 自动调用）：
     python3 tools/tushare_data.py quote 600519        # A股行情快照 + 市值验算
@@ -119,22 +123,28 @@ def _read_token(env_name, filename):
 
 
 class _Client:
-    """Tushare 客户端：ttshare 代理优先、官方 API 兜底，调用失败自动换源重试。"""
+    """Tushare 客户端：多源代理优先（ttshare → cheapyun → 官方），调用失败自动换源重试。"""
 
     def __init__(self):
-        # (来源标签, ts模块, token, token说明)
+        # (来源标签, ts模块, token, token说明, 可选的自定义URL)
         self._sources = []
         self._last_error = None   # 最近一次调用失败原因（退化提示用）
         proxy = self._try_import("ttshare")
         if proxy:
             self._sources.append(
                 (proxy, "ttshare代理", _read_token("TTSHARE_TOKEN", "ttshare_token.txt"),
-                 "代理授权码：环境变量 TTSHARE_TOKEN 或 local/ttshare_token.txt"))
-        official = self._try_import("tushare")
-        if official:
+                 "代理授权码：环境变量 TTSHARE_TOKEN 或 local/ttshare_token.txt", None))
+        cheapyun_token = _read_token("CHEAPYUN_TOKEN", "tushare_token_tmp.txt")
+        official_mod = self._try_import("tushare")
+        if official_mod and cheapyun_token:
             self._sources.append(
-                (official, "tushare官方", _read_token("TUSHARE_TOKEN", "tushare_token.txt"),
-                 "官方 token：环境变量 TUSHARE_TOKEN 或 local/tushare_token.txt"))
+                (official_mod, "cheapyun代理", cheapyun_token,
+                 "cheapyun 代理：环境变量 CHEAPYUN_TOKEN 或 local/tushare_token_tmp.txt",
+                 "http://cheap-host1.cheapyun.com:42461"))
+        if official_mod:
+            self._sources.append(
+                (official_mod, "tushare官方", _read_token("TUSHARE_TOKEN", "tushare_token.txt"),
+                 "官方 token：环境变量 TUSHARE_TOKEN 或 local/tushare_token.txt", None))
         if not self._sources:
             raise ConnectionError(
                 "未安装 ttshare/tushare。请用 uv 安装依赖：uv add ttshare tushare（或 uv sync）")
@@ -153,11 +163,13 @@ class _Client:
         返回 (来源标签, DataFrame 或 None)。None 表示所有源均失败。
         """
         self._last_error = None
-        for i, (mod, label, tok, _desc) in enumerate(self._sources):
+        for i, (mod, label, tok, _desc, base_url) in enumerate(self._sources):
             try:
                 if tok:
                     mod.set_token(tok)
                 pro = mod.pro_api()
+                if base_url:
+                    pro._DataApi__http_url = base_url
                 df = getattr(pro, api)(**kwargs)
                 if df is not None and len(df):
                     return label, df
@@ -166,8 +178,8 @@ class _Client:
         return self._sources[0][1], None
 
     def token_hint(self):
-        """输出 token 配置提示（两个源都失败时用）。"""
-        missing = [desc for _mod, _label, tok, desc in self._sources if not tok]
+        """输出 token 配置提示（所有源都失败时用）。"""
+        missing = [desc for _mod, _label, tok, desc, _url in self._sources if not tok]
         if missing:
             return "；".join(f"未配置{desc}" for desc in missing)
         return "token 可能无效或已过期（代理授权码有有效期）"
@@ -610,6 +622,100 @@ def cmd_search(keyword):
             found += 1
     if not found:
         print(f"  ❌ 未找到匹配 '{keyword}' 的股票")
+
+
+def cmd_check():
+    """检测所有 token 的可用性和接口权限。
+
+    对每个已配置的源，依次测试：
+      1. stock_basic（基础连接）→ 推断积分等级
+      2. income（A股财务）
+      3. daily_basic（A股估值）
+      4. dividend（分红）
+      5. forecast（业绩预告）
+    输出每个源的可用状态和权限等级。
+    """
+    sep = "=" * 60
+    print(sep)
+    print("Token 可用性与权限检测")
+    print(sep)
+
+    # 各源的 token 文件位置
+    source_defs = [
+        ("ttshare代理", "TTSHARE_TOKEN", "ttshare_token.txt", "ttshare"),
+        ("cheapyun代理", "CHEAPYUN_TOKEN", "tushare_token_tmp.txt", "tushare"),
+        ("tushare官方", "TUSHARE_TOKEN", "tushare_token.txt", "tushare"),
+    ]
+
+    # 测试接口列表：(接口名, 参数, 推断的积分门槛, 说明)
+    test_apis = [
+        ("stock_basic", {"limit": 1, "exchange": "", "fields": "ts_code,name"},
+         "免费", "基础连接"),
+        ("income", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "~2000", "A股利润表"),
+        ("daily_basic", {"ts_code": "000001.SZ", "start_date": "20260801", "limit": 1},
+         "~2000", "A股估值指标"),
+        ("dividend", {"ts_code": "000001.SZ", "limit": 1},
+         "~2000", "A股分红"),
+        ("forecast", {"ts_code": "000001.SZ", "limit": 1},
+         "~2000", "A股业绩预告"),
+        ("fina_indicator", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "~2000", "A股财务指标"),
+        ("balancesheet", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "~2000", "A股资产负债表"),
+        ("cashflow", {"ts_code": "000001.SZ", "period": "20241231", "limit": 1},
+         "~2000", "A股现金流量表"),
+    ]
+
+    for src_label, env_name, filename, mod_name in source_defs:
+        token = _read_token(env_name, filename)
+        print(f"\n{'─' * 50}")
+        print(f"📡 {src_label}")
+        if not token:
+            print(f"   ❌ 未配置 token（{env_name} 或 local/{filename}）")
+            continue
+        print(f"   ✅ Token 已配置（{filename}）")
+
+        # 尝试导入模块并创建 pro_api
+        try:
+            mod = __import__(mod_name)
+        except ImportError:
+            print(f"   ❌ 模块 {mod_name} 未安装（uv add {mod_name}）")
+            continue
+
+        try:
+            mod.set_token(token)
+            pro = mod.pro_api()
+            # cheapyun 需要设置代理 URL
+            if "cheapyun" in src_label:
+                pro._DataApi__http_url = "http://cheap-host1.cheapyun.com:42461"
+        except Exception as e:
+            print(f"   ❌ 初始化失败: {e}")
+            continue
+
+        # 逐接口测试
+        passed = 0
+        total = len(test_apis)
+        max_level = "未知"
+        for api_name, params, level, desc in test_apis:
+            try:
+                import time
+                time.sleep(0.75)  # 限流
+                df = getattr(pro, api_name)(**params)
+                if df is not None and len(df):
+                    print(f"   ✅ {desc:8s} ({api_name}) → {len(df)} 条  [积分门槛: {level}]")
+                    passed += 1
+                    max_level = level
+                else:
+                    print(f"   ⚠️  {desc:8s} ({api_name}) → 返回空  [积分门槛: {level}]")
+            except Exception as e:
+                err_msg = str(e)[:80]
+                print(f"   ❌ {desc:8s} ({api_name}) → {err_msg}")
+
+        print(f"   ─── 结果: {passed}/{total} 接口可用，最高积分门槛: {max_level}")
+
+    print(f"\n{'=' * 60}")
+    print("检测完成。报告生成时会自动选择最佳可用源。")
 
 
 # ---------------------------------------------------------------------------
@@ -1273,7 +1379,7 @@ def _get_client():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="A股/港股/美股数据工具 — Tushare 数据源（ttshare 代理优先，官方 API 兜底）",
+        description="A股/港股/美股数据工具 — Tushare 数据源（多源：ttshare/cheapyun/官方）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     sub = parser.add_subparsers(dest="command")
@@ -1316,13 +1422,17 @@ def main():
     p_fundsearch = sub.add_parser("fundsearch", help="搜索基金与指数代码")
     p_fundsearch.add_argument("keyword", help="基金名/指数名或代码")
 
+    sub.add_parser("check", help="检测所有 token 的可用性和接口权限")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
         sys.exit(1)
 
     try:
-        if args.command == "search":
+        if args.command == "check":
+            cmd_check()
+        elif args.command == "search":
             cmd_search(args.keyword)
         elif args.command == "fundsearch":
             cmd_fundsearch(args.keyword)
