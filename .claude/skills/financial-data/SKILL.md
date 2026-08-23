@@ -9,6 +9,36 @@ disable-model-invocation: true
 
 ---
 
+## 核心工作流：数据获取优先级
+
+**所有研报生成任务（无论调用何种 Skill）必须遵循以下优先级：**
+
+### 1. 优先使用本地落盘数据
+
+- 先执行落盘脚本更新指定标的的原始数据至 `local/` 目录：
+  - 个股：`python tools/fundamental_fetcher.py update {ts_code_6} {name}`
+  - 基金：`python tools/fund_data_fetcher.py update {code}`
+- 读取本地落盘数据（按报告期排序），使用最新版本
+
+### 2. 数据足够 → 直接生成研报
+
+若本地数据已覆盖所需报告期（最新季报/年报），直接基于本地数据撰写，**不再调用外部接口**。
+
+### 3. 数据不足 → 补充获取后再生成
+
+若本地数据缺失必要字段或报告期，降级使用原有数据获取方式补全：
+- Tushare 实时接口（`tools/tushare_data.py`）
+- Web Search / 东方财富 / 天天基金等副源
+- **补充的新数据必须同步落盘**，确保下次任务可直接使用
+
+### 4. 报告标注
+
+所有研报必须注明数据来源及获取时间戳，格式：
+
+> 数据来源：本地落盘（fundamental_fetcher, 2026-08-24 更新）+ Tushare 实时查询
+
+---
+
 ## 数据源优先级
 
 ### 美股（PDD、腾讯ADR、网易ADR等）
@@ -113,21 +143,23 @@ uv run python tools/tushare_data.py indexvaluation 000300.SH  # 指数估值与�
 uv run python tools/tushare_data.py indexweight 000300.SH    # 成分权重与集中度
 ```
 
-**接口权限退化表**（实测 ttshare 代理现状，随授权码变化）：
+**接口权限退化表**（2026-08-24 实测）：
 
-| 接口 | 命令 | 官方积分门槛 | ttshare 实测 | 无权限/无数据时的副源 |
-|------|------|------------|-------------|---------------------|
-| fund_daily | funddaily | ~2000 | ✅ 可用 | 东方财富数据中心；盘中实时 TickFlow |
-| fund_nav | fundnav/fundtracking/折溢价 | ~2000 | ⚠️ 场外基金可用，**场内ETF返回空** | 天天基金历史净值页 |
-| fund_basic | fundinfo | ~2000 | ❌ 无权限 | 天天基金基金档案页（费率/经理/基准/跟踪指数） |
-| fund_share | fundshares | ~2000 | ❌ 无权限 | 天天基金规模变动页 |
-| fund_portfolio | fundholdings | ~5000 | ❌ 无权限 | 天天基金持仓明细页 |
-| fund_manager | fundmanager | ~5000 | ❌ 无权限 | 天天基金基金经理页 |
-| fund_holder | fundholder | ~5000 | ❌ 无权限 | 天天基金持有人结构页 |
-| index_daily | indexdaily/fundtracking | 免费 | ✅ 可用 | 中证指数官网；TickFlow 日K |
-| index_basic | indexinfo | ~2000 | ✅ 可用 | 中证指数官网 csi.com.cn |
-| index_dailybasic | indexvaluation | ~2000 | ✅ 可用 | 乐咕乐股指数估值页 |
-| index_weight | indexweight | ~2000 | ✅ 可用 | 中证指数官网成分列表，或跟踪ETF的 fundholdings 兜底 |
+| 接口 | 命令 | 官方积分门槛 | ttshare 实测 | cheapyun 实测 | 无权限/无数据时的副源 |
+|------|------|------------|-------------|--------------|---------------------|
+| fund_daily | funddaily | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 东方财富数据中心；盘中实时 TickFlow |
+| fund_nav | fundnav/fundtracking/折溢价 | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金历史净值页 |
+| fund_basic | fundinfo | ~2000 | ❌ 授权码过期 | ⚠️ 仅场外基金（.OF），场内 ETF 不在库 | 天天基金基金档案页（费率/经理/基准/跟踪指数） |
+| fund_share | fundshares | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金规模变动页 |
+| fund_portfolio | fundholdings | ~5000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金持仓明细页 |
+| fund_manager | fundmanager | ~5000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金基金经理页 |
+| fund_holder | fundholder | ~5000 | ❌ 授权码过期 | ❌ 返回 500 错误 | 天天基金持有人结构页 |
+| index_daily | indexdaily/fundtracking | 免费 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网；TickFlow 日K |
+| index_basic | indexinfo | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网 csi.com.cn |
+| index_dailybasic | indexvaluation | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 乐咕乐股指数估值页 |
+| index_weight | indexweight | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网成分列表，或跟踪ETF的 fundholdings 兜底 |
+
+> ⚠️ **2026-08-24 状态**：ttshare 授权码已过期；cheapyun 基金接口可用但有特殊行为——fund_nav/portfolio/share/manager/daily 用 `.SH/.SZ` 后缀（非 `.OF`），fund_basic 仅含场外基金，fund_holder 返回 500。`fund_data_fetcher.py` 已内置 cheapyun 参数适配。
 
 **TickFlow 能力边界**（`tools/tickflow_data.py`）：只有 ETF/指数/个股**实时行情与日K**（免费层日K+标的信息，完整服务实时行情）；**没有**场外净值/持仓/份额/经理/指数估值分位/成分权重——那些仍走 tushare fund_* 命令或天天基金。token 放 `local/tickflow_key.txt`（环境变量 `TICKFLOW_API_KEY`），同 local/ 保密规则。
 
