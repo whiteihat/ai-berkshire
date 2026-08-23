@@ -15,7 +15,7 @@
     python tools/fundamental_fetcher.py list                        # 列出已落盘的股票
 
 目录结构：
-    local/{ts_code}_{name}/
+    local/{name}_{ts_code}/
     ├── raw/
     │   ├── financial/       # 财务主表（income/balance/cashflow/fina_indicator/forecast/express/dividend）
     │   ├── daily/           # 日线行情（daily_basic）
@@ -273,7 +273,7 @@ def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
     """
     pro, source_label = _get_pro()
     ts_code = f"{ts_code_6}.SH" if ts_code_6.startswith(("6", "9")) else f"{ts_code_6}.SZ"
-    stock_dir = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}")
+    stock_dir = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}")
     _ensure_dir(os.path.join(stock_dir, "raw", "financial"))
     _ensure_dir(os.path.join(stock_dir, "raw", "daily"))
     _ensure_dir(os.path.join(stock_dir, "raw", "meta"))
@@ -422,7 +422,7 @@ def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
 
 def update_stock(ts_code_6, name):
     """增量更新：只拉 manifest 中缺失的期间。"""
-    stock_dir = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}")
+    stock_dir = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}")
     manifest = _load_manifest(stock_dir)
     if not manifest.get("last_fetch"):
         logging.info("无 manifest 记录，执行完整落盘")
@@ -435,7 +435,7 @@ def update_stock(ts_code_6, name):
 
 def fetch_announcements(ts_code_6, name, limit=30):
     """单独拉取公告列表（东方财富 API）。"""
-    stock_dir = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}")
+    stock_dir = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}")
     _ensure_dir(os.path.join(stock_dir, "raw"))
 
     sep = "=" * 60
@@ -471,7 +471,7 @@ def fetch_announcements(ts_code_6, name, limit=30):
 
 def check_stock(ts_code_6, name):
     """检查落盘完整性。"""
-    stock_dir = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}")
+    stock_dir = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}")
     manifest = _load_manifest(stock_dir)
 
     sep = "=" * 60
@@ -619,7 +619,7 @@ def load_financial_data(ts_code_6, name, period):
     Returns:
         dict: {api_name: [record, ...], ...}，未找到的接口不包含在结果中
     """
-    base = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "financial")
+    base = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}", "raw", "financial")
     data = {}
     for api in FINANCIAL_APIS:
         filepath = os.path.join(base, f"{api}_{period}.json")
@@ -631,7 +631,7 @@ def load_financial_data(ts_code_6, name, period):
 
 def load_stock_meta(ts_code_6, name):
     """从落盘目录读取股票元数据。"""
-    path = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "meta", "stock_basic.json")
+    path = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}", "raw", "meta", "stock_basic.json")
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -649,7 +649,7 @@ def load_announcements(ts_code_6, name, limit=20):
     Returns:
         list[dict]: 公告列表，按日期降序
     """
-    path = os.path.join(_LOCAL_DIR, f"{ts_code_6}_{name}", "raw", "announcements.json")
+    path = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}", "raw", "announcements.json")
     if not os.path.exists(path):
         return []
     with open(path, "r", encoding="utf-8") as f:
