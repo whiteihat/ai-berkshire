@@ -1,0 +1,4 @@
+# 统一文本文件行尾为 LF（2026-08-22 治理：此前仓库混合 CRLF/LF，
+# 导致 git diff 出现全文件噪音与 trailing-whitespace 误报）。
+# 文本文件入库与检出均为 LF；二进制文件由 git 自动检测。
+* text=auto eol=lf
