@@ -1047,7 +1047,7 @@ Top 3 核心风险及应对策略
 
 ### 第八步：保存报告
 
-将完整最终报告写入 `reports/01-单公司分析/{公司名}/{公司名}-private-{YYYYMMDD}.md`。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 
 ### 第九步：清理团队
 

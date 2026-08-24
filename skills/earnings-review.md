@@ -188,7 +188,7 @@ python3 tools/financial_rigor.py verify-valuation \
 
 ### 第七步：保存报告
 
-将报告写入 `reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md`，例如 `reports/01-单公司分析/腾讯/腾讯-earnings-2025Q4.md`。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 
 ### 第八步：数据抽检（准出流程）
 

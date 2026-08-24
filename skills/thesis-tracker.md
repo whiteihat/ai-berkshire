@@ -93,7 +93,7 @@
 
 ### A5：保存论文
 
-将投资论文写入 `reports/01-单公司分析/{公司名}/{公司名}-thesis.md`，包含：
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。论文包含：
 - 建立日期
 - 买入价格和仓位
 - 核心论文（5句话）

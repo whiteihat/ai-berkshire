@@ -194,7 +194,7 @@
 
 ### 第八步：保存报告
 
-将完整最终报告及四个视角文件写入 `reports/01-单公司分析/{公司名}/`：`01-商业模式分析-段永平视角.md`、`02-财务估值分析-巴菲特视角.md`、`03-行业竞争分析-芒格视角.md`、`04-风险管理层评估-李录视角.md` 和 `最终报告.md`。目录结构以 `templates/investment-team.md` 与 `.claude/rules/report-output.md` 为准；已有同名成果时不覆盖，先询问或创建日期版本。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。已有同名成果时不覆盖，先询问或创建日期版本。
 
 ### 第九步：数据抽检（准出流程）
 

@@ -169,6 +169,5 @@
 
 ## 输出与准出
 
-- 个股模式：为每家公司写入 `reports/01-单公司分析/{公司名}/{公司名}-quality-screen-{YYYYMMDD}.md`。
-- 行业/市场/主题批量模式：将汇总结果写入 `reports/{筛选名}-quality-screen-{YYYYMMDD}.md`；如需逐家公司底稿，放入对应的 `reports/01-单公司分析/{公司名}/`。
-- 文件写入后，按 `.claude/rules/report-output.md` 的不覆盖规则执行 `tools/report_audit.py` 抽检；未通过时标为草稿并修正后重审。
+- 输出路径与文件命名以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
+- 文件写入后，执行 `tools/report_audit.py` 抽检；未通过时标为草稿并修正后重审。

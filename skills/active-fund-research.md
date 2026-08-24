@@ -110,7 +110,7 @@ fundholdings 前十大 + 行业暴露表：
 1. 中文、直接犀利、不说废话；数据标来源，关键数据双源交叉验证（误差>1%标记）
 2. 计算一律走工具（tushare_data.py / financial_rigor.py），禁止LLM心算
 3. 报告开头：信息丰富度评级（A/B/C）+ AI研究局限性声明；结尾区分"AI分析置信度"与"投资确定性"
-4. 报告写入 `reports/00-ETF-LOF/{基金名}-activefund-{YYYYMMDD}.md`。
+4. 输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 
 ## 数据抽检（准出流程）
 

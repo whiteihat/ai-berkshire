@@ -216,7 +216,7 @@ description: 公司新闻脉搏：股价异动时快速归因。用 4 个并行 
 
 ### 第八步：保存报告
 
-写入 `reports/01-单公司分析/{公司名}/{公司名}-news-{YYYYMMDD}.md`。如果公司目录不存在则创建；旧路径只用于兼容读取，不作为新报告输出位置。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 
 ### 第九步：清理团队
 

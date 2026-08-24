@@ -173,7 +173,7 @@
 
 ### 第七步：保存组合文件
 
-将组合信息写入 `reports/portfolio-latest.md`，包含：
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。组合文件包含：
 - 最新持仓表
 - 本次审视日期和结论
 - 调仓记录（追加）

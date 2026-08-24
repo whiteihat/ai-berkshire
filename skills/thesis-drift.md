@@ -114,7 +114,7 @@ python3 tools/financial_rigor.py calc --expr '{精确算式}'
 
 ### A6：输出漂移报告
 
-完成对比后，将结果写入 `reports/01-单公司分析/{公司名}/{公司名}-thesis-drift-{YYYYMMDD}.md`。不得覆盖论文基线；若同日文件已存在，创建草稿/版本文件或先询问。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。不得覆盖论文基线；若同日文件已存在，创建草稿/版本文件或先询问。
 
 #### 报告结构
 

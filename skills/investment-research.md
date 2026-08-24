@@ -262,7 +262,7 @@ python3 tools/terminal_value.py irr \
 1. 所有分析必须有数据支撑，附数据来源
 2. 使用 Markdown 表格呈现关键数据
 3. 每个模块末尾必须有对应大师的"追问"
-4. 最终将完整报告写入 `reports/01-单公司分析/{公司名}/{公司名}-research-{YYYYMMDD}.md`；路径和文件名以 `.claude/rules/report-output.md` 为准。
+4. 输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 5. 结论要明确，不回避给出买入/观望/回避的建议
 6. 估值部分必须给出具体的价格区间
 7. **报告开头**必须包含"信息丰富度评级"（A/B/C）和"AI研究局限性声明"

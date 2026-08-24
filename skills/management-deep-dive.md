@@ -269,7 +269,7 @@ AI无法和管理层面对面交流，但可以通过公开渠道的侧面信息
 
 ### 第九步：保存报告
 
-将报告写入 `reports/01-单公司分析/{公司名}/{公司名}-management-{YYYYMMDD}.md`，例如 `reports/01-单公司分析/美团/美团-management-20260409.md`。
+输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
 
 ---
 
