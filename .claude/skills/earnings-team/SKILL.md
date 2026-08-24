@@ -110,12 +110,8 @@ disable-model-invocation: true
 1. **核心财务数据提取与验证**
    - 收入、毛利、经营利润、净利润——GAAP和Non-GAAP都要
    - GAAP vs Non-GAAP差异：差了多少、差在哪里、差距扩大还是缩小
-   - 关键数据至少两个来源交叉验证
-
-   ```bash
-   python3 tools/financial_rigor.py cross-validate \
-     --metric "revenue" --values {值1} {值2} --sources "来源1" "来源2"
-   ```
+   - 数据遵循 [financial-data 规范](../../skills/financial-data/SKILL.md) 主源取数 + 合理性校验；GAAP/Non-GAAP 口径冲突属"口径差异"需说明，但不再强制双源比对
+   - 涉及计算一律用工具验算（禁止LLM心算）
 
 2. **现金流分析（最重要）**
    - 经营现金流 vs 净利润比率（>100%佳，<80%警惕）
@@ -401,4 +397,4 @@ disable-model-invocation: true
 - **反面检验贯穿全程**：每个积极发现都附带反面论据
 - **编辑不是降低专业度**：是让专业内容更易读，不是变成科普
 - **读者评审不是走过场**：真的站在读者角度挑毛病
-- **数据准确性**：关键数据交叉验证，使用 financial_rigor.py 工具验算
+- **数据准确性**：取数走 financial-data 主源 + 合理性校验，计算用 financial_rigor.py 工具验算

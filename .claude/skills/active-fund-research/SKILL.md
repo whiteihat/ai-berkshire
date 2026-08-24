@@ -44,14 +44,16 @@ disable-model-invocation: true
 
 ### 第一步：基金与经理基本盘
 
-> **数据源规范**：`.claude/skills/financial-data/SKILL.md` 基金与指数章节；tushare 无权限字段（fund_manager/fund_portfolio/fund_basic 等）用天天基金副源补齐，工具会输出退化提示。
+> **数据源规范**：唯一数据入口是 [.claude/skills/financial-data/SKILL.md](../../skills/financial-data/SKILL.md) 规定的统一数据访问层 `tools/data_loader.py`；职责（查代码、读基金基本盘、份额、经理档案）不再内嵌命令。
 
 ```bash
-uv run python tools/tushare_data.py fundsearch 易方达        # 查代码
-uv run python tools/tushare_data.py fundinfo 161725         # 基金基本盘（类型/费率/基准/经理）
-uv run python tools/tushare_data.py fundmanager 161725      # 历任经理档案（无权限→天天基金经理页）
-uv run python tools/tushare_data.py fundshares 161725       # 规模与份额变动
+python tools/data_loader.py get fund {code} --field basic    # 基本盘（类型/费率/基准/经理）
+python tools/data_loader.py get fund {code} --field shares   # 规模与份额变动
+python tools/data_loader.py get fund {code} --field manager  # 历任经理档案
+python tools/data_loader.py search {基金名/代码}              # 查代码（基金+指数分节）
 ```
+
+该基金数据缺失/无权限时，按 financial-data 备用来源（天天基金持仓/经理/持有人页）人工核查，并在报告中标注"副源补齐"。
 
 输出"基金与经理基本盘"表：基金类型/成立日/业绩基准/综合费率/最新规模/现任经理及**任职起始**/历任经理表。
 
@@ -61,20 +63,20 @@ uv run python tools/tushare_data.py fundshares 161725       # 规模与份额变
 
 **2.1 任职期业绩**（从任职日算起，避免把前任业绩记到现任头上）：
 ```bash
-uv run python tools/tushare_data.py fundnav 161725 --start 20200101   # 任职起始日
+python tools/data_loader.py get fund {code} --field nav     # 净值与区间收益（复权口径）
 ```
-输出：任职以来年化收益/最大回撤/分年度超额（相对业绩基准，基准见 fundinfo）。
+输出：任职以来年化收益/最大回撤/分年度超额（相对业绩基准，基准见 basic）。
 
 **2.2 风格定位**：持仓市值/行业 → 大/小盘、价值/成长；前十大用 /quality-screen 7条指标快速过一遍，判断持仓质量。
 
-**2.3 持仓集中度**：fundholdings 前十大占比（无权限→天天基金持仓明细页）；单一重仓上限、行业集中度。
+**2.3 持仓集中度**：`data_loader get fund {code} --field holdings` 前十大占比（无权限→天天基金持仓明细页）；单一重仓上限、行业集中度。
 
 **2.4 换手率与言行一致**：换手率（tushare 无接口，天天基金/韭圈儿副源）；季报持仓变化 vs 经理公开策略表述逐期比对。
 **段永平式追问**：经理的能力圈是什么？持仓里有没有超出能力圈的动作（比如价值派买题材）？
 
 ### 第三步：持仓分析
 
-fundholdings 前十大 + 行业暴露表：
+`data_loader get fund {code} --field holdings` 前十大 + 行业暴露表：
 
 | # | 个股 | 代码 | 占净值比 | 生意一句话 | 质量快筛 | 是否已有研究 |
 |---|------|------|---------|-----------|---------|------------|
@@ -89,7 +91,7 @@ fundholdings 前十大 + 行业暴露表：
 - **费率**：综合费率 vs 同类中位数（主动 ≤1.5%）
 - **规模**：>100亿警惕策略容量（大市值风格影响小，小盘/主题风格影响大）
 - **申赎与限购**：大额限购 = 规模管理的正面信号（天天基金副源）；连续大额赎回注意流动性风险
-- **持有人结构**：fundholder 或天天基金副源——机构占比上升 = 机构认可信号
+- **持有人结构**：`data_loader get fund {code} --field holder` 或天天基金副源——机构占比上升 = 机构认可信号
 - **分红记录**：与合同约定一致（天天基金）
 **芒格式追问**：什么情况下我会被迫退出？（经理离职/风格漂移/规模失控/大幅回撤）先把退出条件写下来。
 
@@ -112,8 +114,8 @@ fundholdings 前十大 + 行业暴露表：
 
 ## 输出要求
 
-1. 中文、直接犀利、不说废话；数据标来源，关键数据双源交叉验证（误差>1%标记）
-2. 计算一律走工具（tushare_data.py / financial_rigor.py），禁止LLM心算
+1. 中文、直接犀利、不说废话；数据标来源，主源合理性校验（见 [financial-data 规范](../../skills/financial-data/SKILL.md)）
+2. 计算一律走工具（data_loader 取数 / financial_rigor.py 验算），禁止LLM心算
 3. 报告开头：信息丰富度评级（A/B/C）+ AI研究局限性声明；结尾区分"AI分析置信度"与"投资确定性"
 4. 输出路径以 [.claude/rules/report-output.md](../../rules/report-output.md) 路由表为准。
 
@@ -137,4 +139,4 @@ python3 tools/report_audit.py extract --report {报告路径}   # 15%随机抽�
 - **至少3年+穿越牛熊**的样本才能谈业绩；本 skill 只做单只深度研究，不做全市场基金筛选
 - 经理离职是最常见的逻辑破坏事件，研究结论必须写明"经理变更即重审"
 - 规模是主动基金的天敌：明星效应带来的规模膨胀会稀释超额收益
-- tushare fund_manager/fund_portfolio 等接口可能无权限 → 数据以天天基金副源为准并标注
+- 基金细粒度接口（fund_manager/fund_portfolio 等）可能无权限 → data_loader 会走备用来源，报告中标注"副源补齐"，不再依赖单一接口可用性

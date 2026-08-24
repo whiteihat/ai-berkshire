@@ -91,7 +91,7 @@ python3 tools/financial_rigor.py three-scenario --price {价格} --eps {EPS} --s
 python3 tools/financial_rigor.py calc --expr '{精确算式}'
 ```
 
-关键财务数据必须至少两处独立来源交叉验证。来源不足、口径不一致、无法复核的数字必须标注为"低置信度 / 待核实"。
+关键财务数据按 [financial-data 规范](../../skills/financial-data/SKILL.md) 主源取数 + 合理性校验；来源不足、口径不一致、无法复核的数字标注为"低置信度 / 待核实"。不强制双源比对。
 
 ### A4：逐维度判定漂移
 

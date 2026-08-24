@@ -84,8 +84,8 @@ disable-model-invocation: true
   7. **金融严谨性验证（必须使用Bash调用工具，禁止心算）**：
      - 市值验算：`python3 tools/financial_rigor.py verify-market-cap --price {价格} --shares {股本} --reported {报告市值} --currency {币种}`
      - 估值验算：`python3 tools/financial_rigor.py verify-valuation --price {价格} --eps {EPS} --bvps {每股净资产}`
-     - 关键数据交叉验证：`python3 tools/financial_rigor.py cross-validate --field {字段} --values '{JSON}' --unit {单位}`
      - 三情景估值：`python3 tools/financial_rigor.py three-scenario --price {价格} --eps {EPS} --shares {股本亿} --growth {乐观} {中性} {悲观} --pe {乐观PE} {中性PE} {悲观PE}`
+     - 取数走 financial-data 主源 + 合理性校验（异常才 cross-validate 人工核查）
      - 将工具输出结果直接嵌入报告中作为验证记录
 
 #### 任务3：行业与竞争分析
@@ -191,7 +191,7 @@ python3 tools/report_audit.py verdict \
 
 1. **4个Agent必须并行启动**——在同一条消息中调用4次Task工具
 2. **Agent通过SendMessage汇报**——不是文件协作，是消息通信
-3. **数据准确性**——要求Agent使用WebSearch搜索最新数据，关键数据交叉验证
+3. **数据准确性**——取数走 financial-data 主源 + 合理性校验，要求Agent使用WebSearch搜索最新数据并工具验算
 4. **结论要明确**——不回避给出买入/观望/回避建议和具体价格区间
 5. **所有分析必须有数据支撑**——附数据来源
 6. **耐心等待**——4个Agent研究需要几分钟，实时向用户更新进度

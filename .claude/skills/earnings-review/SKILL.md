@@ -80,20 +80,20 @@ disable-model-invocation: true
 - 存货周转天数变化（是否在积压？）
 - 商誉及无形资产占比（是否有减值风险？）
 
-**数据验证**：使用 `tools/financial_rigor.py` 对关键数据进行校验：
+**数据验证**：取数遵循 [financial-data 规范](../../skills/financial-data/SKILL.md)——主源优先，异常才人工核查。使用 `tools/financial_rigor.py` 对关键**计算**校验（防LLM心算/单位错误）：
 
 ```bash
-# 收入和净利润交叉验证（至少2个来源）
-python3 tools/financial_rigor.py cross-validate \
-  --metric "revenue" --values 108.3e9 107.9e9 --sources "公司财报" "Yahoo Finance"
-
-# 市值校验
+# 市值校验（股价×总股本 vs 报告市值）
 python3 tools/financial_rigor.py verify-market-cap \
   --price 101 --shares 1.488e9 --reported 1.44e11 --currency USD
 
 # 估值指标验算
 python3 tools/financial_rigor.py verify-valuation \
   --price 101 --eps 9.6 --bvps 26.5 --fcf-per-share 10.2
+
+# 仅当与前值/常识明显冲突时人工核查
+python3 tools/financial_rigor.py cross-validate \
+  --metric "revenue" --values 108.3e9 107.9e9 --sources "公司财报" "Yahoo Finance"
 ```
 
 ### 第三步：管理层讨论精读（MD&A）

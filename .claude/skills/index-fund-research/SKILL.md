@@ -43,15 +43,15 @@ disable-model-invocation: true
 
 ### 第一步：标的确认与基金基本盘
 
-> **数据源规范**：`.claude/skills/financial-data/SKILL.md` 基金与指数章节；每个关键数据两个独立来源，误差>1%标记。
-> tushare 无权限的字段（fund_basic/fund_share 等）用天天基金副源补齐，工具会输出退化提示。
+> **数据源规范**：唯一数据入口是 [.claude/skills/financial-data/SKILL.md](../../skills/financial-data/SKILL.md) 规定的统一数据访问层 `tools/data_loader.py`；不复刻命令。tushare 无权限字段由 data_loader 走备用来源（不做双源比对）。
 
 ```bash
-uv run python tools/tushare_data.py fundsearch 沪深300      # 查代码（基金+指数分节）
-uv run python tools/tushare_data.py indexinfo 000300.SH     # 指数基本盘
-uv run python tools/tushare_data.py fundinfo 510300         # 基金基本盘（费率/经理/跟踪指数）
-uv run python tools/tushare_data.py fundshares 510300       # 规模与份额变动
+python tools/data_loader.py search 沪深300                      # 查代码（基金+指数分节）
+python tools/data_loader.py get fund {code} --field basic        # 基金基本盘（费率/经理/跟踪指数）
+python tools/data_loader.py get fund {code} --field shares       # 规模与份额变动
 ```
+
+指数成分/权重/估值分位/历史收益等 `index_*` 细粒度数据，由 financial-data 规范统一说明，需要时用 `tools/data_loader.py` 的 search + 对应 Tushare 细粒度命令人工核对并标注滞后。
 
 输出"基金基本盘"表：
 
@@ -67,50 +67,27 @@ uv run python tools/tushare_data.py fundshares 510300       # 规模与份额变
 
 ### 第二步：指数分析——这组生意值不值得买
 
-**2.1 成分与权重**：
-```bash
-uv run python tools/tushare_data.py indexweight 000300.SH   # 前30成分+前5/前10集中度
-```
-输出：前十大成分表 + 前5/前10权重合计。**集中度>60%时"指数=分散"是错觉**。
-指数权重接口无覆盖时：用跟踪该指数的 ETF 的 fundholdings 前十大兜底 + 中证指数官网成分列表。
+**2.1 成分与权重**：指数权重接口取前 30 成分 + 前 5/前 10 集中度。输出：前十大成分表 + 前 5/前 10 权重合计。**集中度>60%时"指数=分散"是错觉**。指数权重接口无覆盖时：用跟踪该指数的 ETF fund_holdings 前十大兜底 + 中证指数官网成分列表。
 
 **2.2 行业暴露**：成分股按申万一级汇总行业分布表；与现有组合（/portfolio-review）的行业暴露对比，防叠加。
 
-**2.3 估值分位**：
-```bash
-uv run python tools/tushare_data.py indexvaluation 000300.SH --window 5y
-```
-输出：最新 PE/PE(TTM)/PB + 历史分位（标注窗口口径）；无权限退化到乐咕乐股 legulegu.com。
+**2.3 估值分位**：指数估值分位（标注窗口口径 1y/3y/5y/all）；无权限走乐咕乐股/中证官网。
 **段永平式追问**：这个指数背后的生意集合，一句话是什么？赚的是辛苦钱还是稀缺钱？
 
-**2.4 历史收益与风险**：
-```bash
-uv run python tools/tushare_data.py indexdaily 000300.SH
-```
-输出：近1/3/5/10年收益、最大回撤（注明价格口径 vs 全收益口径）。
+**2.4 历史收益与风险**：指数近 1/3/5/10 年收益、最大回撤（注明价格口径 vs 全收益口径；全收益用中证官网副源）。
 **芒格式追问**：买这个指数最可能亏钱的路径是哪条？哪几只权重股在拖后腿？它们的生意恶化会怎样？
 
 ### 第三步：基金产品体检（共享清单见 financial-data.md）
 
 按 `.claude/skills/financial-data/SKILL.md`"基金产品体检指标清单"逐项检查：
 
-**3.1 跟踪误差**（被动基金的核心质检项）：
-```bash
-uv run python tools/tushare_data.py fundtracking 510300 --index 000300.SH
-```
-输出：年化跟踪误差/日均偏离/年化超额。宽基阈值 <1%，偏离大检查申赎冲击/现金留存/分红再投效率。
-（场内 ETF 净值 tushare 可能取不到 → 用场外对应份额或天天基金净值人工核对）
+**3.1 跟踪误差**（被动基金的核心质检项）：年化跟踪误差/日均偏离/年化超额。宽基阈值 <1%，偏离大检查申赎冲击/现金留存/分红再投效率。（场内 ETF 净值 tushare 可能取不到 → 用场外对应份额或天天基金净值人工核对）
 
-**3.2 场内流动性 + 折溢价**：
-```bash
-uv run python tools/tushare_data.py funddaily 510300        # 近20日日均成交额+折溢价
-uv run python tools/tickflow_data.py quote 510300.SH        # 盘中实时价（需注册，可选）
-```
-流动性 <1000万/日注意冲击成本；折溢价 ±1% 内正常（T-1 净值口径，必须标注滞后）。
+**3.2 场内流动性 + 折溢价**：`data_loader get fund {code} --field daily`（近20日日均成交额+折溢价）；盘中实时价可选 TickFlow。流动性 <1000万/日注意冲击成本；折溢价 ±1% 内正常（T-1 净值口径，必须标注滞后）。
 
-**3.3 规模与份额变动**：fundshares 近8期表；<2亿注意清盘风险、份额持续净流出=资金撤离。
+**3.3 规模与份额变动**：`data_loader get fund {code} --field shares` 近8期表；<2亿注意清盘风险、份额持续净流出=资金撤离。
 
-**3.4 持有人结构**（场外/LOF）：fundholder 或天天基金副源。
+**3.4 持有人结构**（场外/LOF）：`data_loader get fund {code} --field holder` 或天天基金副源。
 
 **3.5 费率年化成本**：综合费率 vs 0.15%（宽基ETF）基准，10年累计成本。
 **巴菲特式追问**：持有10年，费率+跟踪误差吃掉多少收益？这是"最便宜的复制品"吗？
@@ -134,8 +111,8 @@ uv run python tools/tickflow_data.py quote 510300.SH        # 盘中实时价（
 
 ## 输出要求
 
-1. 中文、直接犀利、不说废话；数据标来源，关键数据双源交叉验证（误差>1%标记）
-2. 计算一律走工具（tushare_data.py / tickflow_data.py / financial_rigor.py），禁止LLM心算
+1. 中文、直接犀利、不说废话；数据标来源，主源合理性校验（见 [financial-data 规范](../../skills/financial-data/SKILL.md)）
+2. 计算一律走工具（data_loader 取数 / financial_rigor.py 验算），禁止LLM心算
 3. 报告开头：信息丰富度评级（A/B/C）+ AI研究局限性声明；结尾区分"AI分析置信度"与"投资确定性"
 4. 输出路径以 [.claude/rules/report-output.md](../../rules/report-output.md) 路由表为准。
 
@@ -160,4 +137,4 @@ python3 tools/report_audit.py extract --report {报告路径}   # 15%随机抽�
 - 编制规则可能失效（成分调整、风格漂移、主题ETF被爆炒后失真）
 - 折溢价基于 T-1 净值有滞后；场内大额买卖注意冲击成本
 - 分位低≠便宜：盈利下滑时低分位是价值陷阱
-- tushare fund_basic/fund_share 等接口可能无权限 → 数据以天天基金副源为准并标注
+- 基金细粒度接口可能无权限 → data_loader 走备用来源，报告中标注"副源补齐"

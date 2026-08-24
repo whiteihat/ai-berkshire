@@ -39,7 +39,7 @@ disable-model-invocation: true
 
 ### 第一步：数据收集
 
-> **数据源规范**：严格遵循 `.claude/skills/financial-data/SKILL.md`。市场主/副源、原始披露优先级、误差处理与工具退化路径均以该规范为准；所有关键财务数据应使用两个独立来源交叉验证，无法满足时明确说明例外和置信度。
+> **数据源规范**：严格遵循 `.claude/skills/financial-data/SKILL.md`。数据经统一数据访问层 `tools/data_loader.py` 取主源；市场主/副源、口径与退化路径均以该规范为准。不做强制双源比对，对主源做合理性校验。
 
 使用 Task 工具启动后台 Agent，从网络收集以下数据：
 
@@ -54,14 +54,14 @@ disable-model-invocation: true
 9. 当前估值：市值、PE、PS、PEG、EV/Revenue
 10. 多空双方核心论点
 
-#### 数据交叉验证（必须执行，使用金融严谨性工具）
+#### 数据合理性与计算校验（必须执行，使用金融严谨性工具）
 
-数据收集完成后，**必须调用 `tools/financial_rigor.py` 对关键数据进行程序化验证**，杜绝LLM心算误差。
+数据收集完成后，**必须调用 `tools/financial_rigor.py` 对关键计算做程序化验证**，杜绝LLM心算误差。取数遵循 [financial-data 规范](../../skills/financial-data/SKILL.md)——主源优先，异常才人工核查，不强制双源比对。
 
-**必须验证的数据点**：
-- 总股本（从交易所、Yahoo Finance、StockAnalysis 等至少2个源确认）
+**必须验证的数据点**（计算类，防单位/口径错误）：
+- 总股本（数据经 data_loader 主源取，验证用的是最新总股本）
 - 当前股价和市值（**手动计算 股价×总股本 并与报告市值对比，防止单位错误**）
-- 最近财年收入和净利润（从公司年报+至少1个第三方源确认）
+- 最近财年收入和净利润（口径标注：合并/母公司、GAAP/Non-GAAP）
 - 现金储备和净现金（现金+短期投资-总债务，注意口径差异）
 - 管理层持股比例（区分经济权益和投票权，注意AB股结构）
 
@@ -73,24 +73,23 @@ python3 tools/financial_rigor.py verify-market-cap \
   --price {股价} --shares {总股本} --reported {报告市值} --currency {币种}
 ```
 
-Step 2 — 关键数据多源交叉验证：
-```bash
-python3 tools/financial_rigor.py cross-validate \
-  --field {字段名} --values '{"来源1": 数值, "来源2": 数值}' --unit {单位}
-```
-对收入、净利润、现金储备分别执行。
-
-Step 3 — 估值指标精确验算（PE/PB/ROE/FCF Yield 等）：
+Step 2 — 估值指标精确验算（PE/PB/ROE/FCF Yield 等）：
 ```bash
 python3 tools/financial_rigor.py verify-valuation \
   --price {股价} --eps {EPS} --bvps {每股净资产} --fcf-per-share {每股FCF} --dividend {每股股息}
 ```
 
+Step 3 —（仅当主源数据与常识/前值明显冲突，或涉及高杠杆决策如净现金/退出PE 时）人工核查：
+```bash
+python3 tools/financial_rigor.py cross-validate \
+  --field {字段名} --values '{"主源": 数值, "核查源": 数值}' --unit {单位}
+```
+
 **验证规则**：
-1. 每个关键数据点至少2个独立来源
-2. 发现来源间有差异时，优先采用公司年报/交易所数据，并注明差异原因
+1. 数据以主源为准（data_loader），不强制双源。
+2. 对收入、净利润、现金做**合理性校验**：与前值同比量级合理、市值≈股价×股本、勾稽自洽；明显偏离才降级人工核查并注明原因。
 3. **所有涉及计算的数据必须通过工具验算，禁止LLM心算**
-4. 工具输出结果直接嵌入报告附录"关键数据交叉验证记录"
+4. 工具输出结果可直接嵌入报告附录"数据与合理性校验记录"
 5. 如果工具报告 ❌ 偏差过大，必须排查原因后才能继续分析
 
 **常见错误防范**：
