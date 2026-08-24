@@ -182,7 +182,6 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 | [`/investment-team`](skills/investment-team.md) | 多Agent并行投研团队 | 4个Agent并行研究，最快速、最全面 |
 | [`/management-deep-dive`](skills/management-deep-dive.md) | 管理层纵深研究 | "买股票就是买人"——当管理层是核心变量时深挖 |
 | [`/private-company-research`](skills/private-company-research.md) | 未上市公司深度研究 | 研究蚂蚁、SpaceX等信息稀缺的未上市公司 |
-| [`/deep-company-series`](skills/deep-company-series.md) | 8篇长文系列拆一家公司 | 公众号级深度系列，12万字从认知重置到决策闭环 |
 | [`/index-fund-research`](skills/index-fund-research.md) | 被动指数基金研究（ETF/指数LOF） | 分析对象是指数：成分/权重/估值分位 + 基金产品体检（跟踪误差/折溢价/费率） |
 | [`/active-fund-research`](skills/active-fund-research.md) | 主动基金研究 | 买基金就是买基金经理：经理画像/言行一致/持仓分析 + 产品体检 |
 
@@ -217,9 +216,7 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/dyp-ask`](skills/dyp-ask.md) | 段永平问答 | 以段永平的方式思考任何问题——商业、投资、人生 |
 | [`/financial-data`](skills/financial-data.md) | 财务数据获取与交叉验证规范 | 确保关键数据来自2个独立来源，误差>1%告警 |
-| [`/wechat-article`](skills/wechat-article.md) | 微信公众号文章 | 作者、编辑、读者三Agent协作，产出可发布文章 |
 
 ### 🔗 搭配 Claude Code 内置的 /deep-research
 
@@ -292,7 +289,6 @@ cd ai-berkshire
 /investment-team 美团
 /management-deep-dive 王兴 美团
 /private-company-research SpaceX
-/deep-company-series 拼多多
 
 # 财报分析
 /earnings-review 腾讯 2025Q4
@@ -313,8 +309,6 @@ cd ai-berkshire
 /news-pulse 腾讯
 
 # 思维工具
-/dyp-ask 拼多多的护城河到底在哪里？
-/wechat-article 美团
 ```
 
 ---

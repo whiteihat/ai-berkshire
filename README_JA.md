@@ -174,7 +174,6 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 | [`/investment-team`](skills/investment-team.md) | マルチエージェント並列リサーチチーム | 4エージェント並列——最速かつ最も網羅的 |
 | [`/management-deep-dive`](skills/management-deep-dive.md) | 経営陣の深掘り | 「株を買うことは人を買うこと」——経営陣が鍵となる変数のとき |
 | [`/private-company-research`](skills/private-company-research.md) | 非上場企業リサーチ | アントグループ、SpaceXのような情報の少ない非上場企業のリサーチ |
-| [`/deep-company-series`](skills/deep-company-series.md) | 8部構成の長編深掘りシリーズ | 発行品質のシリーズ、認知リセットから意思決定収束まで約12万字 |
 
 ### 📊 決算分析
 
@@ -207,9 +206,7 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/dyp-ask`](skills/dyp-ask.md) | 段永平Q&A | 段永平の思考方法で任意の問いを考える——ビジネス、投資、人生 |
 | [`/financial-data`](skills/financial-data.md) | 財務データの取得とクロスバリデーション | 重要データが2つ以上の独立したソースから得られることを保証；1%超の乖離をアラート |
-| [`/wechat-article`](skills/wechat-article.md) | WeChat記事ワークフロー | 著者・編集者・読者エージェントが協力して発行可能な記事を制作 |
 
 ---
 
@@ -276,7 +273,6 @@ Claude Codeで直接呼び出す：
 /investment-team 美団
 /management-deep-dive 王興、美団
 /private-company-research SpaceX
-/deep-company-series 拼多多
 
 # 決算分析
 /earnings-review テンセント 2025Q4
@@ -297,8 +293,6 @@ Claude Codeで直接呼び出す：
 /news-pulse テンセント
 
 # 思考ツール
-/dyp-ask 拼多多の本当のモートはどこにあるか？
-/wechat-article 美団
 ```
 
 ---

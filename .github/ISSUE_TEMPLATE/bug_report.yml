@@ -15,11 +15,10 @@ body:
       description: 报错发生在哪个 skill？只选一个，且确保标题与正文描述的是同一个（曾出现标题写 investment-research、正文写 investment-team 的情况）。
       options:
         - bottleneck-hunter
-        - deep-company-series
-        - dyp-ask
         - earnings-review
         - earnings-team
         - financial-data
+        - income-investment
         - industry-funnel
         - industry-research
         - investment-checklist
@@ -32,7 +31,6 @@ body:
         - quality-screen
         - thesis-drift
         - thesis-tracker
-        - wechat-article
         - 不确定
         - 其他 / 涉及多个
     validations:

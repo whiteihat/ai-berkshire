@@ -172,7 +172,6 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 | [`/investment-team`](skills/investment-team.md) | Multi-Agent parallel research team | 4 Agents in parallel — fastest and most comprehensive |
 | [`/management-deep-dive`](skills/management-deep-dive.md) | Management deep dive | "Buying a stock is buying its people" — when management is the key variable |
 | [`/private-company-research`](skills/private-company-research.md) | Private company research | Research info-scarce private companies like Ant Group, SpaceX |
-| [`/deep-company-series`](skills/deep-company-series.md) | 8-part long-form deep dive series | Publication-grade series, ~120K words from cognitive reset to decision closure |
 
 ### 📊 Earnings Analysis
 
@@ -205,9 +204,7 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/dyp-ask`](skills/dyp-ask.md) | Duan Yongping Q&A | Think through any question the Duan Yongping way — business, investing, life |
 | [`/financial-data`](skills/financial-data.md) | Financial data retrieval & cross-validation | Ensure key data comes from 2+ independent sources; alerts on >1% deviation |
-| [`/wechat-article`](skills/wechat-article.md) | WeChat article workflow | Author, editor, and reader Agents collaborate to produce a publishable article |
 
 ---
 
@@ -274,7 +271,6 @@ Invoke directly in Claude Code:
 /investment-team Meituan
 /management-deep-dive Wang Xing, Meituan
 /private-company-research SpaceX
-/deep-company-series Pinduoduo
 
 # Earnings Analysis
 /earnings-review Tencent 2025Q4
@@ -295,8 +291,6 @@ Invoke directly in Claude Code:
 /news-pulse Tencent
 
 # Thinking Tools
-/dyp-ask Where is Pinduoduo's real moat?
-/wechat-article Meituan
 ```
 
 

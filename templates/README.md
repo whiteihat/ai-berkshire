@@ -26,13 +26,11 @@
 
 ## 无独立模板的 Skill
 
-以下 Skill 的输出结构由其源文件内嵌定义，路径仍必须遵守 [报告路由规则](../.claude/rules/report-output.md)：
+以下 Skill 的输出结构由其源文件内嵌定义，路径以 [报告路由规则](../.claude/rules/report-output.md) 为准：
 
-- `/thesis-drift`：论文对比输出到对应公司目录的 `*-thesis-drift-{YYYYMMDD}.md`
-- `/income-investment`：使用源文件的 18 节固定结构，输出到对应公司目录
-- `/bottleneck-hunter`：使用源文件的完整扫描/每日扫描模板，维护 `reports/bottleneck-map/`
-- `/deep-company-series`：使用源文件的篇目与篇内模板，输出到对应公司日期目录
-- `/wechat-article`：按技术主题、投资主题或通用主题的内嵌格式输出
+- `/thesis-drift`：论文对比
+- `/income-investment`：收益投资分析（18 节固定结构）
+- `/bottleneck-hunter`：供应链瓶颈扫描
 
 ## 通用格式规范
 
