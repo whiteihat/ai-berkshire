@@ -1,286 +1,140 @@
 ---
-description: "AI Berkshire 项目内工作流：财务数据获取与交叉验证规范"
+description: "AI Berkshire 项目内工作流：财务数据获取规范与统一数据访问层"
 disable-model-invocation: true
 ---
 
-# 财务数据获取与交叉验证规范
+# 财务数据获取与统一数据访问规范
 
-本规范适用于所有涉及企业财务数据的研究。**每个关键数据必须来自两个独立来源，误差>1%须标记。**
-
----
-
-## 核心工作流：数据获取优先级
-
-**所有研报生成任务（无论调用何种 Skill）必须遵循以下优先级：**
-
-### 1. 优先使用本地落盘数据
-
-- 先执行落盘脚本更新指定标的的原始数据至 `local/` 目录：
-  - 个股：`python tools/fundamental_fetcher.py update {ts_code_6} {name}`
-  - 基金：`python tools/fund_data_fetcher.py update {code}`
-- 读取本地落盘数据（按报告期排序），使用最新版本
-
-### 2. 数据足够 → 直接生成研报
-
-若本地数据已覆盖所需报告期（最新季报/年报），直接基于本地数据撰写，**不再调用外部接口**。
-
-### 3. 数据不足 → 补充获取后再生成
-
-若本地数据缺失必要字段或报告期，降级使用原有数据获取方式补全：
-- Tushare 实时接口（`tools/tushare_data.py`）
-- Web Search / 东方财富 / 天天基金等副源
-- **补充的新数据必须同步落盘**，确保下次任务可直接使用
-
-### 4. 报告标注
-
-所有研报必须注明数据来源及获取时间戳，格式：
-
-> 数据来源：本地落盘（fundamental_fetcher, 2026-08-24 更新）+ Tushare 实时查询
+本规范是所有涉及财务数据研究的**唯一数据获取契约**。任何 Skill 不再内嵌可持续的数据源命令，只调用统一数据访问层 `tools/data_loader.py`，并按本节规则处理数据。
 
 ---
 
-## 数据源优先级
+## 统一原则
 
-### 美股（PDD、腾讯ADR、网易ADR等）
+1. **本地优先**：先读 `local/` 落盘缓存（由 `fundamental_fetcher` / `fund_data_fetcher` 写入）。命中且足够就直接用，不再调用外部接口。
+2. **主源唯一、退化明确**：缓存不足时，按下方"数据源与退化链"的单一顺序取数，取到后**强制落盘**，确保后续任务复用。
+3. **合理性校验（非双源比对）**：对主源数据做合理性校验——与前值同比是否合理、与行业常识是否冲突、市值≈股价×总股本、三表勾稽是否自洽。**明显偏离或口径冲突才启动人工核查**；不再强制"两个独立来源 + 误差标记"。
+4. **持久化与快照分流**：财务、估值分位、基金持仓等**持久化指标**强制落盘；盘中实时行情等**快照**仅可选缓存，不必落盘防止无限增长。
 
-| 优先级 | 来源 | URL | 获取方式 |
-|--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/搜索可用，财务视接口权限退化 |
-| 2（副） | **macrotrends** | macrotrends.net/stocks/charts/{ticker} | 直接访问，无需注册 |
-| 3（副） | **stockanalysis** | stockanalysis.com/stocks/{ticker}/financials | 直接访问，无需注册 |
-| 原始一手 | SEC EDGAR | sec.gov/cgi-bin/browse-edgar | 10-K / 10-Q 原文 |
-
-### 港股（腾讯0700、网易9999、美团3690等）
-
-| 优先级 | 来源 | URL | 获取方式 |
-|--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/搜索可用，财务视接口权限退化 |
-| 2（副） | **aastocks** | aastocks.com/tc/stocks/analysis/company-fundamental | 直接访问 |
-| 3（副） | **macrotrends**（ADR代码） | 腾讯用TCEHY，网易用NTES | 直接访问 |
-| 原始一手 | HKEX披露易 | hkexnews.hk | 年报PDF |
-
-### A股（三七互娱、吉比特等）
-
-| 优先级 | 来源 | URL | 获取方式 |
-|--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/估值/财务/分红/搜索全接口 |
-| 2（副） | **东方财富** | eastmoney.com → 搜股票代码 → 财务报表 | 直接访问 |
-| 原始一手 | **巨潮资讯** | cninfo.com.cn | 原始年报/季报PDF |
-
-**Tushare 取数工具**（A股/港股/美股通用，分析三大市场时优先调用；依赖用 uv 管理；实际回退链为 ttshare → cheapyun（如配置）→ 官方 Tushare）：
-
-```bash
-uv run python tools/tushare_data.py quote 600519        # A股行情 + 市值验算
-uv run python tools/tushare_data.py valuation 600519    # PE/PB/市值/52周高低
-uv run python tools/tushare_data.py financials 600519   # 近5年年度核心财务
-uv run python tools/tushare_data.py dividend 600519     # 分红送配（仅A股有标准接口）
-uv run python tools/tushare_data.py search 茅台          # 搜索代码（A股+港股+美股）
-uv run python tools/tushare_data.py quote 00700.HK      # 港股行情
-uv run python tools/tushare_data.py quote AAPL          # 美股行情
-```
-
-市场覆盖与权限退化：
-
-1. **数据源优先级**：ttshare 代理（授权码）→ cheapyun 代理（如配置）→ 官方 tushare（token）→ 三者都失败时工具输出明确退化提示与本节备选来源，**不静默给空数据**
-2. **Token 只存本机、严禁提交到 Git**：代理授权码放 `local/ttshare_token.txt`（环境变量 `TTSHARE_TOKEN`）；cheapyun 凭证按工具实现放 `local/tushare_token_tmp.txt`（环境变量 `CHEAPYUN_TOKEN`）；官方 token 放 `local/tushare_token.txt`（环境变量 `TUSHARE_TOKEN`）。即使本机忽略规则变化，也不得将这些文件加入提交。
-3. **A股全接口可用**；港股/美股行情、搜索可用，估值/财务接口视权限——无权限时回到对应市场副源交叉验证
-4. 依赖安装：`uv add ttshare tushare`（ttshare 第三方源已在 pyproject.toml 配置，勿用 pip 直接装）
-
-### 台股（台积电2330、联发科2454、大立光3008等）
-
-| 优先级 | 来源 | URL | 获取方式 |
-|--------|------|-----|---------|
-| 1（主） | **FinMind API** | api.finmindtrade.com | `tools/twstock_data.py`（零依赖脚本，见下） |
-| 2（副） | **Goodinfo台湾股市资讯网** | goodinfo.tw/tw/StockDetail.asp?STOCK_ID={代码} | 直接访问 |
-| 原始一手 | 公开资讯观测站（MOPS） | mops.twse.com.tw | 财报原文/月营收公告 |
-
-**FinMind 取数工具**（分析台股时优先调用，输出自带市值验算）：
-
-```bash
-python3 tools/twstock_data.py quote 2330        # 最新行情 + PER/PBR/殖利率 + 市值验算
-python3 tools/twstock_data.py valuation 2330    # 估值指标 + PER一年区间 + 52周高低
-python3 tools/twstock_data.py financials 2330   # 近5年年度核心财务（营收/毛利率/归母净利/EPS/ROE）
-python3 tools/twstock_data.py revenue 2330      # 近13个月月营收及同比
-python3 tools/twstock_data.py dividend 2330     # 近年股利政策（现金/股票股利、除息日）
-python3 tools/twstock_data.py search 台積        # 搜索股票代码（注意台股名称为繁体）
-```
-
-台股特别注意：
-
-1. **货币单位是新台币（TWD）**，与港币/人民币/美元混排时必须显式标注，跨市场对比先统一换算
-2. **月营收是台股独有优势**：上市柜公司每月10日前强制披露上月营收，是跟踪基本面拐点最快的公开信号，earnings-review/thesis-tracker 类分析应优先利用（`revenue` 子命令）
-3. FinMind 损益表为**单季值**，工具已自动加总为年度值；不足4季的年份会标注"仅前N季累计"
-4. FinMind 未注册可直接用（有小时级限额）。注册后的 API token **只存本机、严禁提交到 Git**，工具按优先级自动读取：①环境变量 `FINMIND_TOKEN`；②本地文件 `local/finmind_token.txt`（把 Token 单独一行写入该文件）。即使本机忽略规则变化，Token 也不得出现在报告、Skill、commit 中。
-5. 交叉验证：FinMind 数值与 Goodinfo（或 macrotrends 上的 ADR，如 TSM）对照，误差规则同下；台积电等有 ADR 的公司注意 ADR 与台股原股的汇率/存托比率差异（1 TSM ADR = 5 股 2330）
-
-### 基金与指数（ETF/LOF/主动基金，index-fund-research / active-fund-research 专用）
-
-| 优先级 | 来源 | URL | 获取方式 |
-|--------|------|-----|---------|
-| 1（主） | **Tushare 基金/指数接口** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | fundinfo/fundnav/funddaily/fundshares/fundholdings/fundmanager/fundholder/fundsearch/fundtracking/indexinfo/indexdaily/indexvaluation/indexweight |
-| 2（副） | **TickFlow**（场内行情/指数K线备源） | `tools/tickflow_data.py`，免费层日K即可用 | 补 fund_daily/index_daily 无权限或盘中实时缺口；**只有行情类数据**（无净值/持仓/估值分位） |
-| 3（副） | **天天基金** | fund.eastmoney.com（搜基金代码） | 净值/费率/规模/经理/持仓/持有人/限购——tushare 无权限接口（fund_basic/portfolio/manager/holder/share）的第一副源 |
-| 4（副） | **东方财富数据中心** | data.eastmoney.com | 场内行情、ETF份额、基金规模 |
-| 5（副） | **乐咕乐股** | legulegu.com | 指数估值与历史分位（index_dailybasic 无权限时） |
-| 6（副） | **集思录** | jisilu.cn | 场内基金折溢价、申赎套利 |
-| 原始一手 | **证监会基金信息披露平台** | fund.csrc.gov.cn | 基金合同/招募说明书/季报/半年报/年报 PDF |
-
-**Tushare 基金/指数取数工具**（基金/指数分析时优先调用）：
-
-```bash
-uv run python tools/tushare_data.py fundinfo 510300     # 基金基本盘（类型/费率/经理/跟踪指数）
-uv run python tools/tushare_data.py fundnav 012414.OF   # 净值与业绩（复权净值/区间收益/回撤）
-uv run python tools/tushare_data.py funddaily 510300    # 场内行情/流动性/折溢价
-uv run python tools/tushare_data.py fundshares 510300   # 份额与规模变动（近8期）
-uv run python tools/tushare_data.py fundholdings 161725 # 季报前十大持仓
-uv run python tools/tushare_data.py fundmanager 161725  # 历任基金经理档案
-uv run python tools/tushare_data.py fundholder 161725   # 持有人结构
-uv run python tools/tushare_data.py fundsearch 白酒      # 搜索基金与指数代码
-uv run python tools/tushare_data.py fundtracking 012414.OF --index 399997.SZ  # 跟踪误差
-uv run python tools/tushare_data.py indexinfo 000300.SH # 指数基本盘
-uv run python tools/tushare_data.py indexdaily 000300.SH   # 指数行情与区间收益
-uv run python tools/tushare_data.py indexvaluation 000300.SH  # 指数估值与历史分位
-uv run python tools/tushare_data.py indexweight 000300.SH    # 成分权重与集中度
-```
-
-**接口权限退化表**（2026-08-24 实测）：
-
-| 接口 | 命令 | 官方积分门槛 | ttshare 实测 | cheapyun 实测 | 无权限/无数据时的副源 |
-|------|------|------------|-------------|--------------|---------------------|
-| fund_daily | funddaily | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 东方财富数据中心；盘中实时 TickFlow |
-| fund_nav | fundnav/fundtracking/折溢价 | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金历史净值页 |
-| fund_basic | fundinfo | ~2000 | ❌ 授权码过期 | ⚠️ 仅场外基金（.OF），场内 ETF 不在库 | 天天基金基金档案页（费率/经理/基准/跟踪指数） |
-| fund_share | fundshares | ~2000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金规模变动页 |
-| fund_portfolio | fundholdings | ~5000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金持仓明细页 |
-| fund_manager | fundmanager | ~5000 | ❌ 授权码过期 | ✅ 可用（.SH/.SZ 后缀） | 天天基金基金经理页 |
-| fund_holder | fundholder | ~5000 | ❌ 授权码过期 | ❌ 返回 500 错误 | 天天基金持有人结构页 |
-| index_daily | indexdaily/fundtracking | 免费 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网；TickFlow 日K |
-| index_basic | indexinfo | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网 csi.com.cn |
-| index_dailybasic | indexvaluation | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 乐咕乐股指数估值页 |
-| index_weight | indexweight | ~2000 | ⚠️ 待验证 | ⚠️ 待验证 | 中证指数官网成分列表，或跟踪ETF的 fundholdings 兜底 |
-
-> ⚠️ **2026-08-24 状态**：ttshare 授权码已过期；cheapyun 基金接口可用但有特殊行为——fund_nav/portfolio/share/manager/daily 用 `.SH/.SZ` 后缀（非 `.OF`），fund_basic 仅含场外基金，fund_holder 返回 500。`fund_data_fetcher.py` 已内置 cheapyun 参数适配。
-
-**TickFlow 能力边界**（`tools/tickflow_data.py`）：只有 ETF/指数/个股**实时行情与日K**（免费层日K+标的信息，完整服务实时行情）；**没有**场外净值/持仓/份额/经理/指数估值分位/成分权重——那些仍走 tushare fund_* 命令或天天基金。token 放 `local/tickflow_key.txt`（环境变量 `TICKFLOW_API_KEY`），同 local/ 保密规则。
-
-**基金特有规则**：
-
-1. **场内价格实时、净值 T+1 披露**（QDII 更久）→ 折溢价基于 T-1 净值计算，必须标注滞后；盘中实时折溢价用 TickFlow 实时价 × tushare 净值
-2. **基金业绩一律用复权净值（adj_nav）**口径（含分红再投）；指数收益为价格口径，长期对比注明"是否含股息"（全收益指数用中证指数官网副源）
-3. **指数估值分位窗口必须标注**（1y/3y/5y/all），分位低≠便宜——盈利下滑时低分位是价值陷阱
-4. **代码后缀规则**：基金接口（fund_*）ts_code 用 `.OF` 后缀；场内行情/指数用 `.SH/.SZ`；`5x→.SH`、`1x→.SZ`、`0x/2x/3x→场外`；H 开头指数为 `.CSI` 系列；**国证指数（深圳证券信息）用 `.CNI` 后缀**（如 480032.CNI 国证新能源车电池，国证官网代码 980032，tushare 映射为 48xxxx 段；工具 `_resolve_index_code` 已支持 .CNI，2026-08-07 修复）
-5. tushare **无换手率/限购/申赎费**接口 → 一律用天天基金副源
-6. 基金数据与股票数据**工具隔离**：`fund_*`/`index_*` 命令与股票命令（quote/valuation 等）完全独立，基金代码误传股票命令会得到引导提示
-
-### 基金产品体检指标清单（index-fund-research / active-fund-research 共享）
-
-两个基金 skill 的"产品体检"步骤统一按此清单执行，指标口径与健康阈值以本表为准：
-
-| 指标 | 口径 | 健康阈值（参考） | 来源 |
-|------|------|----------------|------|
-| 综合费率 | 管理费+托管费+销售服务费 | 被动 ≤0.5%、主动 ≤1.5%（申赎费另计，副源） | fundinfo + 天天基金 |
-| 规模 | 最新资产净值 | >2亿（防清盘）；主动 >100亿警惕策略容量 | fundshares + 天天基金 |
-| 流动性 | 近20日日均成交额 | 场内 >1000万/日 | funddaily |
-| 折溢价 | (场内价−T-1净值)/净值 | ±1%以内（T-1口径标注） | funddaily + 天天基金 |
-| 跟踪误差 | 年化日收益差标准差 | 宽基 <1% | fundtracking |
-| 持有人结构 | 机构/个人占比及趋势 | 机构占比适中且稳定（上升=机构认可信号） | fundholder + 天天基金 |
-| 份额变动 | 近8期份额环比 | 无持续大幅净流出 | fundshares |
-| 分红记录 | 历史分红金额/次数 | 与合同约定一致 | 天天基金 |
+> **调用方式**：Skill 生成报告时统一用
+> ```python
+> from tools.data_loader import get, load_local, update, search
+> ```
+> 或命令行 `python tools/data_loader.py get <type> <code> <name> [--field ...]`。不要直接散落 tushare/twstock/tickflow 命令；这些工具的细粒度命令仅供排查，不由 Skill 直接驱动。
 
 ---
 
-## 执行规范
+## 统一数据访问层（tools/data_loader.py）
 
-### 第一步：获取数据
-
-对每个财务指标（收入、净利润、毛利率、经营现金流、资产负债率等），分别从**来源1**和**来源2**取数。
-
-### 第二步：误差计算与标记
-
-```
-误差率 = |来源1数值 - 来源2数值| / 来源1数值 × 100%
-```
-
-| 误差 | 处理方式 |
-|------|---------|
-| ≤ 1% | ✅ 一致，取来源1数值，标注两个来源 |
-| 1% ~ 5% | ⚠️ 标记"数据存在差异"，注明两个数值，说明可能原因（汇率/会计口径） |
-| > 5% | ❌ 标记"数据存在重大差异"，必须查原始财报核实，不得直接使用 |
-
-### 第三步：数据呈现格式
-
-每个关键数据必须按以下格式标注：
-
-```
-收入：1,239亿元 ✅
-  - macrotrends: 1,241亿元
-  - stockanalysis: 1,237亿元
-  - 误差: 0.3%
-```
-
-差异示例：
-```
-净利润：245亿元 ⚠️ 数据存在差异
-  - macrotrends: 245亿元（GAAP）
-  - stockanalysis: 278亿元（Non-GAAP）
-  - 误差: 13.5% — 原因：会计口径不同（GAAP vs Non-GAAP）
-```
-
----
-
-## 常见差异原因（不一定是数据错误）
-
-| 原因 | 说明 |
-|------|------|
-| GAAP vs Non-GAAP | 最常见，尤其是利润类数据 |
-| 汇率换算 | 港币/人民币/美元换算时间点不同 |
-| 财年定义 | 自然年 vs 财年（如苹果财年10月结束） |
-| 合并口径 | 是否含少数股东权益 |
-| 数据更新滞后 | 某平台尚未更新最新一期财报 |
-
----
-
-## 特别规则
-
-1. **未上市公司**（米哈游、莉莉丝等）：只有一手数据来源时，数据前标记 `[估计]`，不执行交叉验证
-2. **季度数据 vs 年度数据**：优先使用年度数据做交叉验证，季度数据部分来源可能有滞后
-3. **原始财报优先**：若两个来源均与原始财报（10-K/年报PDF）不符，以原始财报为准，标记来源错误
-
----
-
-## 股价与复权（历史序列必读）
-
-价格有三种口径，混用会让历史股价位置、长期涨幅、历史估值分位全部失真：
-
-| 口径 | 含义 | 用途 |
+| 场景 | 调用 | 说明 |
 |------|------|------|
-| 不复权 | 实际成交价，除权除息日跳空 | 仅用于"当前时点"快照 |
-| 前复权 | 以最新价为基准回调历史价 | 历史股价对比、N年涨幅、历史PE band 一律用它 |
-| 后复权 | 以上市首日为基准前推 | 计算历史总回报/年化收益 |
+| 个股财务 | `get("stock", code, name)` | 返回 {api: records}，自动落盘 |
+| 个股元数据 | `get("stock", code, name, field="meta")` | 股票基本盘 |
+| 个股公告 | `get("stock", code, name, field="announcements")` | 最近公告 |
+| 基金基本盘 | `get("fund", code, field="basic")` | 类型/费率/经理/跟踪指数 |
+| 基金净值/业绩 | `get("fund", code, field="nav")` | 复权净值与区间收益 |
+| 基金场内行情 | `get("fund", code, field="daily")` | 流动性/折溢价 |
+| 基金持仓 | `get("fund", code, field="holdings", period=...)` | 季报前十大持仓 |
+| 份额/经理/持有人 | `get("fund", code, field="shares"\|"manager"\|"holder")` | 对应子项 |
+| 仅读本地 | `load_local(type, code, name)` | 不触发更新 |
+| 强制刷新 | `update(type, code, name)` | 增量更新缺失期间 |
+| 搜索代码 | `search(keyword)` | 个股/基金/指数 |
+| 缓存状态 | `status(type, code, name)` / `list()` | 排查 |
 
-规则：
+---
 
-1. 涉及历史价格的分析统一用**前复权**，且同一分析内**不得混用**复权与不复权来源。
-2. 当前市值/当前PE 用**当前实际股价 × 当前总股本**即可，与复权无关——复权只影响历史序列。
-3. 跨越拆股/大比例送转的每股指标（历史EPS、历史股价），必须复权还原后再同比。
-4. 总回报/年化收益需计入分红（后复权已含），只看价格涨幅会低估。
-5. 增发/回购后市值验算以最新总股本为准（`financial_rigor.py verify-market-cap` 偏差>5% 会提示核对）。
+## 数据源与退化链（主源定义）
+
+所有数据的取数链在 `data_loader` 内部已封装。此处仅记录各市场的**主源与备用来源**，供人工核查/排障时参考，不作为 Skill 的执行命令。
+
+### 股票链（A股/港股/美股）
+
+| 市场 | 主源 | 备用（人工核查） | 一手文件 |
+|------|------|------------------|----------|
+| A股 | Tushare（ttshare→cheapyun→官方） | 东方财富 eastmoney.com | 巨潮资讯 cninfo.com.cn |
+| 港股 | Tushare（ttshare→cheapyun→官方） | aastocks / macrotrends（ADR） | 港交所披露易 hkexnews.hk |
+| 美股 | Tushare（ttshare→cheapyun→官方） | macrotrends / stockanalysis | SEC EDGAR（10-K/10-Q） |
+
+**退化链**（已实测 2026-08-24）：`ttshare 代理 → cheapyun 代理 → 官方 Tushare`。当前状态：ttshare 授权码已过期，cheapyun 在用；三源全失败时 `data_loader` 返回空并给出备用来源提示，**不静默给空数据**。
+
+Token 只存本机（`local/` 下 token 文件或环境变量，见下述），严禁提交到 Git。
+
+### 台股链
+
+| 主源 | 备用 | 一手 |
+|------|------|------|
+| FinMind API（`twstock_data`，零依赖） | Goodinfo goodinfo.tw | MOPS 公开资讯观测站 |
+
+- 台股人民币值单位是新台币（TWD），跨市场对比先换算。
+- FinMind 未注册可直接用（小时级限额）；注册后 token 只存 `local/finmind_token.txt`。
+- 月营收每月 10 日前强制披露，是跟踪基本面的最快信号（earnings/thesis 类优先用）。
+
+### 基金/指数链
+
+| 主源 | 备用 | 一手 |
+|------|------|------|
+| Tushare 基金/指数接口 | TickFlow（仅行情）；天天基金（净值/持仓/经理/持有人）；东方财富数据；乐咕乐股（指数估值分位）；集思录（折溢价） | 证监会基金信息披露平台 fund.csrc.gov.cn |
+
+- 持久化字段（fund_basic/nav/holdings/shares/manager/holder）强制落盘；TickFlow 只补**行情类快照**（无净值/持仓/估值分位），且仅可选缓存。
+- 基金代码后缀：`fund_*` 用 `.OF`；场内行情/指数用 `.SH/.SZ`（`5x→.SH`、`1x→.SZ`、`0x/2x/3x→场外`）；H 开头指数 `.CSI`，国证指数 `.CNI`。
+
+---
+
+## 市场与货币规则（历史序列必读）
+
+- 历史价格统一**前复权**，且同一分析内不得混用复权/不复权来源；当前市值/PE 用当前实际股价×当前总股本，与复权无关。
+- 跨拆股/送转的每股指标必须先复权还原再同比；总回报计分红（后复权已含）。
+- 跨市场对比：先说明汇率、ADR/原股比价（如 1 TSM ADR=5 股 2330）或复权处理。
+- 市值验算偏差>5% 触发核对（`financial_rigor.py verify-market-cap`）。
+---
+
+## 基金产品体检指标（index-fund / active-fund 共享）
+
+两个基金 skill 的"产品体检"统一按此清单执行，口径与健康阈值以本表为准：
+
+| 指标 | 口径 | 健康阈值（参考） | 主源/备用 |
+|------|------|----------------|-----------|
+| 综合费率 | 管理费+托管费+销售服务费 | 被动 ≤0.5%、主动 ≤1.5% | data_loader fund/basic + 天天基金 |
+| 规模 | 最新资产净值 | >2亿（防清盘）；主动 >100亿警惕容量 | fund/shares + 天天基金 |
+| 流动性 | 近20日日均成交额 | 场内 >1000万/日 | fund/daily |
+| 折溢价 | (场内价−T-1净值)/净值 | ±1%以内（T-1口径标注） | fund/daily + 天天基金 |
+| 跟踪误差 | 年化日收益差标准差 | 宽基 <1% | fund/daily（index 对照） |
+| 持有人结构 | 机构/个人占比及趋势 | 机构适中且稳定 | fund/holder + 天天基金 |
+| 份额变动 | 近8期份额环比 | 无持续大幅净流出 | fund/shares |
+| 分红记录 | 历史分红金额/次数 | 与合同一致 | 天天基金 |
+
+> 折溢价基于 T-1 净值计算并标注滞后；基金业绩一律用复权净值（adj_nav）口径。
+
+---
+
+## 合理性校验（替代"双源交叉验证"）
+
+取到主源数据后，做以下**低成本合理性校验**；通过即用，不通过才人工核查：
+
+1. **同比合理性**：本期 vs 上一期同类指标，是否在一个合理量级（如毛利率突变、净利润翻数倍但无公告）。
+2. **常识一致性**：市值 ≈ 股价×总股本（偏差>5%触发核对）；负债/现金/营收量级与公司体量匹配。
+3. **勾稽自洽**：营收/净利/经营现金流的大致关系（如经营现金流长期远小于净利需警惕）。
+4. **口径敏感**：对高杠杆决策数据（净现金、负债、PE band、退出 PE），若与前值/常识冲突，启动 `financial_rigor.py cross-validate` 人工核查，并保留核查记录。
+
+**不做**：不强制每个关键数据"两个独立来源双取 + 误差≤1%标记"。主源无误即用主源；只有明显异常才降级人工双查。
 
 ---
 
 ## 快速索引
 
-| 场景 | 主要来源 | 备用来源 |
-|------|---------|---------|
-| PDD / 拼多多 | tools/tushare_data.py（PDD，美股） | macrotrends（PDD）/ stockanalysis |
-| 腾讯 | tools/tushare_data.py（00700.HK） | aastocks（0700.HK）/ macrotrends（TCEHY） |
-| 网易 | tools/tushare_data.py（09999.HK） | aastocks（9999.HK）/ macrotrends（NTES） |
-| 三七互娱 | tools/tushare_data.py（002555） | eastmoney.com（002555）/ cninfo.com.cn |
-| 吉比特 | tools/tushare_data.py（603444） | eastmoney.com（603444）/ cninfo.com.cn |
-| Nintendo | macrotrends.net/stocks/charts/NTDOY | stockanalysis.com/stocks/ntdoy |
-| Capcom | macrotrends（CCOEY） | stockanalysis（CCOEY） |
-| 台积电 | tools/twstock_data.py（2330） | goodinfo.tw / macrotrends（TSM，注意1 ADR=5股） |
-| 联发科 | tools/twstock_data.py（2454） | goodinfo.tw |
-| 沪深300ETF | tools/tushare_data.py（510300） | 天天基金 fund.eastmoney.com / TickFlow |
-| 招商白酒LOF | tools/tushare_data.py（161725 / 012414.OF） | 天天基金 fund.eastmoney.com |
-| 指数估值分位 | tools/tushare_data.py indexvaluation | 乐咕乐股 legulegu.com |
+| 场景 | 主源（经 data_loader） | 备用（人工核查） |
+|------|------------------------|------------------|
+| PDD | Tushare（PDD 美股） | macrotrends / stockanalysis |
+| 腾讯 | Tushare（00700.HK） | aastocks / macrotrends（TCEHY） |
+| 网易 | Tushare（09999.HK） | aastocks / macrotrends（NTES） |
+| A股（三七/吉比特等） | Tushare（6位代码） | eastmoney / cninfo |
+| 台积电 | FinMind（twstock, 2330） | goodinfo / macrotrends（TSM, 1 ADR=5股） |
+| 沪深300ETF | Tushare（510300） | 天天基金 / TickFlow |
+| 指数估值分位 | Tushare index/valuation | 乐咕乐股 legulegu.com |
+
+---
+
+## Token 与保密
+
+- 所有 Token（ttshare/cheapyun/tushare/FinMind/TickFlow）只存本机，`local/` 已被 `.gitignore` 永久排除；严禁写入报告、Skill 或 commit。
+- `data_loader` 自动读取 `local/` 下的 token 文件（或环境变量），不要求 Skill 显式传 token。
