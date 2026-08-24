@@ -22,6 +22,8 @@ disable-model-invocation: true
 > ```
 > 或命令行 `python tools/data_loader.py get <type> <code> <name> [--field ...]`。不要直接散落 tushare/twstock/tickflow 命令；这些工具的细粒度命令仅供排查，不由 Skill 直接驱动。
 
+> **个股财务回溯口径**：`data_loader get stock` 的财务主表默认回溯**近十年**——以当前年份为基准往前推 10 个完整年度（如 2026 年为当前年，则 2016–2025 为完整十年），每年含一季报(0331)/中报(0630)/三季报(0930)/年报(1231)；**当年已披露的报告期**（如 2026 中报）一并自动纳入且不占用十年名额。实现见 `tools/fundamental_fetcher.py::_get_report_periods`，`--years` 可覆盖。
+
 ---
 
 ## 统一数据访问层（tools/data_loader.py）

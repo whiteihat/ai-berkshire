@@ -6,10 +6,11 @@ disable-model-invocation: true
 
 对 `$ARGUMENTS` 执行单只基金的标准分析流水线。**本 Skill 是编排器**——自身不产出报告，只按顺序判断下面每个阶段。每阶段只有一条**独立入口条件**：成立就运行对应 Skill，不成立就跳过进入下一个阶段，直到文件末尾。
 
-**两条硬原则**：
+**三条硬原则**：
 
 1. **每个 Skill 在整个流水线中只跑一次**（除非是新触发的事件，如季度复查）。
 2. 一个 Skill 无论何时需要用，都只在其对应阶段执行一次，把该 skill 的后续触发（如财报/季报复查）也一起交代清楚，不重复列阶段。
+3. **研报生成硬原则**：除"前置步骤：数据准备"与"阶段 6 纯数据查证"外，任何**被执行的阶段**都必须按 [报告路由规则](../../rules/report-output.md) 落盘一份持久化研报（阶段 3 下钻个股的研报由其子 pipeline 落盘到 `reports/01-单公司分析/`）。**只有研报已写入对应路由路径才算阶段完成**——仅终端输出不算；因条件不满足而跳过的阶段不受此约束。
 
 > 基金普通分析不走 `quality-screen`/`investment-checklist`（公司财务硬指标）；`news-pulse` 股价归因不适用，改查净值/份额/申赎。
 
@@ -81,5 +82,6 @@ python tools/data_loader.py status fund {代码}                # 查看缓存�
 ## 输出与路由
 
 - 本 Skill 不产出独立报告；各阶段由被调用的 Skill 按 [报告路由规则](../../rules/report-output.md) 落盘到 `reports/00-ETF-LOF/`（基金）或 `reports/01-单公司分析/{公司}/`（下钻个股）。
+- **每阶段准出检查**：阶段执行的 Skill 结束后，先核对研报文件已写入路由表对应路径（存在且非空），再进入下一阶段；未落盘 → 补写该阶段研报后才算完成（硬原则 3）。
 - 基金产品体检共享 `.claude/skills/financial-data/SKILL.md` 的"基金产品体检指标清单"。
 - 数据获取遵守 `.claude/skills/financial-data/SKILL.md`（统一走 `tools/data_loader.py`）。
