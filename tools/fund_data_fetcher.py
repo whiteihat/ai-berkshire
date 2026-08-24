@@ -243,7 +243,8 @@ def _df_to_records(df):
 
 
 def _get_annual_periods(years=3):
-    """生成近 N 年的报告期列表（年报 1231 + 中报 0630 + 一季报 0331 + 三季报 0930）。"""
+    """生成近 N 年的报告期列表（每年 1231 年报 + 0930 三季报 + 0630 中报 + 0331 一季报）
+    并追加当年已结束的报告期（如 2026Q1、2026 中报，不占 N 年名额）。"""
     current_year = date.today().year
     periods = []
     for y in range(current_year - 1, current_year - years - 1, -1):
@@ -251,6 +252,10 @@ def _get_annual_periods(years=3):
         periods.append(f"{y}0930")  # 三季报
         periods.append(f"{y}0630")  # 中报
         periods.append(f"{y}0331")  # 一季报
+    today = date.today()
+    for mm, dd in (("03", "31"), ("06", "30"), ("09", "30"), ("12", "31")):
+        if date(current_year, int(mm), int(dd)) <= today:
+            periods.append(f"{current_year}{mm}{dd}")
     return periods
 
 

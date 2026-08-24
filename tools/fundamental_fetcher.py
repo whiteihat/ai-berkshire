@@ -4,6 +4,9 @@
 从 Tushare（cheapyun 代理优先）获取 A 股基本面数据，按规范目录结构保存到 local/ 下。
 报告生成时直接从 local/ 读取落盘数据，不再实时调用接口。
 
+财务主表回溯默认近十年（以当前年份往前推 10 个完整年度，每年含一季报/中报/三季报/
+年报），并自动纳入当年已披露的报告期（如 2026 中报，不占十年名额）；--years 可覆盖。
+
 用法：
     python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘（含公告）
     python tools/fundamental_fetcher.py fetch 600938 中国海油 --years 10  # 指定年数
@@ -222,13 +225,27 @@ def _save_manifest(stock_dir, manifest):
     _save_json(manifest, path)
 
 
-def _get_annual_periods(years=5):
-    """生成近 N 年的报告期列表（年报 1231 + 中报 0630）。"""
+def _get_report_periods(years=10):
+    """生成要拉取的报告期列表：近 N 个完整年度 + 当年已结束的报告期。
+
+    "近十年"定义（以 2026 年为例）：
+      - 完整十年 = 2016–2025，每年含 4 条报告期：0331（一季报）、0630（中报）、
+        0930（三季报）、1231（年报）。
+      - 当年（2026）已结束的报告期（如 2026Q1、2026 中报，即 0331/0630/0930/1231
+        中"期间末日 ≤ 今天"者）一并纳入，且**不占用**上述 N 年名额。
+      - 期间已结束但公司尚未披露时，Tushare 返回空 → 不落盘；下次 update 时自动
+        重试，从而保证"所有已发布的报告期"（最新季报/中报/年报）都能被拉到。
+    """
     current_year = date.today().year
     periods = []
+    # 近 N 个完整年度（最晚年份在前）
     for y in range(current_year - 1, current_year - years - 1, -1):
-        periods.append(f"{y}1231")
-        periods.append(f"{y}0630")
+        periods += [f"{y}0331", f"{y}0630", f"{y}0930", f"{y}1231"]
+    # 当年：仅纳入"期间末日已过去"的报告期（未披露的交给接口返回空，自动重试）
+    today = date.today()
+    for mm, dd in (("03", "31"), ("06", "30"), ("09", "30"), ("12", "31")):
+        if date(current_year, int(mm), int(dd)) <= today:
+            periods.append(f"{current_year}{mm}{dd}")
     return periods
 
 
@@ -259,13 +276,14 @@ def _setup_logging(stock_dir):
     return log_file
 
 
-def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
+def fetch_stock(ts_code_6, name, years=10, skip_existing=True):
     """落盘单只 A 股的基本面数据。
 
     Args:
         ts_code_6: 6 位纯数字股票代码，如 "600938"
         name: 公司名称，如 "中国海油"
-        years: 回溯年数
+        years: 回溯年数（默认 10，指当前年份往前推的完整年度数；含季报/中报/年报，
+               并自动纳入当年已披露的报告期，口径见 _get_report_periods）
         skip_existing: 是否跳过已落盘的期间（增量模式）
 
     Returns:
@@ -312,7 +330,7 @@ def fetch_stock(ts_code_6, name, years=5, skip_existing=True):
     # 2. 财务主表（按报告期）
     logging.info("\n[2/4] 财务主表")
     fin_dir = os.path.join(stock_dir, "raw", "financial")
-    periods = _get_annual_periods(years)
+    periods = _get_report_periods(years)
     for period in periods:
         for api in FINANCIAL_APIS:
             filepath = os.path.join(fin_dir, f"{api}_{period}.json")
@@ -667,7 +685,7 @@ def main():
     p_fetch = sub.add_parser("fetch", help="单股落盘")
     p_fetch.add_argument("ts_code", help="6位股票代码，如 600938")
     p_fetch.add_argument("name", help="公司名称，如 中国海油")
-    p_fetch.add_argument("--years", type=int, default=5, help="回溯年数（默认5年）")
+    p_fetch.add_argument("--years", type=int, default=10, help="回溯年数（默认10年，含季报/中报/年报 + 当年已披露期间）")
     p_fetch.add_argument("--force", action="store_true", help="强制重新拉取（忽略已存在）")
 
     p_update = sub.add_parser("update", help="增量更新（只拉缺失期间）")
