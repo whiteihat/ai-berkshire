@@ -14,7 +14,7 @@
 
 > 📮 **仓库是全量框架，公众号是精选。** 真正值得深研的公司，加上报告之外我自己的判断与取舍，都在微信公众号「**复利炼丹炉**」——[扫码关注 ↓](#精选研究首发于公众号)
 
-[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览22个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
+[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览19个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
 
 ---
 
@@ -166,57 +166,57 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 
 **三层设计哲学**：
-- **Skill 层**：把"你要做什么"抽象成 22 个明确入口——深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
+- **Skill 层**：把"你要做什么"抽象成 19 个明确入口——深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
 - **Agent 层**：团队型 skill（如 `/investment-team`、`/earnings-team`）由 Team Lead 并行调度 4 个大师视角 Agent——各自独立搜索、独立判断、互相挑战，最后综合研判；轻量 skill 不经过这一层，直连工具快进快出
 - **工具层**：精确计算、实时检索、报告抽检——保证每份报告的数据严谨性可验证
 
 ---
 
-## Skills 一览（22个）
+## Skills 一览（19个）
 
 ### 🔬 深度研究类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/investment-research`](skills/investment-research.md) | 四大师综合深度分析 | 对一家上市公司进行全方位投资研究 |
-| [`/investment-team`](skills/investment-team.md) | 多Agent并行投研团队 | 4个Agent并行研究，最快速、最全面 |
-| [`/management-deep-dive`](skills/management-deep-dive.md) | 管理层纵深研究 | "买股票就是买人"——当管理层是核心变量时深挖 |
-| [`/private-company-research`](skills/private-company-research.md) | 未上市公司深度研究 | 研究蚂蚁、SpaceX等信息稀缺的未上市公司 |
-| [`/index-fund-research`](skills/index-fund-research.md) | 被动指数基金研究（ETF/指数LOF） | 分析对象是指数：成分/权重/估值分位 + 基金产品体检（跟踪误差/折溢价/费率） |
-| [`/active-fund-research`](skills/active-fund-research.md) | 主动基金研究 | 买基金就是买基金经理：经理画像/言行一致/持仓分析 + 产品体检 |
+| [`/investment-research`](.claude/skills/investment-research/SKILL.md) | 四大师综合深度分析 | 对一家上市公司进行全方位投资研究 |
+| [`/investment-team`](.claude/skills/investment-team/SKILL.md) | 多Agent并行投研团队 | 4个Agent并行研究，最快速、最全面 |
+| [`/management-deep-dive`](.claude/skills/management-deep-dive/SKILL.md) | 管理层纵深研究 | "买股票就是买人"——当管理层是核心变量时深挖 |
+| [`/private-company-research`](.claude/skills/private-company-research/SKILL.md) | 未上市公司深度研究 | 研究蚂蚁、SpaceX等信息稀缺的未上市公司 |
+| [`/index-fund-research`](.claude/skills/index-fund-research/SKILL.md) | 被动指数基金研究（ETF/指数LOF） | 分析对象是指数：成分/权重/估值分位 + 基金产品体检（跟踪误差/折溢价/费率） |
+| [`/active-fund-research`](.claude/skills/active-fund-research/SKILL.md) | 主动基金研究 | 买基金就是买基金经理：经理画像/言行一致/持仓分析 + 产品体检 |
 
 ### 📊 财报分析类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/earnings-review`](skills/earnings-review.md) | 财报精读（一手资料） | 只读原始财报，不依赖二手研报，像巴菲特一样读年报 |
-| [`/earnings-team`](skills/earnings-team.md) | 财报精读团队 + 公众号发布 | 四大师并行解读财报 → 编辑润色 → 读者评审 → 可发布文章 |
+| [`/earnings-review`](.claude/skills/earnings-review/SKILL.md) | 财报精读（一手资料） | 只读原始财报，不依赖二手研报，像巴菲特一样读年报 |
+| [`/earnings-team`](.claude/skills/earnings-team/SKILL.md) | 财报精读团队 + 公众号发布 | 四大师并行解读财报 → 编辑润色 → 读者评审 → 可发布文章 |
 
 ### 🏭 行业筛选类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/industry-research`](skills/industry-research.md) | 产业链全景扫描 | 研究一个行业的全部投资机会（按产业链环节切片） |
-| [`/industry-funnel`](skills/industry-funnel.md) | 行业漏斗筛选 | 全市场 → 粗筛 ≤10 家 → 终选 3 家深度分析 |
-| [`/quality-screen`](skills/quality-screen.md) | 去劣筛选（7条硬指标） | 快速排除非一流公司，支持个股/行业/指数/主题批量筛 |
-| [`/bottleneck-hunter`](skills/bottleneck-hunter.md) | 供应链瓶颈猎手 | 从超级趋势出发，寻找产业链物理瓶颈和套利机会 |
-| [`/investment-checklist`](skills/investment-checklist.md) | 巴菲特买入前 Checklist | 六关快速筛选，10分钟决定是否值得深入 |
+| [`/industry-research`](.claude/skills/industry-research/SKILL.md) | 产业链全景扫描 | 研究一个行业的全部投资机会（按产业链环节切片） |
+| [`/industry-funnel`](.claude/skills/industry-funnel/SKILL.md) | 行业漏斗筛选 | 全市场 → 粗筛 ≤10 家 → 终选 3 家深度分析 |
+| [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) | 去劣筛选（7条硬指标） | 快速排除非一流公司，支持个股/行业/指数/主题批量筛 |
+| [`/bottleneck-hunter`](.claude/skills/bottleneck-hunter/SKILL.md) | 供应链瓶颈猎手 | 从超级趋势出发，寻找产业链物理瓶颈和套利机会 |
+| [`/investment-checklist`](.claude/skills/investment-checklist/SKILL.md) | 巴菲特买入前 Checklist | 六关快速筛选，10分钟决定是否值得深入 |
 
 ### 📈 持仓管理类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/income-investment`](skills/income-investment.md) | 收益型股票分析 | 区分可持续收益、机会型高息与收益率陷阱 |
-| [`/portfolio-review`](skills/portfolio-review.md) | 组合管理与优化 | 从"研究公司"升级到"管理组合"——仓位、集中度、再平衡 |
-| [`/thesis-tracker`](skills/thesis-tracker.md) | 投资论文追踪 | 买入后的纪律系统：持续跟踪论文是否被证伪 |
-| [`/thesis-drift`](skills/thesis-drift.md) | 投资论文漂移检测 | 对比两份论文/报告，区分事实变化、估值变化与措辞变化 |
-| [`/news-pulse`](skills/news-pulse.md) | 股价异动快速归因 | 股价大涨/大跌时10分钟搞清"发生了什么" |
+| [`/income-investment`](.claude/skills/income-investment/SKILL.md) | 收益型股票分析 | 区分可持续收益、机会型高息与收益率陷阱 |
+| [`/portfolio-review`](.claude/skills/portfolio-review/SKILL.md) | 组合管理与优化 | 从"研究公司"升级到"管理组合"——仓位、集中度、再平衡 |
+| [`/thesis-tracker`](.claude/skills/thesis-tracker/SKILL.md) | 投资论文追踪 | 买入后的纪律系统：持续跟踪论文是否被证伪 |
+| [`/thesis-drift`](.claude/skills/thesis-drift/SKILL.md) | 投资论文漂移检测 | 对比两份论文/报告，区分事实变化、估值变化与措辞变化 |
+| [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) | 股价异动快速归因 | 股价大涨/大跌时10分钟搞清"发生了什么" |
 
 ### 🧠 思维工具类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/financial-data`](skills/financial-data.md) | 财务数据获取与交叉验证规范 | 确保关键数据来自2个独立来源，误差>1%告警 |
+| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | 财务数据获取与交叉验证规范 | 确保关键数据来自2个独立来源，误差>1%告警 |
 
 ### 🔗 搭配 Claude Code 内置的 /deep-research
 
@@ -234,7 +234,7 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 如果是真实投资决策中高风险、高重要性的判断，维护者的观点是：最强模型通常更可能带来更好的分析 ROI，不建议只为节省模型成本而牺牲关键判断质量。轻量模型更适合做初筛、摘要或低风险问题；涉及护城河、估值、管理层和风险交叉判断时，应预期分析质量会更依赖模型能力。
 
-想控制成本时，优先调整 workflow，而不是期待完整深度研究变得便宜：快速排除公司可先用 [`/quality-screen`](skills/quality-screen.md)，股价异动归因可用 [`/news-pulse`](skills/news-pulse.md)。只有当结果值得继续深入时，再运行 [`/investment-research`](skills/investment-research.md) 或 [`/investment-team`](skills/investment-team.md)。
+想控制成本时，优先调整 workflow，而不是期待完整深度研究变得便宜：快速排除公司可先用 [`/quality-screen`](.claude/skills/quality-screen/SKILL.md)，股价异动归因可用 [`/news-pulse`](.claude/skills/news-pulse/SKILL.md)。只有当结果值得继续深入时，再运行 [`/investment-research`](.claude/skills/investment-research/SKILL.md) 或 [`/investment-team`](.claude/skills/investment-team/SKILL.md)。
 
 ### 1. 安装 Claude Code
 
@@ -256,28 +256,17 @@ claude --dangerously-skip-permissions
 
 注意：该模式会关闭 Claude Code 的工具审批保护，只应在你信任仓库、命令和工作目录的情况下使用。
 
-### 2. 安装 Skills
+### 2. 在仓库内启动
 
-Claude Code 用户安装（macOS / Linux）：
+本项目只支持在仓库内运行，不复制 Skill 到 Claude Code 全局 commands 目录：
 
 ```bash
-# 克隆仓库
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# 复制 skills 到 Claude Code 全局 commands 目录
-cd ai-berkshire
-./scripts/install-claude-commands.sh
-```
-
-Claude Code 用户安装（Windows PowerShell / Command Prompt）：
-
-```bat
 git clone https://github.com/xbtlin/ai-berkshire.git
 cd ai-berkshire
-.\scripts\install-claude-commands.bat
+claude
 ```
 
-`skills/*.md` 是 Claude Code command 源文件，安装脚本会将其复制到本机 commands 目录。
+Claude Code 会自动发现 `.claude/skills/*/SKILL.md` 中的项目本地 Skill。`.claude/skills/*/SKILL.md` 是可维护的工作流源文件，`templates/`、`tools/` 与 `.claude/rules/` 共同构成完整运行环境，因此不支持脱离仓库单独安装。
 
 ### 3. 使用
 

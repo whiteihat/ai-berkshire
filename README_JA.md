@@ -14,7 +14,7 @@
 
 1人 + Claude Code = 投資リサーチチーム丸ごと。
 
-[実績](#実績) · [なぜAIに直接聞いてはいけないのか](#なぜaiに直接聞いてはいけないのか) · [Skill一覧](#skill一覧22スキル) · [クイックスタート](#クイックスタート) · [レポート](#実際のリサーチレポート) · [設計思想](#設計思想)
+[実績](#実績) · [なぜAIに直接聞いてはいけないのか](#なぜaiに直接聞いてはいけないのか) · [Skill一覧](#skill一覧19スキル) · [クイックスタート](#クイックスタート) · [レポート](#実際のリサーチレポート) · [設計思想](#設計思想)
 
 ---
 
@@ -158,55 +158,55 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 
 **3層設計の思想**：
-- **Skill層**：「やりたいこと」を22の明確なエントリーポイントに抽象化——深掘りリサーチ、決算分析、業界スクリーニング、ポートフォリオ管理、思考ツール。シナリオ別に選択。
+- **Skill層**：「やりたいこと」を19の明確なエントリーポイントに抽象化——深掘りリサーチ、決算分析、業界スクリーニング、ポートフォリオ管理、思考ツール。シナリオ別に選択。
 - **エージェント層**：チーム型Skill（`/investment-team`、`/earnings-team`など）はチームリードの下で4人の巨匠視点エージェントを並列実行——独立して検索・判断し、互いに反論し、最後に統合。軽量Skillはこの層を通らず、ツールを直接呼び出す。
 - **ツール層**：精密計算、リアルタイムウェブ検索、レポート監査——すべてのレポートのデータが厳密かつ検証可能であることを保証。
 
 ---
 
-## Skill一覧（22スキル）
+## Skill一覧（19スキル）
 
 ### 🔬 深掘りリサーチ
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/investment-research`](skills/investment-research.md) | 四巨人総合分析 | 上場企業の全方位リサーチ |
-| [`/investment-team`](skills/investment-team.md) | マルチエージェント並列リサーチチーム | 4エージェント並列——最速かつ最も網羅的 |
-| [`/management-deep-dive`](skills/management-deep-dive.md) | 経営陣の深掘り | 「株を買うことは人を買うこと」——経営陣が鍵となる変数のとき |
-| [`/private-company-research`](skills/private-company-research.md) | 非上場企業リサーチ | アントグループ、SpaceXのような情報の少ない非上場企業のリサーチ |
+| [`/investment-research`](.claude/skills/investment-research/SKILL.md) | 四巨人総合分析 | 上場企業の全方位リサーチ |
+| [`/investment-team`](.claude/skills/investment-team/SKILL.md) | マルチエージェント並列リサーチチーム | 4エージェント並列——最速かつ最も網羅的 |
+| [`/management-deep-dive`](.claude/skills/management-deep-dive/SKILL.md) | 経営陣の深掘り | 「株を買うことは人を買うこと」——経営陣が鍵となる変数のとき |
+| [`/private-company-research`](.claude/skills/private-company-research/SKILL.md) | 非上場企業リサーチ | アントグループ、SpaceXのような情報の少ない非上場企業のリサーチ |
 
 ### 📊 決算分析
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/earnings-review`](skills/earnings-review.md) | 決算の深読み（一次資料） | バフェットが有報を読むように——セルサイドレポートを読まずに生の開示書類のみを読む |
-| [`/earnings-team`](skills/earnings-team.md) | 決算チーム＋発行可能な記事 | 四巨人が並列で決算を解釈 → 編集仕上げ → 読者レビュー → 発行可能状態 |
+| [`/earnings-review`](.claude/skills/earnings-review/SKILL.md) | 決算の深読み（一次資料） | バフェットが有報を読むように——セルサイドレポートを読まずに生の開示書類のみを読む |
+| [`/earnings-team`](.claude/skills/earnings-team/SKILL.md) | 決算チーム＋発行可能な記事 | 四巨人が並列で決算を解釈 → 編集仕上げ → 読者レビュー → 発行可能状態 |
 
 ### 🏭 業界スクリーニング
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/industry-research`](skills/industry-research.md) | 業界バリューチェーンスキャン | ある業界のバリューチェーン全体の投資機会をマッピング |
-| [`/industry-funnel`](skills/industry-funnel.md) | 業界ファネルスクリーニング | 全市場 → 粗選り≤10社 → 最終選定3社、深掘り分析付き |
-| [`/quality-screen`](skills/quality-screen.md) | クオリティスクリーン（7つの厳格指標） | 一流でない企業を素早く排除；個別銘柄 / 業界 / 指数 / テーマのバッチスクリーニングに対応 |
-| [`/bottleneck-hunter`](skills/bottleneck-hunter.md) | サプライチェーンボトルネックハンター | 大きなトレンドから物理的なサプライチェーンのボトルネックと裁定機会を探す |
-| [`/investment-checklist`](skills/investment-checklist.md) | バフェット購入前チェックリスト | 6つのゲート、10分で深掘りする価値があるかを判断 |
+| [`/industry-research`](.claude/skills/industry-research/SKILL.md) | 業界バリューチェーンスキャン | ある業界のバリューチェーン全体の投資機会をマッピング |
+| [`/industry-funnel`](.claude/skills/industry-funnel/SKILL.md) | 業界ファネルスクリーニング | 全市場 → 粗選り≤10社 → 最終選定3社、深掘り分析付き |
+| [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) | クオリティスクリーン（7つの厳格指標） | 一流でない企業を素早く排除；個別銘柄 / 業界 / 指数 / テーマのバッチスクリーニングに対応 |
+| [`/bottleneck-hunter`](.claude/skills/bottleneck-hunter/SKILL.md) | サプライチェーンボトルネックハンター | 大きなトレンドから物理的なサプライチェーンのボトルネックと裁定機会を探す |
+| [`/investment-checklist`](.claude/skills/investment-checklist/SKILL.md) | バフェット購入前チェックリスト | 6つのゲート、10分で深掘りする価値があるかを判断 |
 
 ### 📈 ポートフォリオ管理
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/income-investment`](skills/income-investment.md) | インカム中心の株式分析 | 持続的収益、機会的高利回り、利回りの罠を区別 |
-| [`/portfolio-review`](skills/portfolio-review.md) | ポートフォリオレビュー＆最適化 | 「企業をリサーチする」から「ポートフォリオを管理する」へ——ポジションサイジング、集中度、リバランス |
-| [`/thesis-tracker`](skills/thesis-tracker.md) | 投資テーゼトラッカー | 購入後の規律システム：投資テーゼが否定されていないかを継続的に追跡 |
-| [`/thesis-drift`](skills/thesis-drift.md) | 投資テーゼのドリフト検出 | 2つのテーゼ／レポートを比較し、事実の変化・バリュエーションの変化・表現の変化を区別 |
-| [`/news-pulse`](skills/news-pulse.md) | 株価変動の迅速な要因分析 | 株が急騰・急落したとき——10分で「何が起きたか」を解明 |
+| [`/income-investment`](.claude/skills/income-investment/SKILL.md) | インカム中心の株式分析 | 持続的収益、機会的高利回り、利回りの罠を区別 |
+| [`/portfolio-review`](.claude/skills/portfolio-review/SKILL.md) | ポートフォリオレビュー＆最適化 | 「企業をリサーチする」から「ポートフォリオを管理する」へ——ポジションサイジング、集中度、リバランス |
+| [`/thesis-tracker`](.claude/skills/thesis-tracker/SKILL.md) | 投資テーゼトラッカー | 購入後の規律システム：投資テーゼが否定されていないかを継続的に追跡 |
+| [`/thesis-drift`](.claude/skills/thesis-drift/SKILL.md) | 投資テーゼのドリフト検出 | 2つのテーゼ／レポートを比較し、事実の変化・バリュエーションの変化・表現の変化を区別 |
+| [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) | 株価変動の迅速な要因分析 | 株が急騰・急落したとき——10分で「何が起きたか」を解明 |
 
 ### 🧠 思考ツール
 
 | Skill | 目的 | 使用場面 |
 |-------|------|---------|
-| [`/financial-data`](skills/financial-data.md) | 財務データの取得とクロスバリデーション | 重要データが2つ以上の独立したソースから得られることを保証；1%超の乖離をアラート |
+| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | 財務データの取得とクロスバリデーション | 重要データが2つ以上の独立したソースから得られることを保証；1%超の乖離をアラート |
 
 ---
 
@@ -218,7 +218,7 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 重大な投資判断においては、メンテナーの見解として、通常は最も強力なモデルが最良の分析ROIをもたらします；モデルコストの節約が重要な判断品質を犠牲にすべきではありません。軽量モデルはトリアージ、要約、低リスクな質問には有用ですが、モート・バリュエーション・マネジメント・リスクの統合は、モデルの能力により強く依存すると考えるべきです。
 
-コストを抑えるには、深掘りリサーチをそのまま安くしようとする前にワークフローを調整してください：まず [`/quality-screen`](skills/quality-screen.md) で弱い企業を除外する、あるいは [`/news-pulse`](skills/news-pulse.md) で株価変動の迅速な要因分析を行う。結果が深掘りに値する場合にのみ [`/investment-research`](skills/investment-research.md) や [`/investment-team`](skills/investment-team.md) を実行してください。
+コストを抑えるには、深掘りリサーチをそのまま安くしようとする前にワークフローを調整してください：まず [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) で弱い企業を除外する、あるいは [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) で株価変動の迅速な要因分析を行う。結果が深掘りに値する場合にのみ [`/investment-research`](.claude/skills/investment-research/SKILL.md) や [`/investment-team`](.claude/skills/investment-team/SKILL.md) を実行してください。
 
 ### 1. Claude Codeのインストール
 
@@ -240,28 +240,17 @@ claude --dangerously-skip-permissions
 
 警告：このモードはClaude Codeのツール承認ガードレールを無効化します。リポジトリ・コマンド・作業ディレクトリを信頼している場合にのみ使用してください。
 
-### 2. Skillのインストール
+### 2. リポジトリ内で起動する
 
-Claude CodeユーザーでmacOS / Linuxの場合：
+本プロジェクトはリポジトリ内でのみ実行します。Claude Code のグローバル commands ディレクトリには Skill をコピーしません。
 
 ```bash
-# リポジトリをクローン
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# skillをClaude Codeグローバルコマンドディレクトリにコピー
-cd ai-berkshire
-./scripts/install-claude-commands.sh
-```
-
-Claude CodeユーザーでWindows PowerShell / コマンドプロンプトの場合：
-
-```bat
 git clone https://github.com/xbtlin/ai-berkshire.git
 cd ai-berkshire
-.\scripts\install-claude-commands.bat
+claude
 ```
 
-`skills/*.md` は Claude Code コマンドのソースであり、インストールスクリプトがローカルの commands ディレクトリにコピーします。
+Claude Code は `.claude/skills/*/SKILL.md` のプロジェクトローカル Skill を自動検出します。`.claude/skills/*/SKILL.md` は保守対象のワークフローソースであり、`templates/`、`tools/`、`.claude/rules/` と合わせて実行環境を構成するため、単体インストールはサポートしません。
 
 ### 3. 使い方
 

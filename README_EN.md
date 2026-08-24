@@ -12,7 +12,7 @@ English | [中文](README.md) | [日本語](README_JA.md)
 
 One person + Claude Code = an entire investment research team.
 
-[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-22-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
+[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-19-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
 
 ---
 
@@ -156,55 +156,55 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 
 
 **Three-Layer Design Philosophy**:
-- **Skill Layer**: Abstracts "what you want to do" into 22 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
+- **Skill Layer**: Abstracts "what you want to do" into 19 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
 - **Agent Layer**: Team skills (e.g. `/investment-team`, `/earnings-team`) run 4 master-perspective Agents in parallel under a Team Lead — searching and judging independently, challenging each other before synthesis. Lightweight skills skip this layer and call tools directly.
 - **Tool Layer**: Exact-precision calculations, real-time web search, report auditing — ensures every report's data is rigorous and verifiable.
 
 ---
 
-## Skills Overview (22 Skills)
+## Skills Overview (19 Skills)
 
 ### 🔬 Deep Research
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/investment-research`](skills/investment-research.md) | Four-master comprehensive analysis | Full-spectrum research on a public company |
-| [`/investment-team`](skills/investment-team.md) | Multi-Agent parallel research team | 4 Agents in parallel — fastest and most comprehensive |
-| [`/management-deep-dive`](skills/management-deep-dive.md) | Management deep dive | "Buying a stock is buying its people" — when management is the key variable |
-| [`/private-company-research`](skills/private-company-research.md) | Private company research | Research info-scarce private companies like Ant Group, SpaceX |
+| [`/investment-research`](.claude/skills/investment-research/SKILL.md) | Four-master comprehensive analysis | Full-spectrum research on a public company |
+| [`/investment-team`](.claude/skills/investment-team/SKILL.md) | Multi-Agent parallel research team | 4 Agents in parallel — fastest and most comprehensive |
+| [`/management-deep-dive`](.claude/skills/management-deep-dive/SKILL.md) | Management deep dive | "Buying a stock is buying its people" — when management is the key variable |
+| [`/private-company-research`](.claude/skills/private-company-research/SKILL.md) | Private company research | Research info-scarce private companies like Ant Group, SpaceX |
 
 ### 📊 Earnings Analysis
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/earnings-review`](skills/earnings-review.md) | Earnings deep read (primary sources) | Read raw filings only — no sell-side reports — like Buffett reads annual reports |
-| [`/earnings-team`](skills/earnings-team.md) | Earnings team + publishable article | Four masters interpret earnings in parallel → editor polish → reader review → publish-ready |
+| [`/earnings-review`](.claude/skills/earnings-review/SKILL.md) | Earnings deep read (primary sources) | Read raw filings only — no sell-side reports — like Buffett reads annual reports |
+| [`/earnings-team`](.claude/skills/earnings-team/SKILL.md) | Earnings team + publishable article | Four masters interpret earnings in parallel → editor polish → reader review → publish-ready |
 
 ### 🏭 Industry Screening
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/industry-research`](skills/industry-research.md) | Industry value chain scan | Map all investment opportunities across an industry's value chain |
-| [`/industry-funnel`](skills/industry-funnel.md) | Industry funnel screening | Full market → rough cut ≤10 → final pick 3, with deep analysis |
-| [`/quality-screen`](skills/quality-screen.md) | Quality screen (7 hard metrics) | Quickly eliminate non-first-class companies; supports single stock / industry / index / thematic batch screening |
-| [`/bottleneck-hunter`](skills/bottleneck-hunter.md) | Supply-chain bottleneck hunter | Start from a supertrend and find physical supply-chain bottlenecks and arbitrage opportunities |
-| [`/investment-checklist`](skills/investment-checklist.md) | Buffett pre-buy checklist | Six gates, 10-minute decision on whether to dig deeper |
+| [`/industry-research`](.claude/skills/industry-research/SKILL.md) | Industry value chain scan | Map all investment opportunities across an industry's value chain |
+| [`/industry-funnel`](.claude/skills/industry-funnel/SKILL.md) | Industry funnel screening | Full market → rough cut ≤10 → final pick 3, with deep analysis |
+| [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) | Quality screen (7 hard metrics) | Quickly eliminate non-first-class companies; supports single stock / industry / index / thematic batch screening |
+| [`/bottleneck-hunter`](.claude/skills/bottleneck-hunter/SKILL.md) | Supply-chain bottleneck hunter | Start from a supertrend and find physical supply-chain bottlenecks and arbitrage opportunities |
+| [`/investment-checklist`](.claude/skills/investment-checklist/SKILL.md) | Buffett pre-buy checklist | Six gates, 10-minute decision on whether to dig deeper |
 
 ### 📈 Portfolio Management
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/income-investment`](skills/income-investment.md) | Income-centered equity analysis | Distinguish durable income, opportunistic yield, and yield traps |
-| [`/portfolio-review`](skills/portfolio-review.md) | Portfolio review & optimization | Graduate from "researching companies" to "managing a portfolio" — sizing, concentration, rebalancing |
-| [`/thesis-tracker`](skills/thesis-tracker.md) | Investment thesis tracker | Post-buy discipline system: continuously track whether your thesis has been falsified |
-| [`/thesis-drift`](skills/thesis-drift.md) | Investment thesis drift detection | Compare two theses/reports — separate factual, valuation, and wording changes |
-| [`/news-pulse`](skills/news-pulse.md) | Price-move rapid attribution | When a stock surges or drops — figure out "what happened" in 10 minutes |
+| [`/income-investment`](.claude/skills/income-investment/SKILL.md) | Income-centered equity analysis | Distinguish durable income, opportunistic yield, and yield traps |
+| [`/portfolio-review`](.claude/skills/portfolio-review/SKILL.md) | Portfolio review & optimization | Graduate from "researching companies" to "managing a portfolio" — sizing, concentration, rebalancing |
+| [`/thesis-tracker`](.claude/skills/thesis-tracker/SKILL.md) | Investment thesis tracker | Post-buy discipline system: continuously track whether your thesis has been falsified |
+| [`/thesis-drift`](.claude/skills/thesis-drift/SKILL.md) | Investment thesis drift detection | Compare two theses/reports — separate factual, valuation, and wording changes |
+| [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) | Price-move rapid attribution | When a stock surges or drops — figure out "what happened" in 10 minutes |
 
 ### 🧠 Thinking Tools
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/financial-data`](skills/financial-data.md) | Financial data retrieval & cross-validation | Ensure key data comes from 2+ independent sources; alerts on >1% deviation |
+| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | Financial data retrieval & cross-validation | Ensure key data comes from 2+ independent sources; alerts on >1% deviation |
 
 ---
 
@@ -216,7 +216,7 @@ Deep-research skills run multiple research passes, cross-source checks, and mult
 
 For high-stakes investment decisions, the maintainer's view is that the strongest model usually offers the best analysis ROI; saving model cost should not come at the expense of important judgment quality. Lighter models can be useful for triage, summarization, or low-risk questions, but moat, valuation, management, and risk synthesis should be expected to depend more heavily on model capability.
 
-To control cost, adjust the workflow before expecting a full deep-research run to become cheap: use [`/quality-screen`](skills/quality-screen.md) first to rule out weaker companies, or [`/news-pulse`](skills/news-pulse.md) for quick price-move attribution. Run [`/investment-research`](skills/investment-research.md) or [`/investment-team`](skills/investment-team.md) only when the result is worth deeper work.
+To control cost, adjust the workflow before expecting a full deep-research run to become cheap: use [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) first to rule out weaker companies, or [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) for quick price-move attribution. Run [`/investment-research`](.claude/skills/investment-research/SKILL.md) or [`/investment-team`](.claude/skills/investment-team/SKILL.md) only when the result is worth deeper work.
 
 ### 1. Install Claude Code
 
@@ -238,28 +238,17 @@ claude --dangerously-skip-permissions
 
 Warning: this disables Claude Code's tool-approval guardrails. Use it only when you trust the repository, commands, and working directory.
 
-### 2. Install Skills
+### 2. Run Inside the Repository
 
-For Claude Code users on macOS / Linux:
+This project runs only inside its repository; it does not copy Skills to Claude Code's global commands directory:
 
 ```bash
-# Clone the repository
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# Copy skills to Claude Code global commands directory
-cd ai-berkshire
-./scripts/install-claude-commands.sh
-```
-
-For Claude Code users on Windows PowerShell / Command Prompt:
-
-```bat
 git clone https://github.com/xbtlin/ai-berkshire.git
 cd ai-berkshire
-.\scripts\install-claude-commands.bat
+claude
 ```
 
-`skills/*.md` are the Claude Code command sources; the installation scripts copy them to the local commands directory.
+Claude Code automatically discovers the project-local Skills in `.claude/skills/*/SKILL.md`. `.claude/skills/*/SKILL.md` are the maintainable workflow sources; `templates/`, `tools/`, and `.claude/rules/` form the required runtime environment, so standalone installation is not supported.
 
 ### 3. Use
 
