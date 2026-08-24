@@ -174,14 +174,14 @@ Use these headings exactly once and avoid repeating the same analysis:
 17. One-sentence conclusion
 18. Sources and data quality
 
-Save the result to `reports/{company}-income-investment-{YYYYMMDD}.md`, using a filesystem-safe company identifier. Include the scorecard and blocking-gate result in section 2, the monthly income calendar in section 11 when calculable, and source title, issuer/publisher, publication date, accessed date, reporting period, URL, and primary/secondary label in section 18.
+Save the result to `reports/01-单公司分析/{company}/{company}-income-investment-{YYYYMMDD}.md`, using a filesystem-safe company identifier. Follow `.claude/rules/report-output.md` for routing and do not overwrite an existing report. Include the scorecard and blocking-gate result in section 2, the monthly income calendar in section 11 when calculable, and source title, issuer/publisher, publication date, accessed date, reporting period, URL, and primary/secondary label in section 18.
 
 ## Release Audit
 
 ```bash
-python3 tools/report_audit.py extract --report reports/{company}-income-investment-{YYYYMMDD}.md
+python3 tools/report_audit.py extract --report reports/01-单公司分析/{company}/{company}-income-investment-{YYYYMMDD}.md
 # Verify every extracted item against reliable sources, then:
-python3 tools/report_audit.py verdict --results '<verified JSON>' --report {company}-income-investment-{YYYYMMDD}.md
+python3 tools/report_audit.py verdict --results '<verified JSON>' --report reports/01-单公司分析/{company}/{company}-income-investment-{YYYYMMDD}.md
 ```
 
 Fix failed items and repeat the audit. Clearly retain unresolved gaps and lower confidence rather than filling them with assumptions.

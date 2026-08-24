@@ -10,7 +10,7 @@
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/搜索可用，财务视接口权限退化 |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/搜索可用，财务视接口权限退化 |
 | 2（副） | **macrotrends** | macrotrends.net/stocks/charts/{ticker} | 直接访问，无需注册 |
 | 3（副） | **stockanalysis** | stockanalysis.com/stocks/{ticker}/financials | 直接访问，无需注册 |
 | 原始一手 | SEC EDGAR | sec.gov/cgi-bin/browse-edgar | 10-K / 10-Q 原文 |
@@ -19,7 +19,7 @@
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/搜索可用，财务视接口权限退化 |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/搜索可用，财务视接口权限退化 |
 | 2（副） | **aastocks** | aastocks.com/tc/stocks/analysis/company-fundamental | 直接访问 |
 | 3（副） | **macrotrends**（ADR代码） | 腾讯用TCEHY，网易用NTES | 直接访问 |
 | 原始一手 | HKEX披露易 | hkexnews.hk | 年报PDF |
@@ -28,11 +28,11 @@
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | 行情/估值/财务/分红/搜索全接口 |
+| 1（主） | **Tushare** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | 行情/估值/财务/分红/搜索全接口 |
 | 2（副） | **东方财富** | eastmoney.com → 搜股票代码 → 财务报表 | 直接访问 |
 | 原始一手 | **巨潮资讯** | cninfo.com.cn | 原始年报/季报PDF |
 
-**Tushare 取数工具**（A股/港股/美股通用，分析三大市场时优先调用；依赖用 uv 管理）：
+**Tushare 取数工具**（A股/港股/美股通用，分析三大市场时优先调用；依赖用 uv 管理；实际回退链为 ttshare → cheapyun（如配置）→ 官方 Tushare）：
 
 ```bash
 uv run python tools/tushare_data.py quote 600519        # A股行情 + 市值验算
@@ -46,8 +46,8 @@ uv run python tools/tushare_data.py quote AAPL          # 美股行情
 
 市场覆盖与权限退化：
 
-1. **数据源优先级**：ttshare 代理（授权码）→ 官方 tushare（token）→ 两者都失败时工具输出明确退化提示与本节备选来源，**不静默给空数据**
-2. **token 只存本机、严禁提交到 git**（`local/` 已被 `.gitignore` 永久排除）：代理授权码放 `local/ttshare_token.txt`（环境变量 `TTSHARE_TOKEN`）；官方 token 放 `local/tushare_token.txt`（环境变量 `TUSHARE_TOKEN`，与官方 tushare 库默认读取变量一致）
+1. **数据源优先级**：ttshare 代理（授权码）→ cheapyun 代理（如配置）→ 官方 tushare（token）→ 三者都失败时工具输出明确退化提示与本节备选来源，**不静默给空数据**
+2. **Token 只存本机、严禁提交到 Git**：代理授权码放 `local/ttshare_token.txt`（环境变量 `TTSHARE_TOKEN`）；cheapyun 凭证按工具实现放 `local/tushare_token_tmp.txt`（环境变量 `CHEAPYUN_TOKEN`）；官方 token 放 `local/tushare_token.txt`（环境变量 `TUSHARE_TOKEN`）。即使本机忽略规则变化，也不得将这些文件加入提交。
 3. **A股全接口可用**；港股/美股行情、搜索可用，估值/财务接口视权限——无权限时回到对应市场副源交叉验证
 4. 依赖安装：`uv add ttshare tushare`（ttshare 第三方源已在 pyproject.toml 配置，勿用 pip 直接装）
 
@@ -75,14 +75,14 @@ python3 tools/twstock_data.py search 台積        # 搜索股票代码（注意
 1. **货币单位是新台币（TWD）**，与港币/人民币/美元混排时必须显式标注，跨市场对比先统一换算
 2. **月营收是台股独有优势**：上市柜公司每月10日前强制披露上月营收，是跟踪基本面拐点最快的公开信号，earnings-review/thesis-tracker 类分析应优先利用（`revenue` 子命令）
 3. FinMind 损益表为**单季值**，工具已自动加总为年度值；不足4季的年份会标注"仅前N季累计"
-4. FinMind 未注册可直接用（有小时级限额）。注册后的 API token **只存本机、严禁提交到 git**，工具按优先级自动读取：①环境变量 `FINMIND_TOKEN`；②本地文件 `local/finmind_token.txt`（`local/` 已被 `.gitignore` 永久排除，把 token 单独一行写入该文件即可）。token 不得出现在报告、skill、commit 中
+4. FinMind 未注册可直接用（有小时级限额）。注册后的 API token **只存本机、严禁提交到 Git**，工具按优先级自动读取：①环境变量 `FINMIND_TOKEN`；②本地文件 `local/finmind_token.txt`（把 Token 单独一行写入该文件）。即使本机忽略规则变化，Token 也不得出现在报告、Skill、commit 中。
 5. 交叉验证：FinMind 数值与 Goodinfo（或 macrotrends 上的 ADR，如 TSM）对照，误差规则同下；台积电等有 ADR 的公司注意 ADR 与台股原股的汇率/存托比率差异（1 TSM ADR = 5 股 2330）
 
 ### 基金与指数（ETF/LOF/主动基金，index-fund-research / active-fund-research 专用）
 
 | 优先级 | 来源 | URL | 获取方式 |
 |--------|------|-----|---------|
-| 1（主） | **Tushare 基金/指数接口** | `tools/tushare_data.py`（ttshare代理优先，官方API兜底） | fundinfo/fundnav/funddaily/fundshares/fundholdings/fundmanager/fundholder/fundsearch/fundtracking/indexinfo/indexdaily/indexvaluation/indexweight |
+| 1（主） | **Tushare 基金/指数接口** | `tools/tushare_data.py`（ttshare → cheapyun（如配置）→ 官方 API） | fundinfo/fundnav/funddaily/fundshares/fundholdings/fundmanager/fundholder/fundsearch/fundtracking/indexinfo/indexdaily/indexvaluation/indexweight |
 | 2（副） | **TickFlow**（场内行情/指数K线备源） | `tools/tickflow_data.py`，免费层日K即可用 | 补 fund_daily/index_daily 无权限或盘中实时缺口；**只有行情类数据**（无净值/持仓/估值分位） |
 | 3（副） | **天天基金** | fund.eastmoney.com（搜基金代码） | 净值/费率/规模/经理/持仓/持有人/限购——tushare 无权限接口（fund_basic/portfolio/manager/holder/share）的第一副源 |
 | 4（副） | **东方财富数据中心** | data.eastmoney.com | 场内行情、ETF份额、基金规模 |

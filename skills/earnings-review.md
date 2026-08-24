@@ -38,7 +38,7 @@
 3. **管理层致股东信**（如有年报）：完整阅读
 4. **投资者日/分析师日材料**（如近期有）
 
-如果无法获取完整原文，按 `skills/financial-data.md` 规范使用标准数据源拼凑（美股：macrotrends+stockanalysis；港股：aastocks+macrotrends；A股：东方财富+巨潮资讯；台股：FinMind `tools/twstock_data.py`+Goodinfo），但必须标注"非原始财报，来自第三方汇总"，且关键数据两源误差>1%须标记。
+如果无法获取完整原文，按 `skills/financial-data.md` 规范使用相应市场的备选来源拼凑，但必须标注"非原始财报，来自第三方汇总"，且关键数据按该规范交叉验证并标记误差。
 
 ### 第二步：核心财务数据提取与验证
 
@@ -188,7 +188,7 @@ python3 tools/financial_rigor.py verify-valuation \
 
 ### 第七步：保存报告
 
-将报告写入 `reports/{公司名}-earnings-{期间}.md`，例如 `reports/腾讯-earnings-2025Q4.md`
+将报告写入 `reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md`，例如 `reports/01-单公司分析/腾讯/腾讯-earnings-2025Q4.md`。
 
 ### 第八步：数据抽检（准出流程）
 
@@ -197,9 +197,9 @@ python3 tools/financial_rigor.py verify-valuation \
 ```bash
 # Step 1 — 提取抽检清单
 python3 tools/report_audit.py extract \
-  --report reports/{公司名}-earnings-{期间}.md
+  --report reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md
 
-# Step 2 — 对清单每项从可靠信源取数（参见 skills/financial-data.md）
+# Step 2 — 按 skills/financial-data.md 的市场优先级核验清单中的每项数据
 
 # Step 3 — 输出准出/打回判决
 python3 tools/report_audit.py verdict \

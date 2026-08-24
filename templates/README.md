@@ -1,28 +1,38 @@
 # 研报模板库
 
-本目录包含所有投研 Skill 生成报告的标准模板。Agent 在生成报告时应参照对应模板的结构和格式，确保跨公司、跨时间的阅读一致性。
+本目录包含有独立模板的投研报告结构。Agent 在生成报告时应参照对应模板的章节和格式，确保跨公司、跨时间的阅读一致性；输出路径统一以 [报告路由规则](../.claude/rules/report-output.md) 为准。
 
-> **规则**：所有 Skill 生成的研报必须按对应模板的章节结构输出。遇到新报告类型时，先完成报告，再将其结构提炼为模板存入本目录并更新此索引。
+> **规则**：有独立模板的报告必须按对应模板的核心章节输出，可按实际情况增补但不得无理由删减。只有任务明确新增报告类型时，才在完成报告后提炼模板并更新此索引。部分 Skill 使用内嵌格式，见下方说明。
 
 ## 模板清单
 
-| 模板文件 | 对应 Skill | 用途 | 文件命名 |
+| 模板文件 | 对应 Skill | 用途 | 输出路径/文件名 |
 |---------|-----------|------|---------|
-| [quality-screen.md](quality-screen.md) | `/quality-screen` | 7项去劣筛选 | `{公司名}-quality-screen-{YYYYMMDD}.md` |
-| [investment-research.md](investment-research.md) | `/investment-research` | 四大师投资研究 | `{公司名}-research-{YYYYMMDD}.md` |
-| [investment-checklist.md](investment-checklist.md) | `/investment-checklist` | 巴菲特买入前Checklist | `{公司名}-checklist-{YYYYMMDD}.md` |
-| [investment-team.md](investment-team.md) | `/investment-team` | 四角色并行研究团队 | `{公司名}/` 目录（4个视角+最终报告） |
-| [earnings-review.md](earnings-review.md) | `/earnings-review` | 财报精读 | `{公司名}-earnings-{期间}.md` |
-| [earnings-team.md](earnings-team.md) | `/earnings-team` | 财报团队分析 | `{公司名}/` 目录（底稿+评审+公众号） |
-| [thesis-tracker.md](thesis-tracker.md) | `/thesis-tracker` | 投资论文（长期维护） | `{公司名}-thesis.md` |
-| [news-pulse.md](news-pulse.md) | `/news-pulse` | 新闻脉搏 | `{公司名}-news-{YYYYMMDD}.md` |
-| [management-deep-dive.md](management-deep-dive.md) | `/management-deep-dive` | 管理层纵深研究 | `{公司名}-management-{YYYYMMDD}.md` |
-| [industry-research.md](industry-research.md) | `/industry-research` | 产业链全景研究 | `{行业名}-industry-{YYYYMMDD}.md` |
-| [industry-funnel.md](industry-funnel.md) | `/industry-funnel` | 漏斗式筛选 | `{行业名}-funnel-{YYYYMMDD}.md` |
+| [quality-screen.md](quality-screen.md) | `/quality-screen` | 7项去劣筛选 | 个股：`reports/01-单公司分析/{公司名}/{公司名}-quality-screen-{YYYYMMDD}.md`；批量：`reports/{筛选名}-quality-screen-{YYYYMMDD}.md` |
+| [investment-research.md](investment-research.md) | `/investment-research` | 四大师投资研究 | `reports/01-单公司分析/{公司名}/{公司名}-research-{YYYYMMDD}.md` |
+| [investment-checklist.md](investment-checklist.md) | `/investment-checklist` | 巴菲特买入前 Checklist | `reports/01-单公司分析/{公司名}/{公司名}-checklist-{YYYYMMDD}.md` |
+| [investment-team.md](investment-team.md) | `/investment-team` | 四角色并行研究团队 | `reports/01-单公司分析/{公司名}/`（四个视角文件 + `最终报告.md`） |
+| [earnings-review.md](earnings-review.md) | `/earnings-review` | 财报精读 | `reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md` |
+| [earnings-team.md](earnings-team.md) | `/earnings-team` | 财报团队分析 | `reports/01-单公司分析/{公司名}/`（底稿、评审、最终稿） |
+| [thesis-tracker.md](thesis-tracker.md) | `/thesis-tracker` | 投资论文（长期维护） | `reports/01-单公司分析/{公司名}/{公司名}-thesis.md` |
+| [news-pulse.md](news-pulse.md) | `/news-pulse` | 新闻脉搏 | `reports/01-单公司分析/{公司名}/{公司名}-news-{YYYYMMDD}.md` |
+| [management-deep-dive.md](management-deep-dive.md) | `/management-deep-dive` | 管理层纵深研究 | `reports/01-单公司分析/{公司名}/{公司名}-management-{YYYYMMDD}.md` |
+| [industry-research.md](industry-research.md) | `/industry-research` | 产业链全景研究 | `reports/{行业名}-industry-{YYYYMMDD}.md` |
+| [industry-funnel.md](industry-funnel.md) | `/industry-funnel` | 漏斗式筛选 | `reports/{行业名}-funnel-{YYYYMMDD}.md` |
 | [index-fund-research.md](index-fund-research.md) | `/index-fund-research` | 指数基金研究 | `reports/00-ETF-LOF/{基金名}-indexfund-{YYYYMMDD}.md` |
 | [active-fund-research.md](active-fund-research.md) | `/active-fund-research` | 主动基金研究 | `reports/00-ETF-LOF/{基金名}-activefund-{YYYYMMDD}.md` |
-| [portfolio-review.md](portfolio-review.md) | `/portfolio-review` | 投资组合审视 | `portfolio-latest.md` |
-| [private-company-research.md](private-company-research.md) | `/private-company-research` | 未上市公司研究 | `{公司名}-private-{YYYYMMDD}.md` |
+| [portfolio-review.md](portfolio-review.md) | `/portfolio-review` | 投资组合审视 | `reports/portfolio-latest.md` |
+| [private-company-research.md](private-company-research.md) | `/private-company-research` | 未上市公司研究 | `reports/01-单公司分析/{公司名}/{公司名}-private-{YYYYMMDD}.md` |
+
+## 无独立模板的 Skill
+
+以下 Skill 的输出结构由其源文件内嵌定义，路径仍必须遵守 [报告路由规则](../.claude/rules/report-output.md)：
+
+- `/thesis-drift`：论文对比输出到对应公司目录的 `*-thesis-drift-{YYYYMMDD}.md`
+- `/income-investment`：使用源文件的 18 节固定结构，输出到对应公司目录
+- `/bottleneck-hunter`：使用源文件的完整扫描/每日扫描模板，维护 `reports/bottleneck-map/`
+- `/deep-company-series`：使用源文件的篇目与篇内模板，输出到对应公司日期目录
+- `/wechat-article`：按技术主题、投资主题或通用主题的内嵌格式输出
 
 ## 通用格式规范
 

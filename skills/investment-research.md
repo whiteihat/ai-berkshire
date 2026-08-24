@@ -34,10 +34,7 @@
 
 ### 第一步：数据收集
 
-> **数据源规范**：参见 `skills/financial-data.md`。所有财务数据必须来自两个独立来源，误差>1%须标记。
-> - 美股：macrotrends（主）+ stockanalysis（副）
-> - 港股：aastocks（主）+ macrotrends ADR（副）
-> - A股：东方财富（主）+ 巨潮资讯（副）
+> **数据源规范**：严格遵循 `skills/financial-data.md`。市场主/副源、原始披露优先级、误差处理与工具退化路径均以该规范为准；所有关键财务数据应使用两个独立来源交叉验证，无法满足时明确说明例外和置信度。
 
 使用 Task 工具启动后台 Agent，从网络收集以下数据：
 
@@ -265,7 +262,7 @@ python3 tools/terminal_value.py irr \
 1. 所有分析必须有数据支撑，附数据来源
 2. 使用 Markdown 表格呈现关键数据
 3. 每个模块末尾必须有对应大师的"追问"
-4. 最终将完整报告写入 `~/[公司名]投资研究报告.md`
+4. 最终将完整报告写入 `reports/01-单公司分析/{公司名}/{公司名}-research-{YYYYMMDD}.md`；路径和文件名以 `.claude/rules/report-output.md` 为准。
 5. 结论要明确，不回避给出买入/观望/回避的建议
 6. 估值部分必须给出具体的价格区间
 7. **报告开头**必须包含"信息丰富度评级"（A/B/C）和"AI研究局限性声明"
@@ -284,9 +281,7 @@ python3 tools/report_audit.py extract \
 输出 JSON 模板，每项含 `fetched_value`（待填）。
 
 **Step 2 — 取数核验：**
-对清单中每个数据点，按 `skills/financial-data.md` 规范从可靠信源取数
-（美股：macrotrends+stockanalysis；港股：aastocks+macrotrends；A股：东方财富+巨潮资讯），
-填入 `fetched_value` / `fetched_source` / `fetched_value2` / `fetched_source2`。
+对清单中每个数据点，按 `skills/financial-data.md` 的市场优先级和误差规则从可靠信源取数，填入 `fetched_value` / `fetched_source` / `fetched_value2` / `fetched_source2`。
 
 **Step 3 — 输出判决：**
 ```bash
