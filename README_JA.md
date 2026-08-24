@@ -10,11 +10,11 @@
 >
 > AIでリサーチの深度と効率を再定義する。
 
-**AI Berkshire** は、Claude CodeおよびCodexに対応した投資リサーチSkillのコレクションです。バフェット・マンガー・段永平（ダン・ヨンピン）・李録（リ・ルー）という4人のバリュー投資の巨人の方法論を体系化し、AIエージェントによりプロフェッショナル水準のリサーチを提供します。
+**AI Berkshire** は、Claude Code向けの投資リサーチSkillコレクションです。バフェット・マンガー・段永平（ダン・ヨンピン）・李録（リ・ルー）という4人のバリュー投資の巨人の方法論を体系化し、AIエージェントによりプロフェッショナル水準のリサーチを提供します。
 
-1人 + Claude Code / Codex = 投資リサーチチーム丸ごと。
+1人 + Claude Code = 投資リサーチチーム丸ごと。
 
-[実績](#実績) · [なぜAIに直接聞いてはいけないのか](#なぜaiに直接聞いてはいけないのか) · [Skill一覧](#skill一覧20スキル) · [クイックスタート](#クイックスタート) · [レポート](#実際のリサーチレポート) · [設計思想](#設計思想)
+[実績](#実績) · [なぜAIに直接聞いてはいけないのか](#なぜaiに直接聞いてはいけないのか) · [Skill一覧](#skill一覧22スキル) · [クイックスタート](#クイックスタート) · [レポート](#実際のリサーチレポート) · [設計思想](#設計思想)
 
 ---
 
@@ -158,13 +158,13 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 
 **3層設計の思想**：
-- **Skill層**：「やりたいこと」を20の明確なエントリーポイントに抽象化——深掘りリサーチ、決算分析、業界スクリーニング、ポートフォリオ管理、思考ツール。シナリオ別に選択。
+- **Skill層**：「やりたいこと」を22の明確なエントリーポイントに抽象化——深掘りリサーチ、決算分析、業界スクリーニング、ポートフォリオ管理、思考ツール。シナリオ別に選択。
 - **エージェント層**：チーム型Skill（`/investment-team`、`/earnings-team`など）はチームリードの下で4人の巨匠視点エージェントを並列実行——独立して検索・判断し、互いに反論し、最後に統合。軽量Skillはこの層を通らず、ツールを直接呼び出す。
 - **ツール層**：精密計算、リアルタイムウェブ検索、レポート監査——すべてのレポートのデータが厳密かつ検証可能であることを保証。
 
 ---
 
-## Skill一覧（20スキル）
+## Skill一覧（22スキル）
 
 ### 🔬 深掘りリサーチ
 
@@ -223,35 +223,13 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 コストを抑えるには、深掘りリサーチをそのまま安くしようとする前にワークフローを調整してください：まず [`/quality-screen`](skills/quality-screen.md) で弱い企業を除外する、あるいは [`/news-pulse`](skills/news-pulse.md) で株価変動の迅速な要因分析を行う。結果が深掘りに値する場合にのみ [`/investment-research`](skills/investment-research.md) や [`/investment-team`](skills/investment-team.md) を実行してください。
 
-### 1. AIクライアントのインストール
+### 1. Claude Codeのインストール
 
-このリポジトリは1つの標準ワークフローを維持し、Claude Codeコマンドと Codex skillの両方を提供します。使用するクライアントをインストールしてください。
-
-Claude Codeユーザーの場合：
+このリポジトリはClaude Codeコマンドのみを提供します。
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
-
-CodexユーザーでmacOS / Linuxの場合：
-
-```bash
-# macOS / Linux
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
-
-# または npm を使用
-npm install -g @openai/codex
-
-# または Homebrew を使用
-brew install --cask codex
-
-# インストール確認
-codex --version
-```
-
-Windowsユーザーは公式PowerShellインストーラーを使用できます：`powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"`
-
-`codex --version` がバージョンを表示したら、このプロジェクトのCodex skillsのインストールに進めます。
 
 #### 承認プロンプトを減らす
 
@@ -286,33 +264,7 @@ cd ai-berkshire
 .\scripts\install-claude-commands.bat
 ```
 
-CodexユーザーでmacOS / Linuxの場合：
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# Codex skillsを生成して ~/.codex/skills にインストール
-cd ai-berkshire
-./scripts/install-codex-skills.sh
-
-# オプション：Codexスラッシュプロンプトを ~/.codex/prompts にインストール
-# Claude Codeのような /investment-research エントリーポイントを使いたい場合
-./scripts/install-codex-prompts.sh
-```
-
-CodexユーザーでWindows PowerShell / コマンドプロンプトの場合：
-
-```bat
-git clone https://github.com/xbtlin/ai-berkshire.git
-cd ai-berkshire
-.\scripts\install-codex-skills.bat
-
-REM オプション：Codexスラッシュプロンプトをインストール
-.\scripts\install-codex-prompts.bat
-```
-
-リポジトリは3つのエントリーポイントを維持しています：`skills/*.md` はClaude Codeコマンドのソース；`codex-skills/*/SKILL.md` は `scripts/sync-codex-skills.py` が `skills/*.md` から生成するCodex skillパッケージ；`codex-prompts/*.md` はオプションのCodexスラッシュプロンプト互換レイヤーです。
+`skills/*.md` は Claude Code コマンドのソースであり、インストールスクリプトがローカルの commands ディレクトリにコピーします。
 
 ### 3. 使い方
 
@@ -347,23 +299,6 @@ Claude Codeで直接呼び出す：
 # 思考ツール
 /dyp-ask 拼多多の本当のモートはどこにあるか？
 /wechat-article 美団
-```
-
-Codexにインストール後、Codexを再起動してskill名で参照します：
-
-```text
-investment-researchを使ってテンセントをリサーチして
-earnings-reviewを使ってPDD2025年次の決算を分析して
-industry-funnelを使ってAI算力をスクリーニングして
-bottleneck-hunterを使ってAIインフラのボトルネックをスキャンして
-thesis-driftを使って拼多多の2つの投資テーゼを比較して
-wechat-articleを使って美団の投資記事を書いて
-```
-
-Codexスラッシュプロンプトをインストールした場合、Codexを再起動して`/`メニューから検索します。Codexの公式カスタムプロンプトエントリーポイントは通常 `prompts:<name>` として表示されます：
-
-```text
-/prompts:investment-research テンセント
 ```
 
 ---

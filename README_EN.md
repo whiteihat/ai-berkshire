@@ -8,11 +8,11 @@ English | [中文](README.md) | [日本語](README_JA.md)
 >
 > Redefining the depth and efficiency of investment research with AI.
 
-**AI Berkshire** is a collection of investment research skills compatible with both Claude Code and Codex. It systematizes the methodologies of four value investing masters — Buffett, Munger, Duan Yongping, and Li Lu — and delivers professional-grade research through AI Agents.
+**AI Berkshire** is a collection of investment research skills for Claude Code. It systematizes the methodologies of four value investing masters — Buffett, Munger, Duan Yongping, and Li Lu — and delivers professional-grade research through AI Agents.
 
-One person + Claude Code / Codex = an entire investment research team.
+One person + Claude Code = an entire investment research team.
 
-[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-20-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
+[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-22-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
 
 ---
 
@@ -156,13 +156,13 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 
 
 **Three-Layer Design Philosophy**:
-- **Skill Layer**: Abstracts "what you want to do" into 20 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
+- **Skill Layer**: Abstracts "what you want to do" into 22 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
 - **Agent Layer**: Team skills (e.g. `/investment-team`, `/earnings-team`) run 4 master-perspective Agents in parallel under a Team Lead — searching and judging independently, challenging each other before synthesis. Lightweight skills skip this layer and call tools directly.
 - **Tool Layer**: Exact-precision calculations, real-time web search, report auditing — ensures every report's data is rigorous and verifiable.
 
 ---
 
-## Skills Overview (20 Skills)
+## Skills Overview (22 Skills)
 
 ### 🔬 Deep Research
 
@@ -221,35 +221,13 @@ For high-stakes investment decisions, the maintainer's view is that the stronges
 
 To control cost, adjust the workflow before expecting a full deep-research run to become cheap: use [`/quality-screen`](skills/quality-screen.md) first to rule out weaker companies, or [`/news-pulse`](skills/news-pulse.md) for quick price-move attribution. Run [`/investment-research`](skills/investment-research.md) or [`/investment-team`](skills/investment-team.md) only when the result is worth deeper work.
 
-### 1. Install an AI Client
+### 1. Install Claude Code
 
-This repository keeps one canonical workflow and provides Claude Code commands plus Codex skills. Install the client you plan to use.
-
-For Claude Code users:
+This repository maintains Claude Code commands only.
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
-
-For Codex users on macOS / Linux:
-
-```bash
-# macOS / Linux
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
-
-# Or use npm
-npm install -g @openai/codex
-
-# Or use Homebrew
-brew install --cask codex
-
-# Verify installation
-codex --version
-```
-
-Windows users can use the official PowerShell installer: `powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"`.
-
-If `codex --version` prints a version, you can continue with this project's Codex skills installation.
 
 #### Reducing Approval Prompts
 
@@ -284,33 +262,7 @@ cd ai-berkshire
 .\scripts\install-claude-commands.bat
 ```
 
-For Codex users on macOS / Linux:
-
-```bash
-# Clone the repository
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# Generate and install Codex skills to ~/.codex/skills
-cd ai-berkshire
-./scripts/install-codex-skills.sh
-
-# Optional: install Codex slash prompts to ~/.codex/prompts
-# for a Claude Code-like /investment-research entry point
-./scripts/install-codex-prompts.sh
-```
-
-For Codex users on Windows PowerShell / Command Prompt:
-
-```bat
-git clone https://github.com/xbtlin/ai-berkshire.git
-cd ai-berkshire
-.\scripts\install-codex-skills.bat
-
-REM Optional: install Codex slash prompts
-.\scripts\install-codex-prompts.bat
-```
-
-The repository maintains three entry points: `skills/*.md` are the Claude Code command sources; `codex-skills/*/SKILL.md` are Codex skill packages generated from `skills/*.md` by `scripts/sync-codex-skills.py`; `codex-prompts/*.md` are an optional Codex slash-prompt compatibility layer.
+`skills/*.md` are the Claude Code command sources; the installation scripts copy them to the local commands directory.
 
 ### 3. Use
 
@@ -347,22 +299,6 @@ Invoke directly in Claude Code:
 /wechat-article Meituan
 ```
 
-After installing for Codex, restart Codex and refer to skills by name, for example:
-
-```text
-Use investment-research to research Tencent
-Use earnings-review to analyze PDD 2025 annual results
-Use industry-funnel to screen AI compute
-Use bottleneck-hunter to scan AI infrastructure bottlenecks
-Use thesis-drift to compare two Pinduoduo theses
-Use wechat-article to write a Meituan investment article
-```
-
-If you install Codex slash prompts, restart Codex and search for them in the `/` menu. Codex's official custom prompt entry point usually appears as `prompts:<name>`, for example:
-
-```text
-/prompts:investment-research Tencent
-```
 
 ---
 

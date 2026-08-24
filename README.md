@@ -8,13 +8,13 @@
 >
 > 用 AI 重新定义投资研究的深度与效率。
 
-**AI Berkshire** 是一套同时兼容 Claude Code 与 Codex 的投资研究 Skill 合集，将巴菲特、芒格、段永平、李录四位价值投资大师的方法论系统化、结构化，通过 AI Agent 实现专业级投资研究。
+**AI Berkshire** 是一套面向 Claude Code 的投资研究 Skill 合集，将巴菲特、芒格、段永平、李录四位价值投资大师的方法论系统化、结构化，通过 AI Agent 实现专业级投资研究。
 
-一个人 + Claude Code / Codex = 一个投研团队。
+一个人 + Claude Code = 一个投研团队。
 
 > 📮 **仓库是全量框架，公众号是精选。** 真正值得深研的公司，加上报告之外我自己的判断与取舍，都在微信公众号「**复利炼丹炉**」——[扫码关注 ↓](#精选研究首发于公众号)
 
-[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览20个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
+[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览22个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
 
 ---
 
@@ -239,35 +239,13 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 想控制成本时，优先调整 workflow，而不是期待完整深度研究变得便宜：快速排除公司可先用 [`/quality-screen`](skills/quality-screen.md)，股价异动归因可用 [`/news-pulse`](skills/news-pulse.md)。只有当结果值得继续深入时，再运行 [`/investment-research`](skills/investment-research.md) 或 [`/investment-team`](skills/investment-team.md)。
 
-### 1. 安装 AI 客户端
+### 1. 安装 Claude Code
 
-本仓库保留同一套 canonical workflow，并分别提供 Claude Code commands 与 Codex skills。按你使用的客户端安装即可。
-
-Claude Code 用户：
+本仓库仅维护 Claude Code commands。
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
-
-Codex 用户：
-
-```bash
-# macOS / Linux
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
-
-# 或使用 npm
-npm install -g @openai/codex
-
-# 或使用 Homebrew
-brew install --cask codex
-
-# 验证安装
-codex --version
-```
-
-Windows 用户可使用官方 PowerShell 安装命令：`powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"`。
-
-如果 `codex --version` 能正常输出版本号，就可以继续安装本项目的 Codex skills。
 
 #### 减少授权确认
 
@@ -302,33 +280,7 @@ cd ai-berkshire
 .\scripts\install-claude-commands.bat
 ```
 
-Codex 用户安装（macOS / Linux）：
-
-```bash
-# 克隆仓库
-git clone https://github.com/xbtlin/ai-berkshire.git
-
-# 生成并安装 Codex skills 到 ~/.codex/skills
-cd ai-berkshire
-./scripts/install-codex-skills.sh
-
-# 可选：安装 Codex slash prompts 到 ~/.codex/prompts
-# 用于获得接近 Claude Code 的 /investment-research 体验
-./scripts/install-codex-prompts.sh
-```
-
-Codex 用户安装（Windows PowerShell / Command Prompt）：
-
-```bat
-git clone https://github.com/xbtlin/ai-berkshire.git
-cd ai-berkshire
-.\scripts\install-codex-skills.bat
-
-REM 可选：安装 Codex slash prompts
-.\scripts\install-codex-prompts.bat
-```
-
-仓库同时维护三套入口：`skills/*.md` 是 Claude Code command 源文件；`codex-skills/*/SKILL.md` 是 Codex skill 包，由 `scripts/sync-codex-skills.py` 从 `skills/*.md` 生成；`codex-prompts/*.md` 是可选的 Codex slash prompt 兼容层。
+`skills/*.md` 是 Claude Code command 源文件，安装脚本会将其复制到本机 commands 目录。
 
 ### 3. 使用
 
@@ -363,23 +315,6 @@ REM 可选：安装 Codex slash prompts
 # 思维工具
 /dyp-ask 拼多多的护城河到底在哪里？
 /wechat-article 美团
-```
-
-在 Codex 中安装后重启 Codex，然后直接按 skill 名称描述任务，例如：
-
-```text
-使用 investment-research 研究腾讯
-使用 earnings-review 分析 PDD 2025年报
-使用 industry-funnel 筛选 AI算力
-使用 bottleneck-hunter 扫描 AI基础设施瓶颈
-使用 thesis-drift 对比拼多多两份投资论文
-使用 wechat-article 写美团投研文章
-```
-
-如果安装了 Codex slash prompts，重启 Codex 后也可以在 `/` 菜单里搜索这些 prompt。Codex 官方的 custom prompt 入口通常显示为 `prompts:<name>`，例如：
-
-```text
-/prompts:investment-research 腾讯
 ```
 
 ---

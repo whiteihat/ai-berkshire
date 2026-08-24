@@ -17,7 +17,7 @@
 
   <!-- 入口 -->
   <rect x="250" y="56" width="300" height="36" rx="18" fill="#ffffff" stroke="#d8d7d2"/>
-  <text x="400" y="79" font-size="14.5" fill="#0b0b0b" text-anchor="middle">一个人 + Claude Code / Codex</text>
+  <text x="400" y="79" font-size="14.5" fill="#0b0b0b" text-anchor="middle">一个人 + Claude Code</text>
   <line x1="400" y1="92" x2="400" y2="116" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
   <text x="412" y="110" font-size="12" fill="#8a897f">按场景选择入口</text>
 

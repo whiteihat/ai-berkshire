@@ -9,9 +9,9 @@
 - **Skill 的 bug 修复**：提示词错漏、流程跑不通、输出格式问题等。请在 PR 描述里说明：哪个 skill、什么场景下出的问题、修复后你实际跑过的结果。
 - **Skill 的改进**：让分析更严谨、数据交叉验证更可靠、输出更可用的改动。改动需要附带说明"为什么这样更好"，最好有改动前后的输出对比。
 - **文档改进**：README、docs/ 中的错别字、失效链接、表述不清的修正；英文版与中文版内容不同步的修正。
-- **兼容性适配**：Claude Code / Codex 新版本带来的适配问题。
+- **兼容性适配**：Claude Code 新版本带来的适配问题。
 - **用本框架产出的研究报告**：欢迎提交到 `reports/community/` 子目录（按 `reports/community/[公司名]/` 组织）。要求：① 报告确实是用本仓库的 skill 跑出来的，并在文首注明所用 skill 和模型；② 附上免责声明（不构成投资建议）；③ 一个 PR 一份报告。质量明显不达标（如未用框架、纯手写观点、缺关键财务交叉验证）的会被关闭。
-- **新 Skill 提议**：请先开 issue 讨论，说明这个 skill 解决什么研究场景、和现有 18 个 skill 的边界是什么。直接提交大型新功能 PR 而没有事先讨论的，可能会被关闭——不是否定你的工作，而是方向没对齐时双方都浪费时间。
+- **新 Skill 提议**：请先开 issue 讨论，说明这个 skill 解决什么研究场景、和现有 22 个 skill 的边界是什么。直接提交大型新功能 PR 而没有事先讨论的，可能会被关闭——不是否定你的工作，而是方向没对齐时双方都浪费时间。
 
 ## 不接受的贡献
 
@@ -23,7 +23,7 @@
 ## 提交 PR 的基本要求
 
 1. 一个 PR 只做一件事，保持 diff 聚焦。
-2. 描述里写清楚：改了什么、为什么改、怎么验证的。涉及 skill 的改动，请附上你在 Claude Code 或 Codex 里实际运行的效果。
+2. 描述里写清楚：改了什么、为什么改、怎么验证的。涉及 skill 的改动，请附上你在 Claude Code 中实际运行的效果。
 3. 中文或英文均可。
 4. 改动 README.md 中影响内容的部分时，请同步更新 README_EN.md（反之亦然）；纯排版修正可以只改一边。
 
@@ -57,9 +57,9 @@ Thanks for your interest in AI Berkshire. This project grew out of my personal i
 - **Skill bug fixes** — broken prompts, workflow failures, output format issues. In the PR description, state which skill, how the problem occurs, and the actual output after your fix.
 - **Skill improvements** — changes that make the analysis more rigorous or the output more usable. Explain *why* it is better, ideally with a before/after comparison.
 - **Documentation fixes** — typos, dead links, unclear wording, and syncing the English README with the Chinese one.
-- **Compatibility fixes** for new versions of Claude Code / Codex.
+- **Compatibility fixes** for new versions of Claude Code.
 - **Research reports produced with this framework** — submit to the `reports/community/` subdirectory (organized as `reports/community/[company]/`). Requirements: (1) the report was actually generated with this repo's skills — state the skill and model used at the top; (2) include a disclaimer (not investment advice); (3) one report per PR. Reports that clearly miss the bar (framework not used, hand-written opinions only, missing financial cross-validation) will be closed.
-- **New skill proposals** — open an issue first to discuss the research scenario it addresses and how it differs from the existing 18 skills. Large unsolicited feature PRs may be closed to avoid wasted effort on both sides.
+- **New skill proposals** — open an issue first to discuss the research scenario it addresses and how it differs from the existing 22 skills. Large unsolicited feature PRs may be closed to avoid wasted effort on both sides.
 
 ## Out of scope
 
@@ -71,7 +71,7 @@ Thanks for your interest in AI Berkshire. This project grew out of my personal i
 ## PR basics
 
 1. One PR does one thing.
-2. Describe what changed, why, and how you verified it. For skill changes, include results from an actual run in Claude Code or Codex.
+2. Describe what changed, why, and how you verified it. For skill changes, include results from an actual Claude Code run.
 3. Chinese or English are both fine.
 4. Substantive edits to README.md should be mirrored in README_EN.md (and vice versa).
 
