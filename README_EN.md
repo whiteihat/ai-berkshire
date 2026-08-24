@@ -12,7 +12,7 @@ English | [中文](README.md) | [日本語](README_JA.md)
 
 One person + Claude Code = an entire investment research team.
 
-[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-19-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
+[Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-21-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
 
 ---
 
@@ -156,18 +156,20 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 
 
 **Three-Layer Design Philosophy**:
-- **Skill Layer**: Abstracts "what you want to do" into 19 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
+- **Skill Layer**: Abstracts "what you want to do" into 21 clear entry points — deep research, earnings analysis, industry screening, portfolio management, and thinking tools. Pick by scenario.
 - **Agent Layer**: Team skills (e.g. `/investment-team`, `/earnings-team`) run 4 master-perspective Agents in parallel under a Team Lead — searching and judging independently, challenging each other before synthesis. Lightweight skills skip this layer and call tools directly.
 - **Tool Layer**: Exact-precision calculations, real-time web search, report auditing — ensures every report's data is rigorous and verifiable.
 
 ---
 
-## Skills Overview (19 Skills)
+## Skills Overview (21 Skills)
 
 ### 🔬 Deep Research
 
-| Skill | Purpose | When to Use |
-|-------|---------|-------------|
+| Skill | Purpose | Best for |
+|-------|---------|----------|
+| [`/stock-pipeline`](.claude/skills/stock-pipeline/SKILL.md) | Single-stock standard pipeline (orchestrator) | From screen to post-buy tracking — recommended entry |
+| [`/fund-pipeline`](.claude/skills/fund-pipeline/SKILL.md) | Single-fund standard pipeline (orchestrator) | Active/passive branch to post-buy tracking — recommended entry |
 | [`/investment-research`](.claude/skills/investment-research/SKILL.md) | Four-master comprehensive analysis | Full-spectrum research on a public company |
 | [`/investment-team`](.claude/skills/investment-team/SKILL.md) | Multi-Agent parallel research team | 4 Agents in parallel — fastest and most comprehensive |
 | [`/management-deep-dive`](.claude/skills/management-deep-dive/SKILL.md) | Management deep dive | "Buying a stock is buying its people" — when management is the key variable |
@@ -255,6 +257,10 @@ Claude Code automatically discovers the project-local Skills in `.claude/skills/
 Invoke directly in Claude Code:
 
 ```bash
+# Standard workflows (recommended entry point)
+/stock-pipeline Tencent       # single stock: screen → deep-dive → gate → track
+/fund-pipeline 510300         # single fund: active/passive branch → research → track
+
 # Deep Research
 /investment-research Tencent
 /investment-team Meituan

@@ -14,7 +14,7 @@
 
 > 📮 **仓库是全量框架，公众号是精选。** 真正值得深研的公司，加上报告之外我自己的判断与取舍，都在微信公众号「**复利炼丹炉**」——[扫码关注 ↓](#精选研究首发于公众号)
 
-[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览19个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
+[实盘业绩](#real-track-record) · [为什么不能直接问AI](#为什么不能直接问-ai) · [Skills 一览](#skills-一览21个) · [运行指南](docs/运行指南.md) · [快速开始](#快速开始) · [实战报告](#实战研究报告) · [设计理念](#设计理念) · [公众号](#精选研究首发于公众号)
 
 ---
 
@@ -166,18 +166,20 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 
 **三层设计哲学**：
-- **Skill 层**：把"你要做什么"抽象成 19 个明确入口——深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
+- **Skill 层**：把"你要做什么"抽象成 21 个明确入口——标准流水线、深度研究、财报分析、行业筛选、持仓管理、思维工具，按场景选用
 - **Agent 层**：团队型 skill（如 `/investment-team`、`/earnings-team`）由 Team Lead 并行调度 4 个大师视角 Agent——各自独立搜索、独立判断、互相挑战，最后综合研判；轻量 skill 不经过这一层，直连工具快进快出
 - **工具层**：精确计算、实时检索、报告抽检——保证每份报告的数据严谨性可验证
 
 ---
 
-## Skills 一览（19个）
+## Skills 一览（21个）
 
 ### 🔬 深度研究类
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
+| [`/stock-pipeline`](.claude/skills/stock-pipeline/SKILL.md) | 单公司标准流水线（编排器） | 从初筛到买入后跟踪，推荐入口 |
+| [`/fund-pipeline`](.claude/skills/fund-pipeline/SKILL.md) | 单基金标准流水线（编排器） | 主动/被动分岔到买入后跟踪，推荐入口 |
 | [`/investment-research`](.claude/skills/investment-research/SKILL.md) | 四大师综合深度分析 | 对一家上市公司进行全方位投资研究 |
 | [`/investment-team`](.claude/skills/investment-team/SKILL.md) | 多Agent并行投研团队 | 4个Agent并行研究，最快速、最全面 |
 | [`/management-deep-dive`](.claude/skills/management-deep-dive/SKILL.md) | 管理层纵深研究 | "买股票就是买人"——当管理层是核心变量时深挖 |
@@ -220,7 +222,7 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 ### 🔗 搭配 Claude Code 内置的 /deep-research
 
-除以上 20 个 skill 外，Claude Code 自带一个 `/deep-research` 深度研究编排器（内置于客户端，不由本仓库分发，安装 Claude Code 即可使用）。它的流程是：把问题拆成 5 个检索角度并行搜索 → 抓取来源、提取可证伪论断 → 每条论断由 3 个独立 Agent 对抗验证（3 票中 2 票证伪才剔除）→ 按置信度合成带引用来源的报告。核心价值是每条结论都被人试图推翻过，而不是搜到什么写什么。
+除以上 21 个 skill 外，Claude Code 自带一个 `/deep-research` 深度研究编排器（内置于客户端，不由本仓库分发，安装 Claude Code 即可使用）。它的流程是：把问题拆成 5 个检索角度并行搜索 → 抓取来源、提取可证伪论断 → 每条论断由 3 个独立 Agent 对抗验证（3 票中 2 票证伪才剔除）→ 按置信度合成带引用来源的报告。核心价值是每条结论都被人试图推翻过，而不是搜到什么写什么。
 
 适合在运行本仓库的个股/行业 skill 之前，先对一个关键事实判断做独立核查。实战示例：[存储涨价周期研究](reports/存储行业/存储涨价周期研究-还能维持几年高价-20260727.md)（106 个检索/验证 Agent，23 条论断三票制交叉验证）、[diffusion LLM 技术路线综述](reports/大模型技术/diffusion-LLM技术路线综述-与AR对比-20260706.md)（25 条论断验证，22 条确认、3 条被证伪）。
 
@@ -273,6 +275,10 @@ Claude Code 会自动发现 `.claude/skills/*/SKILL.md` 中的项目本地 Skill
 在 Claude Code 中直接调用：
 
 ```bash
+# 标准工作流（编排，推荐入口）
+/stock-pipeline 腾讯        # 单公司：定位→深研→把关→跟踪
+/fund-pipeline 510300       # 单基金：主动/被动分岔→深研→跟踪
+
 # 深度研究
 /investment-research 腾讯
 /investment-team 美团
