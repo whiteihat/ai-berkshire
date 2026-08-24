@@ -54,7 +54,7 @@ Token 可用性检测：
     - 美股：行情(us_daily)、搜索(us_basic)；估值/财务同上
     - 台股不在覆盖范围（tushare 无台股接口，用 tools/twstock_data.py）
     - 基金：fund_basic/nav/share/daily 需约2000积分，fund_portfolio/manager/holder
-      需约5000积分；无权限时输出天天基金等副源提示（skills/financial-data.md 基金章节）
+      需约5000积分；无权限时输出天天基金等副源提示（.claude/skills/financial-data/SKILL.md 基金章节）
     - 指数：index_daily 免费，index_basic/dailybasic/weight 视权限
     - 场内行情实时补位可用 tools/tickflow_data.py（TickFlow 备源）
 
@@ -77,14 +77,14 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
 
 _MARKET_LABEL = {"A": "A股", "HK": "港股", "US": "美股"}
 
-# 无权限/无数据时的备选来源提示（指向 skills/financial-data.md）
+# 无权限/无数据时的备选来源提示（指向 .claude/skills/financial-data/SKILL.md）
 _FALLBACK_HINT = {
-    "A": "建议改用 skills/financial-data.md A股副源：东方财富 eastmoney.com（财务）+ 巨潮资讯 cninfo.com.cn（一手财报）",
-    "HK": "建议改用 skills/financial-data.md 港股来源：aastocks（主）+ macrotrends ADR（副）+ HKEX 披露易（一手）",
-    "US": "建议改用 skills/financial-data.md 美股来源：macrotrends（主）+ stockanalysis（副）+ SEC EDGAR（一手）",
+    "A": "建议改用 .claude/skills/financial-data/SKILL.md A股副源：东方财富 eastmoney.com（财务）+ 巨潮资讯 cninfo.com.cn（一手财报）",
+    "HK": "建议改用 .claude/skills/financial-data/SKILL.md 港股来源：aastocks（主）+ macrotrends ADR（副）+ HKEX 披露易（一手）",
+    "US": "建议改用 .claude/skills/financial-data/SKILL.md 美股来源：macrotrends（主）+ stockanalysis（副）+ SEC EDGAR（一手）",
 }
 
-# 基金/指数接口无权限时的备选来源提示（指向 skills/financial-data.md 基金章节）
+# 基金/指数接口无权限时的备选来源提示（指向 .claude/skills/financial-data/SKILL.md 基金章节）
 _FUND_FALLBACK = {
     "fund_basic": "天天基金基金档案页 fund.eastmoney.com（搜基金代码）",
     "fund_nav": "天天基金历史净值页（搜基金代码→历史净值）",
@@ -317,7 +317,7 @@ def _degrade_fund(client, api, hint=None):
     if client._last_error:
         print(f"  失败原因:   {client._last_error}")
     print(f"  备选来源:   {_FUND_FALLBACK.get(api, '天天基金 fund.eastmoney.com')}")
-    print("  数据源分层详见 skills/financial-data.md 基金与指数章节")
+    print("  数据源分层详见 .claude/skills/financial-data/SKILL.md 基金与指数章节")
     if hint:
         print(f"  {hint}")
 

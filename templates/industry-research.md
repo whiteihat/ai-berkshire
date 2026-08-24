@@ -113,11 +113,49 @@
 
 ---
 
-## 六、结论
+## 六、组合配置与行业总评
+
+### 主题组合建议
+
+| 层级 | 建议仓位占主题仓位 | 标的/ETF | 所属环节 | 核心逻辑 |
+|------|--------------------|----------|----------|----------|
+| 核心仓位 | {{CORE_WEIGHT}} | {{CORE_HOLDINGS}} | {{SEGMENT}} | {{RATIONALE}} |
+| 卫星仓位 | {{SATELLITE_WEIGHT}} | {{SATELLITE_HOLDINGS}} | {{SEGMENT}} | {{RATIONALE}} |
+| 期权仓位 | {{OPTION_WEIGHT}} | {{OPTION_HOLDINGS}} | {{SEGMENT}} | {{RATIONALE}} |
+| ETF 替代 | {{ETF_WEIGHT}} | {{ETF_OPTION}} | {{SEGMENT}} | {{RATIONALE}} |
+
+### 买卖与重审信号
+
+| 信号类型 | 具体条件 | 验证来源 | 建议动作 |
+|----------|----------|----------|----------|
+| 加仓信号 | {{ADD_SIGNAL}} | {{SOURCE}} | {{ACTION}} |
+| 减仓信号 | {{REDUCE_SIGNAL}} | {{SOURCE}} | {{ACTION}} |
+| 清仓/重审信号 | {{EXIT_SIGNAL}} | {{SOURCE}} | {{ACTION}} |
+
+### 行业总评
+
+| 维度 | 结论 | 信心度 | 最强反证/改变条件 |
+|------|------|--------|-------------------|
+| 投资逻辑链（验证程度） | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+| 最佳环节 | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+| 最宽护城河 | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+| 最大风险 | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+| 文明趋势定位 | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+| 整体估值水平 | {{JUDGMENT}} | {{CONFIDENCE}} | {{COUNTEREVIDENCE}} |
+
+### 四位大师点评
+
+> **段永平**：{{DUAN_YONGPING_VIEW}}
+>
+> **巴菲特**：{{BUFFETT_VIEW}}
+>
+> **芒格**：{{MUNGER_VIEW}}
+>
+> **李录**：{{LI_LU_VIEW}}
+
+## 七、结论与下一步
 
 > {{CONCLUSION}}
-
-### 下一步研究建议
 
 1. 对最值得关注的公司运行 `/quality-screen` 进行去劣筛选
 2. 对通过筛选的公司运行 `/investment-research` 进行深度研究

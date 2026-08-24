@@ -125,11 +125,13 @@
 
 ---
 
-## 五、段永平式追问
+## 五、段永平式三问
 
-> "这个基金经理的能力圈在哪里？他的投资逻辑我能理解吗？"
-
-{{DUAN_YONGPING_ANALYSIS}}
+| 问题 | 判断 | 证据 |
+|------|------|------|
+| 经理在能力圈内做事吗？ | {{JUDGMENT}} | {{EVIDENCE}} |
+| 说的和做的（持仓）一致吗？ | {{JUDGMENT}} | {{EVIDENCE}} |
+| 愿意把钱交给这个人管 10 年吗？ | {{JUDGMENT}} | {{EVIDENCE}} |
 
 ---
 
@@ -148,14 +150,17 @@
 | 与现有组合互补性 | {{COMPLEMENTARITY}} |
 | 风格漂移风险 | {{DRIFT_RISK}} |
 
-### 操作建议
+### 操作建议与监控
 
-| 策略 | 建议 | 价格/时点 |
-|------|------|---------|
+| 决策项 | 建议 | 条件/时点 |
+|--------|------|-----------|
 | 建仓 | {{ENTRY_ACTION}} | {{ENTRY_POINT}} |
 | 加仓 | {{ADD_ACTION}} | {{ADD_POINT}} |
 | 持有 | {{HOLD_ACTION}} | — |
 | 减仓 | {{SELL_ACTION}} | {{SELL_POINT}} |
+| 经理变更 | {{MANAGER_CHANGE_ACTION}} | {{MANAGER_CHANGE_CONDITION}} |
+| 风格漂移 | {{STYLE_DRIFT_ACTION}} | {{STYLE_DRIFT_CONDITION}} |
+| 规模超阈值 | {{AUM_ACTION}} | {{AUM_THRESHOLD}} |
 
 ---
 

@@ -1,36 +1,31 @@
 # 研报模板库
 
-本目录包含有独立模板的投研报告结构。Agent 在生成报告时应参照对应模板的章节和格式，确保跨公司、跨时间的阅读一致性；输出路径统一以 [报告路由规则](../.claude/rules/report-output.md) 为准。
+本目录定义所有持久化研究报告的最终呈现结构。研究流程、数据获取和判断规则属于 `skills/`；模板只定义读者可见的章节、表格和占位符。
 
-> **规则**：有独立模板的报告必须按对应模板的核心章节输出，可按实际情况增补但不得无理由删减。只有任务明确新增报告类型时，才在完成报告后提炼模板并更新此索引。部分 Skill 使用内嵌格式，见下方说明。
+> **规则**：所有报告型 Skill 必须按 [报告路由规则](../.claude/rules/report-output.md) 指定的模板生成最终报告。模板目录不维护输出路径、文件名或路由信息；这些信息只在路由规则中维护。
 
 ## 模板清单
 
-| 模板文件 | 对应 Skill | 用途 | 输出路径/文件名 |
-|---------|-----------|------|---------|
-| [quality-screen.md](quality-screen.md) | `/quality-screen` | 7项去劣筛选 | 个股：`reports/01-单公司分析/{公司名}/{公司名}-quality-screen-{YYYYMMDD}.md`；批量：`reports/{筛选名}-quality-screen-{YYYYMMDD}.md` |
-| [investment-research.md](investment-research.md) | `/investment-research` | 四大师投资研究 | `reports/01-单公司分析/{公司名}/{公司名}-research-{YYYYMMDD}.md` |
-| [investment-checklist.md](investment-checklist.md) | `/investment-checklist` | 巴菲特买入前 Checklist | `reports/01-单公司分析/{公司名}/{公司名}-checklist-{YYYYMMDD}.md` |
-| [investment-team.md](investment-team.md) | `/investment-team` | 四角色并行研究团队 | `reports/01-单公司分析/{公司名}/`（四个视角文件 + `最终报告.md`） |
-| [earnings-review.md](earnings-review.md) | `/earnings-review` | 财报精读 | `reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md` |
-| [earnings-team.md](earnings-team.md) | `/earnings-team` | 财报团队分析 | `reports/01-单公司分析/{公司名}/`（底稿、评审、最终稿） |
-| [thesis-tracker.md](thesis-tracker.md) | `/thesis-tracker` | 投资论文（长期维护） | `reports/01-单公司分析/{公司名}/{公司名}-thesis.md` |
-| [news-pulse.md](news-pulse.md) | `/news-pulse` | 新闻脉搏 | `reports/01-单公司分析/{公司名}/{公司名}-news-{YYYYMMDD}.md` |
-| [management-deep-dive.md](management-deep-dive.md) | `/management-deep-dive` | 管理层纵深研究 | `reports/01-单公司分析/{公司名}/{公司名}-management-{YYYYMMDD}.md` |
-| [industry-research.md](industry-research.md) | `/industry-research` | 产业链全景研究 | `reports/{行业名}-industry-{YYYYMMDD}.md` |
-| [industry-funnel.md](industry-funnel.md) | `/industry-funnel` | 漏斗式筛选 | `reports/{行业名}-funnel-{YYYYMMDD}.md` |
-| [index-fund-research.md](index-fund-research.md) | `/index-fund-research` | 指数基金研究 | `reports/00-ETF-LOF/{基金名}-indexfund-{YYYYMMDD}.md` |
-| [active-fund-research.md](active-fund-research.md) | `/active-fund-research` | 主动基金研究 | `reports/00-ETF-LOF/{基金名}-activefund-{YYYYMMDD}.md` |
-| [portfolio-review.md](portfolio-review.md) | `/portfolio-review` | 投资组合审视 | `reports/portfolio-latest.md` |
-| [private-company-research.md](private-company-research.md) | `/private-company-research` | 未上市公司研究 | `reports/01-单公司分析/{公司名}/{公司名}-private-{YYYYMMDD}.md` |
-
-## 无独立模板的 Skill
-
-以下 Skill 的输出结构由其源文件内嵌定义，路径以 [报告路由规则](../.claude/rules/report-output.md) 为准：
-
-- `/thesis-drift`：论文对比
-- `/income-investment`：收益投资分析（18 节固定结构）
-- `/bottleneck-hunter`：供应链瓶颈扫描
+| 模板文件 | 对应 Skill | 用途 |
+|---------|-----------|------|
+| [quality-screen.md](quality-screen.md) | `/quality-screen` | 7 项去劣筛选 |
+| [investment-research.md](investment-research.md) | `/investment-research` | 四大师投资研究 |
+| [investment-checklist.md](investment-checklist.md) | `/investment-checklist` | 巴菲特买入前 Checklist |
+| [investment-team.md](investment-team.md) | `/investment-team` | 四角色并行研究团队 |
+| [earnings-review.md](earnings-review.md) | `/earnings-review` | 财报精读 |
+| [earnings-team.md](earnings-team.md) | `/earnings-team` | 财报团队分析 |
+| [thesis-tracker.md](thesis-tracker.md) | `/thesis-tracker` | 投资论文长期追踪 |
+| [thesis-drift.md](thesis-drift.md) | `/thesis-drift` | 投资论文漂移检测 |
+| [news-pulse.md](news-pulse.md) | `/news-pulse` | 新闻脉搏与异动归因 |
+| [management-deep-dive.md](management-deep-dive.md) | `/management-deep-dive` | 管理层纵深研究 |
+| [industry-research.md](industry-research.md) | `/industry-research` | 产业链全景研究 |
+| [industry-funnel.md](industry-funnel.md) | `/industry-funnel` | 漏斗式筛选 |
+| [index-fund-research.md](index-fund-research.md) | `/index-fund-research` | 指数基金研究 |
+| [active-fund-research.md](active-fund-research.md) | `/active-fund-research` | 主动基金研究 |
+| [income-investment.md](income-investment.md) | `/income-investment` | 收益型股票分析 |
+| [portfolio-review.md](portfolio-review.md) | `/portfolio-review` | 投资组合审视 |
+| [private-company-research.md](private-company-research.md) | `/private-company-research` | 未上市公司研究 |
+| [bottleneck-hunter.md](bottleneck-hunter.md) | `/bottleneck-hunter` | 供应链瓶颈扫描与状态文件 |
 
 ## 通用格式规范
 
@@ -58,9 +53,10 @@
 
 ### 表格规范
 - 所有表格使用 Markdown 格式
-- 关键数据表格必须包含"判断"列
+- 关键数据表格必须包含“判断”列
 - 金额单位统一（人民币/港币/美元/新台币），在表格标题或首行标注
-- 百分比保留1位小数，倍数保留1位小数
+- 百分比保留 1 位小数，倍数保留 1 位小数
+- 含决策敏感财务数据的报告必须至少有一张数据交叉验证表：`数据点（口径/期间）｜采用值｜来源A（数值）｜来源B（数值）｜误差｜判定/差异原因`。来源优先级、误差阈值与例外处理以 `.claude/skills/financial-data/SKILL.md` 为准。
 
 ### 引用规范
 - 四大师语录用 `>` blockquote 格式

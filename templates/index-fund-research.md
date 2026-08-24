@@ -78,16 +78,39 @@
 
 ---
 
-## 四、产品体检
+## 四、指数成分与产品体检
 
-| 检查项 | 结果 | 判断 |
-|-------|:----:|:----:|
-| 跟踪精度 | {{VALUE}} | {{JUDGMENT}} |
-| 流动性（日均成交额） | {{VALUE}} | {{JUDGMENT}} |
-| 规模（是否清盘风险） | {{VALUE}} | {{JUDGMENT}} |
-| 持有人结构 | {{VALUE}} | {{JUDGMENT}} |
-| 费率（同类对比） | {{VALUE}} | {{JUDGMENT}} |
-| 折溢价 | {{VALUE}} | {{JUDGMENT}} |
+### 前十大成分与集中度
+
+| # | 成分股 | 代码 | 权重 | 行业 | 质量/估值要点 |
+|:-:|--------|------|:----:|------|---------------|
+| 1 | {{COMPONENT_NAME}} | {{CODE}} | {{WEIGHT}} | {{SECTOR}} | {{KEY_POINT}} |
+| ... | ... | ... | ... | ... | ... |
+
+| 集中度指标 | 当前值 | 判断 |
+|------------|--------|------|
+| 前五大权重合计 | {{TOP5_WEIGHT}} | {{JUDGMENT}} |
+| 前十大权重合计 | {{TOP10_WEIGHT}} | {{JUDGMENT}} |
+| 最大单一成分权重 | {{MAX_COMPONENT_WEIGHT}} | {{JUDGMENT}} |
+
+### 行业暴露
+
+| 行业 | 权重 | 与现有组合重叠 | 判断 |
+|------|------|----------------|------|
+| {{SECTOR}} | {{WEIGHT}} | {{OVERLAP}} | {{JUDGMENT}} |
+
+### 产品体检
+
+| 指标 | 当前值（口径/时点） | 健康阈值/比较基准 | 判断 | 数据来源 |
+|------|---------------------|-------------------|------|----------|
+| 跟踪误差 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 流动性（日均成交额） | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 规模/清盘风险 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 份额变动 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 持有人结构 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 费率（同类对比） | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 折溢价 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
+| 分红记录 | {{VALUE}} | {{BENCHMARK}} | {{JUDGMENT}} | {{SOURCE}} |
 
 判断标准：✅健康 | ⚠️关注 | ❌不达标
 

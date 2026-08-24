@@ -129,14 +129,14 @@
 
 ---
 
-## 五、关键问题（电话会Q&A精选）
+## 五、关键问题（电话会 Q&A 精选）
 
-| # | 可能的问题 | 预期回答方向 | 回答质量 |
-|:-:|-----------|:----------:|:-------:|
-| 1 | {{QUESTION_1}} | {{EXPECTED}} | {{QUALITY}} |
-| 2 | {{QUESTION_2}} | {{EXPECTED}} | {{QUALITY}} |
-| 3 | {{QUESTION_3}} | {{EXPECTED}} | {{QUALITY}} |
-| ... | ... | ... | ... |
+| # | 问题 | 管理层实际回答 | 回答质量 | 证据/反证 |
+|:-:|------|----------------|:-------:|-----------|
+| 1 | {{QUESTION_1}} | {{ACTUAL_ANSWER}} | {{QUALITY}} | {{EVIDENCE_OR_COUNTER}} |
+| 2 | {{QUESTION_2}} | {{ACTUAL_ANSWER}} | {{QUALITY}} | {{EVIDENCE_OR_COUNTER}} |
+| 3 | {{QUESTION_3}} | {{ACTUAL_ANSWER}} | {{QUALITY}} | {{EVIDENCE_OR_COUNTER}} |
+| ... | ... | ... | ... | ... |
 
 ---
 
