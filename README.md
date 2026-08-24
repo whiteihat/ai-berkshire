@@ -119,7 +119,7 @@ python3 tools/financial_rigor.py verify-market-cap \
 # ✅ 验证通过, 偏差仅 0.08%
 ```
 
-所有计算使用 Python `decimal.Decimal`（精确十进制），不用 `float`。关键数据至少2个独立来源交叉验证。
+所有计算使用 Python `decimal.Decimal`（精确十进制），不用 `float`。数据经统一访问层取主源并做合理性校验（不做强制双源比对，异常才人工核查）。
 
 ### 5. 可复现的研究流程
 
@@ -216,7 +216,7 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 | Skill | 用途 | 适合场景 |
 |-------|------|---------|
-| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | 财务数据获取与交叉验证规范 | 确保关键数据来自2个独立来源，误差>1%告警 |
+| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | 财务数据获取与合理性校验规范 | 统一走 data_loader 取主源落盘复用，异常才人工核查 |
 
 ### 🔗 搭配 Claude Code 内置的 /deep-research
 
@@ -315,7 +315,7 @@ Claude Code 会自动发现 `.claude/skills/*/SKILL.md` 中的项目本地 Skill
 
 **核心特色**：
 - AI研究偏见自觉机制（A/B/C级信息丰富度评级）
-- 关键数据多源交叉验证（市值手算校验、至少2个独立来源）
+- 关键数据经统一数据层取主源并做合理性校验（市值手算校验、异常才人工核查）
 - 四位大师的"追问"贯穿全文
 - 三情景估值（乐观/中性/悲观）+ 反向DCF
 
@@ -600,7 +600,7 @@ Claude Code 会自动发现 `.claude/skills/*/SKILL.md` 中的项目本地 Skill
 |------|------|-----------|
 | **市值验算** | `verify-market-cap` | 股价×总股本 精确计算，检测单位错误 |
 | **估值验算** | `verify-valuation` | PE/PB/ROE/FCF Yield 精确十进制计算 |
-| **多源交叉验证** | `cross-validate` | N个来源的同一数据自动比对，超过容差告警 |
+| **合理性校验** | `cross-validate` | 主源数据与前值/常识偏离时人工核查比对，超过容差告警 |
 | **三情景估值** | `three-scenario` | 乐观/中性/悲观精确计算目标价 |
 | **Benford定律检测** | `benford` | 检测财务数据首位数字分布异常 |
 | **精确计算器** | `calc` | 任意财务表达式精确计算，替代LLM心算 |

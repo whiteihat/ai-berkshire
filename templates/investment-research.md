@@ -53,12 +53,12 @@
 | FCF（亿） | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{TREND}} |
 | 资产负债率 | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{VALUE}} | {{TREND}} |
 
-### 数据交叉验证
+### 数据来源与合理性校验
 
-| 数据点（口径/期间） | 采用值 | 来源A（数值） | 来源B（数值） | 误差 | 判定/差异原因 |
-|--------------------|--------|---------------|---------------|------|----------------|
-| {{DATA_POINT_1}} | {{ADOPTED_VALUE}} | {{SOURCE_A_AND_VALUE}} | {{SOURCE_B_AND_VALUE}} | {{DEVIATION}} | {{JUDGMENT_OR_REASON}} |
-| ... | ... | ... | ... | ... | ... |
+| 数据点（口径/期间） | 采用值（来源） | 与前值/常识核对 | 是否需要人工核查 |
+|--------------------|----------------|-----------------|:----------------:|
+| {{DATA_POINT_1}} | {{ADOPTED_VALUE_SOURCE}} | {{PLAUSIBILITY_NOTES}} | {{YES_NO_OR_NA}} |
+| ... | ... | ... | ... |
 
 ---
 
@@ -298,9 +298,9 @@
 
 ## 附录
 
-### 数据交叉验证
+### 数据来源与合理性校验记录
 
-{{DATA_CROSS_VALIDATION}}
+{{DATA_SOURCE_AND_PLAUSIBILITY_CHECK}}
 
 ### 去劣筛选结果
 

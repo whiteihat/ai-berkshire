@@ -109,7 +109,7 @@ python3 tools/financial_rigor.py verify-market-cap \
 # ✅ Verified — deviation only 0.08%
 ```
 
-All calculations use Python `decimal.Decimal` (exact decimal arithmetic), not `float`. Key data requires at least 2 independent sources for cross-validation.
+All calculations use Python `decimal.Decimal` (exact decimal arithmetic), not `float`. Data flows through the unified access layer, which reads the primary source first (persisting to local disk); sanity-checking replaces forced double-source comparison, with manual re-check only on anomalies.
 
 ### 5. Reproducible Research Process
 
@@ -204,7 +204,7 @@ Ask AI directly, and you have one context window. Four parallel Agents means 4×
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | Financial data retrieval & cross-validation | Ensure key data comes from 2+ independent sources; alerts on >1% deviation |
+| [`/financial-data`](.claude/skills/financial-data/SKILL.md) | Financial data retrieval & sanity-checking | Unified data_loader reads primary source and persists locally; manual re-check only on anomalies |
 
 ---
 
@@ -299,7 +299,7 @@ Data Collection → Business Essence (Duan Yongping) → Moat (Buffett) → Inve
 
 **Key Features**:
 - AI research bias awareness mechanism (A/B/C information richness rating)
-- Multi-source cross-validation on key data (manual market cap calculation, 2+ independent sources)
+- Key data flows through the unified data layer with sanity-checking (manual market cap calculation; re-check on anomalies)
 - Each master's "follow-up questions" woven throughout
 - Three-scenario valuation (bull/base/bear) + reverse DCF
 
@@ -584,7 +584,7 @@ The four masters aren't just dividing labor — they're designed to **challenge 
 |---------|---------|---------------|
 | **Market Cap Verification** | `verify-market-cap` | Price × shares outstanding, exact calculation, detects unit errors |
 | **Valuation Verification** | `verify-valuation` | P/E / P/B / ROE / FCF Yield — exact decimal arithmetic |
-| **Multi-Source Cross-Validation** | `cross-validate` | Auto-compare same data point across N sources; alerts above tolerance |
+| **Sanity Check** | `cross-validate` | Compare primary-source data against prior value / common sense on anomaly; alerts above tolerance |
 | **Three-Scenario Valuation** | `three-scenario` | Bull / base / bear exact target price calculation |
 | **Benford's Law Detection** | `benford` | Detect anomalies in first-digit distribution of financial data |
 | **Precision Calculator** | `calc` | Any financial expression computed exactly — replaces LLM mental math |
