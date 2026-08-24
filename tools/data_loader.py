@@ -179,8 +179,16 @@ def _run_fetcher_update(asset_type, code, name=None):
     else:
         return False
     try:
-        res = subprocess.run(args, capture_output=True, text=True, cwd=_ROOT, timeout=600)
+        # 关键：text=True 时必须显式指定 encoding（Windows 默认 GBK 会解码失败）；
+        # errors="replace" 防止个别不可解码字节让整个取数崩溃。
+        # timeout 适中：缓存未命中触发更新时，不应让整条流水线阻塞过久。
+        res = subprocess.run(
+            args, capture_output=True, text=True, encoding="utf-8",
+            errors="replace", cwd=_ROOT, timeout=120,
+        )
         return res.returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
     except Exception:
         return False
 
@@ -285,7 +293,8 @@ def search(keyword, market=None):
     tool = os.path.join(_TOOLS_DIR, "tushare_data.py")
     args = [py, tool, "search", keyword]
     try:
-        res = subprocess.run(args, capture_output=True, text=True, cwd=_ROOT, timeout=120,
+        res = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
+                             errors="replace", cwd=_ROOT, timeout=120,
                              env={**os.environ, "PYTHONIOENCODING": "utf-8"})
         return res.stdout or res.stderr or ""
     except Exception as e:
