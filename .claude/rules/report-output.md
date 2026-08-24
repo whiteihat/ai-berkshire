@@ -10,7 +10,7 @@
 | 单公司 Pipeline（团队研究） | `investment-team`          | `templates/investment-team.md`          | `reports/01-单公司分析/{公司名}/`，包含四个视角文件和 `最终报告.md`                                                                      |
 | 单公司 Pipeline（私营公司） | `private-company-research` | `templates/private-company-research.md` | `reports/01-单公司分析/{公司名}/{公司名}-private-{YYYYMMDD}.md`                                                                            |
 | 行业研究                    | `industry-research`        | `templates/industry-research.md`        | `reports/02-行业分析/{行业名}-industry-{YYYYMMDD}.md`                                                                                      |
-| 行业漏斗/筛选               | `industry-funnel`          | `templates/industry-funnel.md`          | `reports/{行业名}-funnel-{YYYYMMDD}.md`                                                                                                    |
+| 行业漏斗/筛选               | `industry-funnel`          | `templates/industry-funnel.md`          | `reports/02-行业分析/{行业名}-funnel-{YYYYMMDD}.md`                                                                                        |
 | 质量筛选                    | `quality-screen`           | `templates/quality-screen.md`           | `reports/01-单公司分析/{公司名}/{公司名}-quality-screen-{YYYYMMDD}.md`（批量筛选时使用 `reports/{筛选名}-quality-screen-{YYYYMMDD}.md`） |
 | 管理层深度研究              | `management-deep-dive`     | `templates/management-deep-dive.md`     | `reports/01-单公司分析/{公司名}/{公司名}-management-{YYYYMMDD}.md`                                                                         |
 | 财报研读                    | `earnings-review`          | `templates/earnings-review.md`          | `reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md`                                                                               |
@@ -21,11 +21,9 @@
 | 投资检查清单                | `investment-checklist`     | `templates/investment-checklist.md`     | `reports/01-单公司分析/{公司名}/{公司名}-checklist-{YYYYMMDD}.md`；多公司时逐公司写入各自目录，并可另存比较表                              |
 | 组合回顾                    | `portfolio-review`         | `templates/portfolio-review.md`         | `reports/portfolio-latest.md`（持续更新）                                                                                                  |
 | 论文追踪                    | `thesis-tracker`           | `templates/thesis-tracker.md`           | `reports/01-单公司分析/{公司名}/{公司名}-thesis.md`（长期维护；追踪快照放同目录）                                                          |
-| 论文漂移                    | `thesis-drift`             | Skill 内嵌对比结构                        | `reports/01-单公司分析/{公司名}/{公司名}-thesis-drift-{YYYYMMDD}.md`                                                                       |
-| 收益投资                    | `income-investment`        | Skill 内嵌固定章节                        | `reports/01-单公司分析/{公司名}/{公司名}-income-investment-{YYYYMMDD}.md`                                                                  |
-| 瓶颈猎手                    | `bottleneck-hunter`        | 专用模板                                  | `reports/bottleneck-map/`（总地图、观察名单和按日扫描）                                                                                    |
-| 深度公司系列                | `deep-company-series`      | Skill 内嵌篇目模板                        | `reports/01-单公司分析/{公司名}/《看懂{公司名}》-{YYYYMMDD}/`                                                                              |
-| 微信文章                    | `wechat-article`           | Skill 内嵌格式                            | 按主题写入`reports/AI产业研究/`、`reports/01-单公司分析/{公司名}/` 或 `reports/` 根目录                                                |
+| 论文漂移                    | `thesis-drift`             | `templates/thesis-drift.md`              | `reports/01-单公司分析/{公司名}/{公司名}-thesis-drift-{YYYYMMDD}.md`                                                                       |
+| 收益投资                    | `income-investment`        | `templates/income-investment.md`         | `reports/01-单公司分析/{公司名}/{公司名}-income-investment-{YYYYMMDD}.md`                                                                  |
+| 瓶颈猎手                    | `bottleneck-hunter`        | `templates/bottleneck-hunter.md`         | `reports/bottleneck-map/`（总地图、观察名单和按日扫描）                                                                                    |
 
 - `{YYYYMMDD}` 使用报告生成日；`{期间}` 使用财报期间，例如 `2025Q4`。
 - `{公司名}`、`{基金名}`、`{行业名}` 和 `{标的名}` 先做安全化：去除路径分隔符、控制字符和会改变路径的 `..`；保留中文、英文、数字、空格、连字符和下划线。
