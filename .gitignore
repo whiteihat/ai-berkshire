@@ -26,6 +26,8 @@ assets/公司品牌图/
 /.claude/*
 !/.claude/rules/
 !/.claude/rules/**
+!/.claude/skills/
+!/.claude/skills/**
 CLAUDE.local.md
 
 # ===== 密钥/凭证类文件，任何位置一律不入库 =====

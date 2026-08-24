@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：被动指数基金研究：买指数就是买商业模式集合"
+disable-model-invocation: true
+---
+
 # 被动指数基金研究：买指数就是买商业模式集合
 
 对 $ARGUMENTS 进行被动指数基金（ETF/指数LOF/场外指数基金）投资研究。
@@ -38,7 +43,7 @@
 
 ### 第一步：标的确认与基金基本盘
 
-> **数据源规范**：`skills/financial-data.md` 基金与指数章节；每个关键数据两个独立来源，误差>1%标记。
+> **数据源规范**：`.claude/skills/financial-data/SKILL.md` 基金与指数章节；每个关键数据两个独立来源，误差>1%标记。
 > tushare 无权限的字段（fund_basic/fund_share 等）用天天基金副源补齐，工具会输出退化提示。
 
 ```bash
@@ -87,7 +92,7 @@ uv run python tools/tushare_data.py indexdaily 000300.SH
 
 ### 第三步：基金产品体检（共享清单见 financial-data.md）
 
-按 `skills/financial-data.md`"基金产品体检指标清单"逐项检查：
+按 `.claude/skills/financial-data/SKILL.md`"基金产品体检指标清单"逐项检查：
 
 **3.1 跟踪误差**（被动基金的核心质检项）：
 ```bash
@@ -132,7 +137,7 @@ uv run python tools/tickflow_data.py quote 510300.SH        # 盘中实时价（
 1. 中文、直接犀利、不说废话；数据标来源，关键数据双源交叉验证（误差>1%标记）
 2. 计算一律走工具（tushare_data.py / tickflow_data.py / financial_rigor.py），禁止LLM心算
 3. 报告开头：信息丰富度评级（A/B/C）+ AI研究局限性声明；结尾区分"AI分析置信度"与"投资确定性"
-4. 输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
+4. 输出路径以 [.claude/rules/report-output.md](../../rules/report-output.md) 路由表为准。
 
 ## 数据抽检（准出流程）
 

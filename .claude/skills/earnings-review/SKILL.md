@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：财报精读：一手资料深度解读"
+disable-model-invocation: true
+---
+
 # 财报精读：一手资料深度解读
 
 对 $ARGUMENTS 进行财报精读分析。
@@ -38,7 +43,7 @@
 3. **管理层致股东信**（如有年报）：完整阅读
 4. **投资者日/分析师日材料**（如近期有）
 
-如果无法获取完整原文，按 `skills/financial-data.md` 规范使用相应市场的备选来源拼凑，但必须标注"非原始财报，来自第三方汇总"，且关键数据按该规范交叉验证并标记误差。
+如果无法获取完整原文，按 `.claude/skills/financial-data/SKILL.md` 规范使用相应市场的备选来源拼凑，但必须标注"非原始财报，来自第三方汇总"，且关键数据按该规范交叉验证并标记误差。
 
 ### 第二步：核心财务数据提取与验证
 
@@ -165,46 +170,26 @@ python3 tools/financial_rigor.py verify-valuation \
 | 指标 | 管理层此前指引 | 实际结果 | 偏差 | 解读 |
 |------|--------------|---------|------|------|
 
-### 第六步：输出精读报告
+### 第六步：渲染精读报告
 
-#### 报告结构
-
-```
-一、核心数据速览（一页表格）
-二、本期最重要的3个变化（不超过500字）
-三、管理层语气与承诺追踪
-四、附注中的隐藏信息
-五、关键问题（电话会Q&A精选）
-六、与投资论文的关系（如有持仓）
-七、结论：这份财报改变了什么？
-```
-
-#### 结论必须明确回答
-
-1. **这份财报是超预期、符合预期、还是低于预期？**（不能说"基本符合"然后列一堆两面话）
-2. **对投资论文的影响**：强化 / 无影响 / 削弱 / 破裂
-3. **需要关注的下一个催化剂是什么？**
-4. **如果你已持有，该加仓/持有/减仓？**
+生成前读取 [.claude/rules/report-output.md](../../rules/report-output.md) 及其指定模板。最终报告的章节、表格、结论展示和占位符严格以模板为准；本 Skill 只保留一手资料收集、语气判断、附注检查、趋势分析与历史指引核验流程。
 
 ### 第七步：保存报告
 
-输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
+按报告路由规则写入。
 
 ### 第八步：数据抽检（准出流程）
 
 报告写入后，执行数据抽检，通过方可发布：
 
 ```bash
-# Step 1 — 提取抽检清单
-python3 tools/report_audit.py extract \
-  --report reports/01-单公司分析/{公司名}/{公司名}-earnings-{期间}.md
+# Step 1 — 提取抽检清单（--report 用路由规则确定的实际报告路径）
+python3 tools/report_audit.py extract --report {报告路径}
 
-# Step 2 — 按 skills/financial-data.md 的市场优先级核验清单中的每项数据
+# Step 2 — 按 .claude/skills/financial-data/SKILL.md 的市场优先级核验清单中的每项数据
 
 # Step 3 — 输出准出/打回判决
-python3 tools/report_audit.py verdict \
-  --results '<填好的JSON>' \
-  --report {报告文件名}
+python3 tools/report_audit.py verdict --results '<填好的JSON>' --report {报告路径}
 ```
 
 **【准出】** 全部通过 → 发布；**【打回】** 有不通过 → 修正后重审。

@@ -1,6 +1,6 @@
 ---
-name: news-pulse
-description: 公司新闻脉搏：股价异动时快速归因。用 4 个并行 Agent 侦察公司事件/监管政策/行业对手/市场情绪，产出"事件时间线 + 异动主因判断 + 是否触发论文重审"。
+description: "AI Berkshire 项目内工作流：公司新闻脉搏：股价异动时快速归因"
+disable-model-invocation: true
 ---
 
 # 公司新闻脉搏：股价异动快速归因团队
@@ -216,7 +216,7 @@ description: 公司新闻脉搏：股价异动时快速归因。用 4 个并行 
 
 ### 第八步：保存报告
 
-输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
+输出路径以 [.claude/rules/report-output.md](../../rules/report-output.md) 路由表为准。
 
 ### 第九步：清理团队
 

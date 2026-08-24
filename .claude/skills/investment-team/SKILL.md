@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：投研团队：四角色并行分析框架"
+disable-model-invocation: true
+---
+
 # 投研团队：四角色并行分析框架
 
 对 $ARGUMENTS 进行团队化投资研究分析。使用 Team 工具创建真正的多Agent并行研究团队。
@@ -38,12 +43,12 @@
 **为什么必须预检**：本 skill 用 `run_in_background: true` 启动 4 个后台子 Agent，而**后台 Agent 无法向用户弹出交互式权限确认**。若 `WebSearch` 未在 `.claude/settings.local.json` 的 `permissions.allow` 白名单中，子 Agent 的联网搜索会被**静默拦截**，导致其退化为仅凭训练知识（有知识截止日期）作答，却仍按框架输出一份"看起来完整、实则未联网"的伪研究——这是本 skill 最危险的失败模式（见 issue #58）。
 
 **预检步骤**：
-1. 用 Bash 检查白名单是否含 WebSearch：
+1. 用 Bash 检查仓库内白名单是否含 WebSearch：
    ```bash
-   grep -l '"WebSearch"' .claude/settings.local.json ~/.claude/settings.local.json 2>/dev/null
+   grep -l '"WebSearch"' .claude/settings.local.json 2>/dev/null
    ```
-2. 若两处都未命中（即未放行）→ **停下来，不要启动 Agent**，提示用户：
-   > ⚠️ 检测到 WebSearch 未在权限白名单中。后台研究 Agent 无法联网，会退化成仅凭训练知识作答。请先在 `.claude/settings.local.json` 的 `permissions.allow` 加入 `"WebSearch"`（或运行 `/permissions` 勾选），再重跑本命令。
+2. 若未命中（即未放行）→ **停下来，不要启动 Agent**，提示用户：
+   > ⚠️ 检测到 WebSearch 未在仓库权限白名单中。后台研究 Agent 无法联网，会退化成仅凭训练知识作答。请先在 `.claude/settings.local.json` 的 `permissions.allow` 加入 `"WebSearch"`（或运行 `/permissions` 勾选），再重跑本命令。
 3. 命中 → 正常继续。
 
 ### 第二步：创建团队
@@ -128,7 +133,7 @@
 
 **研究方法**：
 - 使用 WebSearch 搜索最新公开信息（财报、行业报告、新闻）
-- **财务数据必须来自两个独立来源**，按 `skills/financial-data.md` 的市场优先级、口径和误差规则执行；无法满足时说明例外和置信度，不得用旧的固定数据源列表覆盖该规范
+- **财务数据必须来自两个独立来源**，按 `.claude/skills/financial-data/SKILL.md` 的市场优先级、口径和误差规则执行；无法满足时说明例外和置信度，不得用旧的固定数据源列表覆盖该规范
 - 确保数据准确，关键数据标注来源
 - 分析要深入，不流于表面
 - **联网失败禁止伪装**：若 WebSearch 被拦截/不可用，禁止用训练知识冒充联网结果。必须在报告顶部醒目标注「⚠️ 本报告未能联网，基于训练知识（截止日期 X），置信度降级」，并如实告知 team-lead，由其决定是否中止研究
@@ -155,46 +160,11 @@
 
 ### 第七步：汇总最终报告
 
-综合4份分析报告，输出以下结构的最终报告：
-
----
-
-#### 1. 一句话结论
-> 用一段话（50-100字）概括是否值得投资及核心逻辑
-
-#### 2. 四维评分总表
-| 维度 | 框架 | 评分(1-5星) | 核心判断 |
-|------|------|------------|----------|
-
-综合评分：X / 5
-
-#### 3. 核心数据速览
-关键财务和经营指标表格（近2年对比）
-
-#### 4. 各维度分析摘要
-每个维度摘取3-5条最重要的发现
-
-#### 5. 投资论点（Bull vs Bear）
-- 🟢 看多逻辑（5-7条）
-- 🔴 看空逻辑（5-7条）
-
-#### 6. 巴菲特买入前Checklist
-| # | 检查项 | 通过? | 说明 |
-10个核心检查项，逐一评估
-
-#### 7. 最终投资建议
-- 定性判断表（生意质量/管理层/估值/时机）
-- 分层操作建议表（激进型/稳健型/保守型 → 建议+价格区间）
-- 关键催化剂（加仓信号/减仓信号各3-5条）
-
-#### 8. 总结段落
-100-200字的最终总结
-
----
+生成前读取 [.claude/rules/report-output.md](../../rules/report-output.md) 及其指定模板。最终综合报告的章节、表格和占位符严格以模板为准；本 Skill 只保留四个角色的分工、证据合成、分歧处理和准出流程。
 
 ### 第八步：保存报告
 
-输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。已有同名成果时不覆盖，先询问或创建日期版本。
+按报告路由规则写入；已有同名成果时不覆盖，先询问或创建日期版本。
 
 ### 第九步：数据抽检（准出流程）
 
@@ -203,7 +173,7 @@
 python3 tools/report_audit.py extract \
   --report <报告文件路径>
 
-# Step 2 — 对清单每项从可靠信源取数（参见 skills/financial-data.md）
+# Step 2 — 对清单每项从可靠信源取数（参见 .claude/skills/financial-data/SKILL.md）
 
 # Step 3 — 输出准出/打回判决
 python3 tools/report_audit.py verdict \

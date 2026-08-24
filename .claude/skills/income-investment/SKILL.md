@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：Income Investment: Durable and Opportunistic Distribution Analysis"
+disable-model-invocation: true
+---
+
 # Income Investment: Durable and Opportunistic Distribution Analysis
 
 Analyze `$ARGUMENTS` to answer:
@@ -36,7 +41,7 @@ Use or refer to existing workflows instead of reproducing them:
 
 1. Run `date` before research. Put the data cutoff date in the report header.
 2. Prefer annual and interim reports, earnings releases, investor documents, regulatory filings, official releases, and official exchange data, in that order. Use secondary sources only to fill gaps and label them as secondary.
-3. Apply `skills/financial-data.md`: verify decision-critical financial data with at least two independent sources when available and flag discrepancies above 1%.
+3. Apply `.claude/skills/financial-data/SKILL.md`: verify decision-critical financial data with at least two independent sources when available and flag discrepancies above 1%.
 4. Date or period-label every time-sensitive figure. Separate every material statement as **Verified fact**, **Estimate**, **Assumption**, or **Analytical judgment**.
 5. Use `python3 tools/financial_rigor.py` for exact payout, yield, valuation, market-cap, portfolio-income, and scenario arithmetic. Never rely on mental arithmetic for a decision-sensitive result.
 6. After saving the report, run the `tools/report_audit.py extract` and `verdict` workflow. A report that fails audit is a draft, not publishable research.
@@ -151,30 +156,11 @@ Return exactly one verdict:
 
 For the verdict provide: possible portfolio role, primary reason, primary risk, entry conditions, a position-size range to study (never universally suitable), reinforcement conditions, reduction/exit criteria, monitoring indicators, and confidence. Do not give a firm personalized recommendation when portfolio, tax, or risk-tolerance information is insufficient.
 
-## Required Report Format
+## Report Output
 
-Use these headings exactly once and avoid repeating the same analysis:
+Before rendering, read `.claude/rules/report-output.md` and its designated template. The template is the sole source of reader-visible sections, tables, verdict presentation, and placeholders; this Skill retains only research, calculation, blocking-gate, and release-audit requirements.
 
-1. Executive summary
-2. Verdict and category
-3. Possible portfolio role
-4. Business and source of distributed cash
-5. Dividend history and calendar
-6. Distribution coverage and safety
-7. Balance sheet and refinancing
-8. Income growth
-9. Valuation and margin of safety
-10. Tax and currency
-11. Portfolio fit
-12. Scenarios: base, adverse, severe
-13. Dividend-cut risks
-14. Purchase or reinforcement conditions
-15. Reduction or sale conditions
-16. Monitoring table
-17. One-sentence conclusion
-18. Sources and data quality
-
-Save the result to the path specified in `.claude/rules/report-output.md` for this skill. Include the scorecard and blocking-gate result in section 2, the monthly income calendar in section 11 when calculable, and source title, issuer/publisher, publication date, accessed date, reporting period, URL, and primary/secondary label in section 18.
+Save the result according to the report routing rule.
 
 ## Release Audit
 

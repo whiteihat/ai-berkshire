@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：投资论文追踪：买入后的纪律系统"
+disable-model-invocation: true
+---
+
 # 投资论文追踪：买入后的纪律系统
 
 对 $ARGUMENTS 执行投资论文追踪检查。
@@ -91,16 +96,11 @@
 | 内在价值估算 | | | | |
 | 安全边际 | | | | |
 
-### A5：保存论文
+### A5：渲染并保存论文
 
-输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。论文包含：
-- 建立日期
-- 买入价格和仓位
-- 核心论文（5句话）
-- 核心假设清单
-- 红线清单
-- 估值锚点
-- 追踪记录表（初始为空）
+生成前读取 [.claude/rules/report-output.md](../../rules/report-output.md) 及其指定模板。论文基线、追踪快照和读者可见表格严格以模板为准；本 Skill 只保留建立/追踪模式判断、假设验证、健康度计算与更新规则。
+
+按报告路由规则保存论文。（初始为空）
 
 ---
 

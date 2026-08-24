@@ -1,3 +1,8 @@
+---
+description: "AI Berkshire 项目内工作流：主动基金研究：买基金就是买基金经理"
+disable-model-invocation: true
+---
+
 # 主动基金研究：买基金就是买基金经理
 
 对 $ARGUMENTS 进行主动基金（主动LOF/场外主动基金）投资研究。
@@ -39,7 +44,7 @@
 
 ### 第一步：基金与经理基本盘
 
-> **数据源规范**：`skills/financial-data.md` 基金与指数章节；tushare 无权限字段（fund_manager/fund_portfolio/fund_basic 等）用天天基金副源补齐，工具会输出退化提示。
+> **数据源规范**：`.claude/skills/financial-data/SKILL.md` 基金与指数章节；tushare 无权限字段（fund_manager/fund_portfolio/fund_basic 等）用天天基金副源补齐，工具会输出退化提示。
 
 ```bash
 uv run python tools/tushare_data.py fundsearch 易方达        # 查代码
@@ -79,7 +84,7 @@ fundholdings 前十大 + 行业暴露表：
 
 ### 第四步：基金产品体检（共享清单见 financial-data.md）
 
-按 `skills/financial-data.md`"基金产品体检指标清单"逐项检查：
+按 `.claude/skills/financial-data/SKILL.md`"基金产品体检指标清单"逐项检查：
 
 - **费率**：综合费率 vs 同类中位数（主动 ≤1.5%）
 - **规模**：>100亿警惕策略容量（大市值风格影响小，小盘/主题风格影响大）
@@ -110,7 +115,7 @@ fundholdings 前十大 + 行业暴露表：
 1. 中文、直接犀利、不说废话；数据标来源，关键数据双源交叉验证（误差>1%标记）
 2. 计算一律走工具（tushare_data.py / financial_rigor.py），禁止LLM心算
 3. 报告开头：信息丰富度评级（A/B/C）+ AI研究局限性声明；结尾区分"AI分析置信度"与"投资确定性"
-4. 输出路径以 [.claude/rules/report-output.md](../../.claude/rules/report-output.md) 路由表为准。
+4. 输出路径以 [.claude/rules/report-output.md](../../rules/report-output.md) 路由表为准。
 
 ## 数据抽检（准出流程）
 
