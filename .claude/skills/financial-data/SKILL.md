@@ -22,7 +22,9 @@ disable-model-invocation: true
 > ```
 > 或命令行 `python tools/data_loader.py get <type> <code> <name> [--field ...]`。不要直接散落 tushare/twstock/tickflow 命令；这些工具的细粒度命令仅供排查，不由 Skill 直接驱动。
 
-> **个股财务回溯口径**：`data_loader get stock` 的财务主表默认回溯**近十年**——以当前年份为基准往前推 10 个完整年度（如 2026 年为当前年，则 2016–2025 为完整十年），每年含一季报(0331)/中报(0630)/三季报(0930)/年报(1231)；**当年已披露的报告期**（如 2026 中报）一并自动纳入且不占用十年名额。实现见 `tools/fundamental_fetcher.py::_get_report_periods`，`--years` 可覆盖。
+> **个股财务回溯口径（"10+N"模式）**：`data_loader get stock` 的财务主表默认回溯**近十年**——以当前年份为基准往前推 10 个完整年度（如 2026 年为当前年，则 2016–2025 为完整十年），每年含一季报(0331)/中报(0630)/三季报(0930)/年报(1231)；**当年已披露的报告期**（如 2026 中报）一并自动纳入且不占用十年名额。实现见 `tools/fundamental_fetcher.py::_get_report_periods`，`--years` 可覆盖。
+>
+> **时间对齐机制**：`_get_report_periods` 只决定"拉取哪些期间"（按期间末日 ≤ 今天）；是否值得重试由 `_should_retry_period` 综合判断——空文件、核心接口（income/balancesheet/cashflow/fina_indicator）不完整、已过法定披露截止日但 manifest 无数据均触发重试。`_check_report_disclosed` 结合公告元数据（announcements.json）和法定截止日（年报次年4/30、中报当年8/31、季报下季度末）交叉验证披露状态。`update_stock` 在增量更新前先刷新公告列表，确保交叉验证使用最新信息。A股年报通常在次年 Q1 披露，中报在当年 Q3，季报在下一季度内——期间末日已过但报告尚未披露时，Tushare 返回空且不落盘文件，下次 update 自动重试。
 
 ---
 

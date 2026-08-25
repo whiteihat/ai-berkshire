@@ -24,7 +24,7 @@ python tools/data_loader.py status stock {代码} {公司名}      # 查看缓�
 ```
 
 - 数据不足/过旧时，`get` 会自动触发更新落盘；若更新失败，如实说明并降级用已有数据。
-- 财务主表默认回溯**近十年**（含一季报/中报/三季报/年报）并自动纳入当年已披露的报告期（如 2026 中报，不占十年名额）；口径见 `tools/fundamental_fetcher.py::_get_report_periods` 与 `.claude/skills/financial-data/SKILL.md`。
+- 财务主表默认回溯**近十年**（"10+N"模式：10 个完整年度 + 当年已披露的报告期，后者不占十年名额）；口径见 `tools/fundamental_fetcher.py::_get_report_periods` 与 `.claude/skills/financial-data/SKILL.md`。时间对齐由 `_should_retry_period` 结合法定披露截止日和公告元数据自动处理——年报通常在次年 Q1 披露，中报在当年 Q3，季报在下一季度内，未披露时自动在下次 update 重试。
 - 未上市公司无财务落盘数据是正常的，直接进入阶段 2。
 
 ---
