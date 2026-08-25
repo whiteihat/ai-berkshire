@@ -10,7 +10,7 @@ REM 说明：
 REM   - 稳定性（限流/重试/断点续传）由 fundamental_fetcher / fund_data_fetcher 内建，
 REM     本脚本只负责遍历清单并选择对应工具，不重复实现。
 REM   - 断网中断后重跑本脚本即可，只补缺失期间。
-REM   - 耗时可能较长（几十只 × 每只多期间），可另开 cmd 窗口后台运行。
+REM   - 耗时可能较长（几十只 x 每只多期间），可另开 cmd 窗口后台运行。
 
 setlocal enabledelayedexpansion
 
