@@ -1,5 +1,13 @@
 # {{COMPANY_NAME}}（{{STOCK_CODE}}）收益型投资分析
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **研究日期**：{{DATE}}
 **证券/上市地**：{{SECURITY_AND_LISTING}}
 **交易币种**：{{TRADING_CURRENCY}}

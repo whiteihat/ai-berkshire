@@ -1,5 +1,13 @@
 # {{COMPANY_NAME}}（{{STOCK_CODE}}）投研团队综合报告
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **研究日期**：{{DATE}}
 **团队成员**：team-lead / business-analyst(段永平) / financial-analyst(巴菲特) / industry-researcher(芒格) / risk-assessor(李录)
 

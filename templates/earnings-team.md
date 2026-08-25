@@ -1,5 +1,13 @@
 # {{COMPANY_NAME}}（{{STOCK_CODE}}）{{PERIOD}} 财报团队分析
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **研究日期**：{{DATE}}
 **报告期**：{{REPORT_PERIOD}}
 **团队成员**：四大师并行分析 + 读者评审 + 公众号文章

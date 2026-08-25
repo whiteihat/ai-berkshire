@@ -1,5 +1,13 @@
 # 投资组合审视报告（portfolio-latest）
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **审视日期**：{{DATE}}
 **组合总资产**：{{TOTAL_ASSET}}
 **参考总盈亏**：{{TOTAL_PNL}}

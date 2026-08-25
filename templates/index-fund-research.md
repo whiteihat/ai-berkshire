@@ -1,5 +1,13 @@
 # {{FUND_NAME}}（{{FUND_CODE}}）研究报告
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **报告日期**：{{DATE}}
 **信息丰富度评级**：{{RATING}}级（{{RATING_EXPLANATION}}）
 

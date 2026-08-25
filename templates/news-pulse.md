@@ -1,5 +1,13 @@
 # {{COMPANY_NAME}}（{{STOCK_CODE}}）新闻脉搏 — 股价异动归因
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **侦察日期**：{{DATE}}
 **时间窗口**：{{TIME_WINDOW}}
 **股价背景**：{{PRICE_CONTEXT}}

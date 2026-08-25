@@ -1,5 +1,13 @@
 # {{COMPANY_NAME}}（{{STOCK_CODE}}）投资论文漂移检测
 
+**创建时间**：{{DATE}}
+**最后修改**：{{DATE}}
+**数据截止**：{{DATA_CUTOFF}}
+**报告版本**：1.0
+**公司/基金/行业**：{{COMPANY_NAME}}
+**数据来源**：{{DATA_SOURCES}}
+
+
 **报告日期**：{{DATE}}
 **对比区间**：{{OLD_REPORT_DATE}} 至 {{NEW_REPORT_DATE}}
 **旧报告**：{{OLD_REPORT_PATH}}
