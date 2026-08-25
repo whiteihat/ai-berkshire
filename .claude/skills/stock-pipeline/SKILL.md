@@ -27,7 +27,7 @@ python tools/data_loader.py status stock {代码} {公司名}      # 查看缓�
 - 财务主表默认回溯**近十年**（"10+N"模式：10 个完整年度 + 当年已披露的报告期，后者不占十年名额）；口径见 `tools/fundamental_fetcher.py::_get_report_periods` 与 `.claude/skills/financial-data/SKILL.md`。时间对齐由 `_should_retry_period` 结合法定披露截止日和公告元数据自动处理——年报通常在次年 Q1 披露，中报在当年 Q3，季报在下一季度内，未披露时自动在下次 update 重试。
 - 未上市公司无财务落盘数据是正常的，直接进入阶段 2。
 
----
+**本阶段同时完成报告新鲜度检查**：扫描 `reports/01-单公司分析/{公司}/` 下已有报告的元数据头"数据截止"字段。若所有已有报告的数据截止日 ≥ 当前日，且本轮无新财报/新事件/论文漂移等新输入，则在后续阶段中标记"已有报告仍有效，无实质更新"——按 `.claude/rules/report-output.md` 的"无实质更新则不落盘"规则处理（阶段结果注明"沿用 N 日前报告"，不重新生成）。
 
 ## 阶段 2：`/quality-screen` —— 条件：公司有可用的财务/估值数据
 
