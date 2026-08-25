@@ -4,13 +4,21 @@
 从 Tushare（cheapyun 代理优先）获取 A 股基本面数据，按规范目录结构保存到 local/ 下。
 报告生成时直接从 local/ 读取落盘数据，不再实时调用接口。
 
-财务主表回溯默认近十年（以当前年份往前推 10 个完整年度，每年含一季报/中报/三季报/
-年报），并自动纳入当年已披露的报告期（如 2026 中报，不占十年名额）；--years 可覆盖。
+财务主表回溯采用"10+N"模式：默认近十年（以当前年份往前推 10 个完整年度，
+每年含一季报/中报/三季报/年报），并自动纳入当年已披露的报告期（如 2026 中报，
+不占十年名额）；--years 可覆盖完整年度数。当年已发布期间排在最前优先拉取。
+
+时间对齐机制：
+  - _get_report_periods 决定"拉取哪些期间"（按期间末日 ≤ 今天）。
+  - _should_retry_period 判断每个期间是否值得重试（空文件、核心接口不完整、
+    已过披露截止日但无数据 → 重试；数据完整 → 跳过）。
+  - _check_report_disclosed 结合公告元数据和法定披露截止日交叉验证披露状态。
+  - update_stock 在增量更新前先刷新公告列表，确保使用最新披露信息。
 
 用法：
     python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘（含公告）
     python tools/fundamental_fetcher.py fetch 600938 中国海油 --years 10  # 指定年数
-    python tools/fundamental_fetcher.py update 600938 中国海油       # 增量更新（只拉缺失期间）
+    python tools/fundamental_fetcher.py update 600938 中国海油       # 增量更新（智能重试）
     python tools/fundamental_fetcher.py anns 600938 中国海油         # 单独拉取公告
     python tools/fundamental_fetcher.py anns 600938 中国海油 --limit 50  # 指定条数
     python tools/fundamental_fetcher.py check 600938 中国海油        # 检查落盘完整性
@@ -225,27 +233,232 @@ def _save_manifest(stock_dir, manifest):
     _save_json(manifest, path)
 
 
+def _disclosure_deadline(period):
+    """计算某报告期的法定披露截止日（A股）。
+
+    规则（证监会《上市公司信息披露管理办法》）：
+      - 年报(1231)：次年 4 月 30 日
+      - 中报(0630)：当年 8 月 31 日
+      - 一季报(0331)：当年 4 月 30 日
+      - 三季报(0930)：当年 10 月 31 日
+
+    Returns:
+        date: 法定披露截止日；无法解析时返回 None
+    """
+    try:
+        y = int(period[:4])
+        mmdd = period[4:]
+        if mmdd == "1231":
+            return date(y + 1, 4, 30)
+        elif mmdd == "0630":
+            return date(y, 8, 31)
+        elif mmdd == "0331":
+            return date(y, 4, 30)
+        elif mmdd == "0930":
+            return date(y, 10, 31)
+    except (ValueError, IndexError):
+        pass
+    return None
+
+
+def _check_report_disclosed(period, announcements):
+    """根据公告元数据判断某报告期是否已实际披露。
+
+    识别逻辑：扫描公告标题中的关键词（年报/半年度报告/季度报告）和期间数字，
+    若公告日期在法定披露截止日之前或附近（允许 3 天缓冲），则视为已披露。
+
+    Args:
+        period: 报告期字符串，如 "20251231"
+        announcements: 公告列表（来自 announcements.json）
+
+    Returns:
+        bool | None: True=已披露, False=应披露但未见公告, None=无法判断
+    """
+    if not announcements:
+        return None
+
+    try:
+        y = int(period[:4])
+        mmdd = period[4:]
+    except (ValueError, IndexError):
+        return None
+
+    # 期间关键词映射
+    period_keywords = {
+        "1231": [f"{y}年年度报告", f"{y}年报", f"{y}年度报告"],
+        "0630": [f"{y}年半年度报告", f"{y}年中报", f"{y}半年度报告", f"{y}中期报告"],
+        "0331": [f"{y}年第一季度报告", f"{y}年一季报", f"{y}Q1报告"],
+        "0930": [f"{y}年第三季度报告", f"{y}年三季报", f"{y}Q3报告"],
+    }
+
+    keywords = period_keywords.get(mmdd, [])
+    deadline = _disclosure_deadline(period)
+    if not deadline:
+        return None
+
+    # 对已过披露截止日 3 年以上的历史期间，不做公告交叉验证
+    # （公告列表通常只覆盖近 1-2 年，找不到不等于未披露）
+    from datetime import timedelta
+    buffer = timedelta(days=3)
+    if deadline + buffer < date.today() - timedelta(days=365 * 3):
+        return None
+
+    # 扫描公告：标题含期间关键词且公告日期 ≤ 截止日+3天缓冲
+    for ann in announcements:
+        title = ann.get("title", "")
+        notice_date_str = ann.get("notice_date", "")
+        if not notice_date_str:
+            continue
+        try:
+            notice_date = date.fromisoformat(notice_date_str)
+        except ValueError:
+            continue
+        # 标题匹配
+        if any(kw in title for kw in keywords):
+            if notice_date <= deadline + buffer:
+                return True
+        # 备用：标题含"报告"且包含期间末日数字
+        if "报告" in title and period in title:
+            if notice_date <= deadline + buffer:
+                return True
+
+    # 已过截止日+缓冲仍未找到 → 视为未披露
+    today = date.today()
+    if deadline + buffer < today:
+        return False
+    return None
+
+
+def _report_type(period):
+    """根据报告期后缀判断报告类型。"""
+    mmdd = period[4:] if len(period) >= 8 else ""
+    return {"0331": "Q1", "0630": "semi", "0930": "Q3", "1231": "annual"}.get(mmdd, "unknown")
+
+
+def _should_retry_period(period, stock_dir, fin_dir, manifest, announcements=None):
+    """判断某报告期是否值得重新拉取。
+
+    规则（按优先级）：
+      1. 文件不存在 → 重试
+      2. 文件存在但为空（0 字节或 JSON 空列表）→ 重试
+      3. 核心接口不完整（income/balancesheet/cashflow/fina_indicator 任一缺失）→ 重试
+      4. 报告已过法定披露截止日但未在 manifest 中标记为有数据 → 重试
+      5. 以上均不满足 → 跳过
+
+    Args:
+        period: 报告期字符串
+        stock_dir: 公司落盘根目录
+        fin_dir: 财务数据目录
+        manifest: 当前 manifest dict
+        announcements: 公告列表（可选，用于判断实际披露状态）
+
+    Returns:
+        tuple[bool, str]: (是否重试, 跳过/重试原因)
+    """
+    import json as _json
+
+    core_apis = ["income", "balancesheet", "cashflow", "fina_indicator"]
+
+    # 检查各 API 文件状态
+    existing = []
+    empty_files = []
+    missing = []
+    for api in FINANCIAL_APIS:
+        filepath = os.path.join(fin_dir, f"{api}_{period}.json")
+        if os.path.exists(filepath):
+            # 检查文件是否实际包含数据
+            try:
+                size = os.path.getsize(filepath)
+                if size <= 2:  # 空 JSON: [] 或 {}
+                    empty_files.append(api)
+                else:
+                    with open(filepath, "r", encoding="utf-8") as f:
+                        data = _json.load(f)
+                    if not data:
+                        empty_files.append(api)
+                    else:
+                        existing.append(api)
+            except (OSError, _json.JSONDecodeError):
+                empty_files.append(api)
+        else:
+            missing.append(api)
+
+    # 规则 1 & 2：全部文件缺失或全部为空
+    if not existing:
+        if missing:
+            return True, f"所有文件缺失: {', '.join(missing[:4])}"
+        if empty_files:
+            return True, f"所有文件为空: {', '.join(empty_files[:4])}"
+
+    # 规则 3：核心接口不完整
+    core_missing = [a for a in core_apis if a in missing or a in empty_files]
+    if core_missing:
+        return True, f"核心接口不完整: {', '.join(core_missing)}"
+
+    # 规则 4：已过披露截止日但无数据（优先检查实际文件，兼容 manifest 不完整的情况）
+    deadline = _disclosure_deadline(period)
+    today = date.today()
+    if deadline and deadline < today:
+        # 先检查 manifest，再检查实际文件（兼容之前不完整 fetch 创建了文件但未更新 manifest 的情况）
+        period_data = manifest.get("periods", {}).get(period, {})
+        manifest_has_data = any(period_data.get(api) for api in core_apis)
+        file_has_data = any(
+            os.path.exists(os.path.join(fin_dir, f"{api}_{period}.json"))
+            and os.path.getsize(os.path.join(fin_dir, f"{api}_{period}.json")) > 2
+            for api in core_apis
+        )
+        if not manifest_has_data and not file_has_data:
+            return True, f"已过披露截止日 {deadline}，manifest 和文件均无数据"
+
+    # 规则 5：使用公告数据做二次确认（仅当核心文件缺失或不完整时）
+    # 如果核心文件已存在且有数据，即使公告中未找到也不重试（公告列表可能不覆盖该期间）
+    core_files_ok = all(
+        os.path.exists(os.path.join(fin_dir, f"{api}_{period}.json"))
+        and os.path.getsize(os.path.join(fin_dir, f"{api}_{period}.json")) > 2
+        for api in core_apis
+    )
+    if not core_files_ok and announcements is not None:
+        disclosed = _check_report_disclosed(period, announcements)
+        if disclosed is False:
+            # 应已披露但公告中未找到 → 可能是延迟或遗漏，重试
+            return True, f"公告中未找到 {period} 披露记录（核心文件不完整）"
+
+    return False, f"数据完整: {len(existing)} 个接口有数据"
+
+
 def _get_report_periods(years=10):
-    """生成要拉取的报告期列表：近 N 个完整年度 + 当年已结束的报告期。
+    """生成要拉取的报告期列表："10+N"模式 — 当年已披露期间优先 + 近 N 个完整年度。
+
+    返回顺序：当年已发布的报告期排在最前，近 N 个完整年度紧随其后。
+    最新数据对分析最重要，优先拉取确保最新季报/中报/年报最先落盘。
 
     "近十年"定义（以 2026 年为例）：
       - 完整十年 = 2016–2025，每年含 4 条报告期：0331（一季报）、0630（中报）、
         0930（三季报）、1231（年报）。
       - 当年（2026）已结束的报告期（如 2026Q1、2026 中报，即 0331/0630/0930/1231
         中"期间末日 ≤ 今天"者）一并纳入，且**不占用**上述 N 年名额。
-      - 期间已结束但公司尚未披露时，Tushare 返回空 → 不落盘；下次 update 时自动
-        重试，从而保证"所有已发布的报告期"（最新季报/中报/年报）都能被拉到。
+      - 期间已结束但公司尚未披露时，Tushare 返回空 → 不落盘；下次 update 时由
+        _should_retry_period 识别并自动重试，从而保证"所有已发布的报告期"（最新季报/
+        中报/年报）都能被拉到。
+
+    时间对齐注意：
+      - 本函数只决定"拉取哪些期间"和"拉取顺序"，不涉及报告是否已实际披露的判断。
+      - 披露状态由 fetch_stock/update_stock 中的 _should_retry_period 结合公告
+        元数据（announcements.json）和法定披露截止日（_disclosure_deadline）判定。
+      - 年报(1231)通常在次年 Q1 披露，中报(0630)在当年 Q3，季报在下一季度内。
+        这意味着当前年份的 1231 期间在当年内可能无数据（直到次年年报季），
+        这是正常行为——update 会在后续执行时自动重试。
     """
     current_year = date.today().year
     periods = []
-    # 近 N 个完整年度（最晚年份在前）
-    for y in range(current_year - 1, current_year - years - 1, -1):
-        periods += [f"{y}0331", f"{y}0630", f"{y}0930", f"{y}1231"]
-    # 当年：仅纳入"期间末日已过去"的报告期（未披露的交给接口返回空，自动重试）
+    # 当年已结束的报告期排在最前（最新数据优先落盘）
     today = date.today()
     for mm, dd in (("03", "31"), ("06", "30"), ("09", "30"), ("12", "31")):
         if date(current_year, int(mm), int(dd)) <= today:
             periods.append(f"{current_year}{mm}{dd}")
+    # 近 N 个完整年度紧随其后（最晚年份在前）
+    for y in range(current_year - 1, current_year - years - 1, -1):
+        periods += [f"{y}0331", f"{y}0630", f"{y}0930", f"{y}1231"]
     return periods
 
 
@@ -328,15 +541,45 @@ def fetch_stock(ts_code_6, name, years=10, skip_existing=True):
         stats["skipped"] += 1
 
     # 2. 财务主表（按报告期）
+    #    用 _should_retry_period 做智能判断：空文件、核心接口不完整、
+    #    已过披露截止日但无数据 → 自动重试；数据完整 → 跳过。
     logging.info("\n[2/4] 财务主表")
     fin_dir = os.path.join(stock_dir, "raw", "financial")
+
+    # 预加载公告元数据，供 _should_retry_period 交叉验证披露状态
+    announcements = None
+    ann_path = os.path.join(stock_dir, "raw", "announcements.json")
+    if os.path.exists(ann_path):
+        try:
+            with open(ann_path, "r", encoding="utf-8") as f:
+                announcements = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            announcements = None
+
     periods = _get_report_periods(years)
+    retried_count = 0
     for period in periods:
+        if skip_existing:
+            should_retry, reason = _should_retry_period(
+                period, stock_dir, fin_dir, manifest, announcements
+            )
+            if not should_retry:
+                stats["skipped"] += 1
+                continue
+            if retried_count < 10 or "核心" in reason or "披露" in reason:
+                logging.info(f"  🔄 {period} → 重试: {reason}")
+            retried_count += 1
+
         for api in FINANCIAL_APIS:
             filepath = os.path.join(fin_dir, f"{api}_{period}.json")
             if skip_existing and os.path.exists(filepath):
-                stats["skipped"] += 1
-                continue
+                # 即使文件存在，也检查是否为空——空文件不跳过
+                try:
+                    if os.path.getsize(filepath) > 2:
+                        stats["skipped"] += 1
+                        continue
+                except OSError:
+                    pass
 
             # 部分接口不支持所有参数
             kwargs = {"ts_code": ts_code, "period": period}
@@ -426,6 +669,10 @@ def fetch_stock(ts_code_6, name, years=10, skip_existing=True):
     manifest["last_fetch"] = datetime.now().isoformat()
     manifest["ts_code"] = ts_code
     manifest["name"] = name
+    # 记录最新公告日期（供 _check_report_disclosed 交叉验证）
+    ann_info = manifest.get("announcements", {})
+    if ann_info.get("latest_date"):
+        manifest["metadata"]["last_announcement_date"] = ann_info["latest_date"]
     _save_manifest(stock_dir, manifest)
 
     logging.info(f"\n{'=' * 60}")
@@ -439,7 +686,19 @@ def fetch_stock(ts_code_6, name, years=10, skip_existing=True):
 
 
 def update_stock(ts_code_6, name):
-    """增量更新：只拉 manifest 中缺失的期间。"""
+    """增量更新：智能重试缺失和不完整期间。
+
+    与 fetch_stock(skip_existing=True) 配合，由 _should_retry_period 判断每个期间
+    是否需要重试。以下情况会自动重试：
+      - 文件不存在（从未成功拉取）
+      - 文件为空（Tushare 返回空但文件已创建）
+      - 核心接口（income/balancesheet/cashflow/fina_indicator）不完整
+      - 已过法定披露截止日但 manifest 中无数据
+      - 公告元数据中未找到对应报告期的披露记录
+
+    此外，当前年份（当年）的已结束期间始终纳入重试候选，确保最新季报/中报
+    在披露后能被及时拉取。
+    """
     stock_dir = os.path.join(_LOCAL_DIR, f"{name}_{ts_code_6}")
     manifest = _load_manifest(stock_dir)
     if not manifest.get("last_fetch"):
@@ -448,6 +707,22 @@ def update_stock(ts_code_6, name):
 
     logging.info(f"上次落盘: {manifest['last_fetch']}")
     logging.info(f"已有期间: {len(manifest.get('periods', {}))} 个")
+
+    # 先更新公告列表（确保有最新披露信息用于交叉验证）
+    ann_path = os.path.join(stock_dir, "raw", "announcements.json")
+    try:
+        anns = _fetch_eastmoney_anns(ts_code_6, limit=30)
+        if anns:
+            _save_json(anns, ann_path)
+            manifest["announcements"] = {
+                "last_fetch": datetime.now().strftime("%Y-%m-%d"),
+                "count": len(anns),
+                "latest_date": anns[0]["notice_date"] if anns else None,
+            }
+            manifest["metadata"]["last_announcement_date"] = anns[0]["notice_date"] if anns else None
+    except Exception as e:
+        logging.warning(f"公告更新失败（不影响财务数据更新）: {e}")
+
     return fetch_stock(ts_code_6, name, skip_existing=True)
 
 

@@ -14,8 +14,10 @@
     - 内容抓取（xueqiu_scraper.py，雪球发言）本层不管，属独立内容通道。
     - 台股走 twstock_data.py（FinMind 单链），美股/港股/A股走 fundamental/tushare 链。
 
-个股财务回溯：写侧 fundamental_fetcher 默认拉取近十年（含季报/中报/年报）并自动纳入
-当年已披露的报告期（如 2026 中报，不占十年名额）；口径见 _get_report_periods。
+个股财务回溯：写侧 fundamental_fetcher 采用"10+N"模式——默认拉取近十年（含季报/中报/
+年报）并自动纳入当年已披露的报告期（如 2026 中报，不占十年名额）。时间对齐由
+_should_retry_period 结合法定披露截止日和公告元数据自动处理；口径见 _get_report_periods
+和 fundamental_fetcher 模块文档。
 
 用法（由 Skill 调用，Schema 见 financial-data/SKILL.md）：
     import sys; sys.path.insert(0, "tools")
