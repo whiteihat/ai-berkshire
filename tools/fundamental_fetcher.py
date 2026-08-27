@@ -233,6 +233,26 @@ def _save_manifest(stock_dir, manifest):
     _save_json(manifest, path)
 
 
+def _listing_year(stock_dir):
+    """从落盘的 stock_basic.json 读取上市年份。
+
+    若无落盘数据或解析失败返回 None，由调用方决定是否截断。
+    """
+    path = os.path.join(stock_dir, "raw", "meta", "stock_basic.json")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            records = json.load(f)
+        if isinstance(records, list) and records:
+            list_date = str(records[0].get("list_date", ""))
+            if len(list_date) >= 4:
+                return int(list_date[:4])
+    except (json.JSONDecodeError, OSError, ValueError):
+        pass
+    return None
+
+
 def _disclosure_deadline(period):
     """计算某报告期的法定披露截止日（A股）。
 
@@ -557,6 +577,16 @@ def fetch_stock(ts_code_6, name, years=10, skip_existing=True):
             announcements = None
 
     periods = _get_report_periods(years)
+
+    # 上市时间截断：如果公司上市不足 N 年，丢弃上市前的空期间，避免反复无效重试
+    _first_year = _listing_year(stock_dir)
+    if _first_year is not None:
+        before = len(periods)
+        periods = [p for p in periods if int(p[:4]) >= _first_year]
+        dropped = before - len(periods)
+        if dropped > 0:
+            logging.info(f"  公司上市年份为 {_first_year}，丢弃 {dropped} 个上市前空期间")
+
     retried_count = 0
     for period in periods:
         if skip_existing:
