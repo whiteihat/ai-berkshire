@@ -7,6 +7,8 @@ disable-model-invocation: true
 
 对 $ARGUMENTS 进行团队化投资研究分析。使用 Team 工具创建真正的多Agent并行研究团队。
 
+> **Codex 适配说明**：`.claude/settings.local.json` 与 Claude `WebSearch` 权限白名单预检仅适用于 Claude Code，不是 Codex 的前置条件。Codex 不应因该文件缺失而停止；按根目录 `AGENTS.md` 使用当前可用的搜索和子代理能力。若并行子代理不可用，按四个角色顺序执行并如实说明。
+
 ## 执行流程
 
 ### 第一步：展示团队框架

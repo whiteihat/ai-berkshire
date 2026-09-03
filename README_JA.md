@@ -106,7 +106,7 @@ LLMは暗算が信頼できません。PERを1桁間違えたり、香港ドル�
 
 ```bash
 # 時価総額の手動検証：株価 × 発行済株式数、報告データと照合
-python3 tools/financial_rigor.py verify-market-cap \
+uv run python tools/financial_rigor.py verify-market-cap \
   --price 510 --shares 9.11e9 --reported 4.65e12 --currency HKD
 # ✅ 検証済み — 乖離はわずか0.08%
 ```
@@ -222,9 +222,9 @@ AIに直接聞けばコンテキストウィンドウは1つです。4つの並�
 
 コストを抑えるには、深掘りリサーチをそのまま安くしようとする前にワークフローを調整してください：まず [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) で弱い企業を除外する、あるいは [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) で株価変動の迅速な要因分析を行う。結果が深掘りに値する場合にのみ [`/investment-research`](.claude/skills/investment-research/SKILL.md) や [`/investment-team`](.claude/skills/investment-team/SKILL.md) を実行してください。
 
-### 1. Claude Codeのインストール
+### 1. Claude Code または Codex
 
-このリポジトリはClaude Codeコマンドのみを提供します。
+このリポジトリは、Claude CodeとCodexが同じcanonical workflowを使うためのローカル入口を提供します。
 
 ```bash
 npm install -g @anthropic-ai/claude-code
@@ -244,7 +244,7 @@ claude --dangerously-skip-permissions
 
 ### 2. リポジトリ内で起動する
 
-本プロジェクトはリポジトリ内でのみ実行します。Claude Code のグローバル commands ディレクトリには Skill をコピーしません。
+本プロジェクトはリポジトリ内でのみ実行します。Claude CodeやCodexのグローバルディレクトリにはSkillをコピーしません。
 
 ```bash
 git clone https://github.com/xbtlin/ai-berkshire.git
@@ -252,7 +252,7 @@ cd ai-berkshire
 claude
 ```
 
-Claude Code は `.claude/skills/*/SKILL.md` のプロジェクトローカル Skill を自動検出します。`.claude/skills/*/SKILL.md` は保守対象のワークフローソースであり、`templates/`、`tools/`、`.claude/rules/` と合わせて実行環境を構成するため、単体インストールはサポートしません。
+Claude Code は `.claude/skills/*/SKILL.md` のプロジェクトローカル Skill を自動検出します。Codexはルートの `AGENTS.md` を読み、同じcanonical workflowを指す薄いアダプター `.agents/skills/*/SKILL.md` を検出します。`.claude/skills/*/SKILL.md` は保守対象のワークフローソースであり、`templates/`、`tools/`、`.claude/rules/` と合わせて実行環境を構成するため、単体インストールはサポートしません。
 
 ### 3. 使い方
 

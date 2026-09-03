@@ -1,6 +1,6 @@
 # AI Berkshire 项目指令
 
-AI Berkshire 是一套仅在本仓库内由 Claude Code 执行的价值投资研究工作流。`.claude/skills/` 是 Claude Code 发现的项目本地 Skill（唯一工作流源），`templates/` 定义最终报告结构，`.claude/rules/report-output.md` 是模板与输出路径的唯一维护点，`reports/` 存放研究产出。
+AI Berkshire 是一套仅在本仓库内运行的价值投资研究工作流；本文件是 Claude Code 的项目入口。`.claude/skills/` 是 Claude Code 发现的项目本地 Skill（唯一工作流源），Codex 入口见根目录 `AGENTS.md`；`templates/` 定义最终报告结构，`.claude/rules/report-output.md` 是模板与输出路径的唯一维护点，`reports/` 存放研究产出。
 
 ## 不可省略的规则
 

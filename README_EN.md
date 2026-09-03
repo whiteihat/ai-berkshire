@@ -8,9 +8,9 @@ English | [中文](README.md) | [日本語](README_JA.md)
 >
 > Redefining the depth and efficiency of investment research with AI.
 
-**AI Berkshire** is a collection of investment research skills for Claude Code. It systematizes the methodologies of four value investing masters — Buffett, Munger, Duan Yongping, and Li Lu — and delivers professional-grade research through AI Agents.
+**AI Berkshire** is a collection of investment research skills for Claude Code and Codex. It systematizes the methodologies of four value investing masters — Buffett, Munger, Duan Yongping, and Li Lu — and delivers professional-grade research through AI Agents.
 
-One person + Claude Code = an entire investment research team.
+One person + Claude Code / Codex = an entire investment research team.
 
 [Track Record](#real-track-record) · [Why Not Just Ask AI?](#why-cant-you-just-ask-ai-directly) · [Skills](#skills-overview-21-skills) · [Quick Start](#quick-start) · [Reports](#live-research-reports) · [Design Philosophy](#design-philosophy)
 
@@ -104,7 +104,7 @@ LLMs can't do mental math reliably. Getting a P/E wrong by one decimal point or 
 
 ```bash
 # Market cap manual verification: Price × Shares Outstanding, cross-checked with reported data
-python3 tools/financial_rigor.py verify-market-cap \
+uv run python tools/financial_rigor.py verify-market-cap \
   --price 510 --shares 9.11e9 --reported 4.65e12 --currency HKD
 # ✅ Verified — deviation only 0.08%
 ```
@@ -220,9 +220,9 @@ For high-stakes investment decisions, the maintainer's view is that the stronges
 
 To control cost, adjust the workflow before expecting a full deep-research run to become cheap: use [`/quality-screen`](.claude/skills/quality-screen/SKILL.md) first to rule out weaker companies, or [`/news-pulse`](.claude/skills/news-pulse/SKILL.md) for quick price-move attribution. Run [`/investment-research`](.claude/skills/investment-research/SKILL.md) or [`/investment-team`](.claude/skills/investment-team/SKILL.md) only when the result is worth deeper work.
 
-### 1. Install Claude Code
+### 1. Install Claude Code or use Codex
 
-This repository maintains Claude Code commands only.
+This repository maintains one canonical workflow with local entry points for Claude Code and Codex.
 
 ```bash
 npm install -g @anthropic-ai/claude-code
@@ -242,7 +242,7 @@ Warning: this disables Claude Code's tool-approval guardrails. Use it only when 
 
 ### 2. Run Inside the Repository
 
-This project runs only inside its repository; it does not copy Skills to Claude Code's global commands directory:
+This project runs only inside its repository; it does not copy Skills to Claude Code or Codex global directories:
 
 ```bash
 git clone https://github.com/xbtlin/ai-berkshire.git
@@ -250,7 +250,7 @@ cd ai-berkshire
 claude
 ```
 
-Claude Code automatically discovers the project-local Skills in `.claude/skills/*/SKILL.md`. `.claude/skills/*/SKILL.md` are the maintainable workflow sources; `templates/`, `tools/`, and `.claude/rules/` form the required runtime environment, so standalone installation is not supported.
+Claude Code automatically discovers the project-local Skills in `.claude/skills/*/SKILL.md`. Codex reads the root `AGENTS.md` and discovers `.agents/skills/*/SKILL.md`, whose thin adapters point to the same canonical workflow sources. `templates/`, `tools/`, and `.claude/rules/` form the required runtime environment, so standalone installation is not supported.
 
 ### 3. Use
 

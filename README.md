@@ -8,9 +8,9 @@
 >
 > 用 AI 重新定义投资研究的深度与效率。
 
-**AI Berkshire** 是一套面向 Claude Code 的投资研究 Skill 合集，将巴菲特、芒格、段永平、李录四位价值投资大师的方法论系统化、结构化，通过 AI Agent 实现专业级投资研究。
+**AI Berkshire** 是一套面向 Claude Code 与 Codex 的投资研究 Skill 合集，将巴菲特、芒格、段永平、李录四位价值投资大师的方法论系统化、结构化，通过 AI Agent 实现专业级投资研究。
 
-一个人 + Claude Code = 一个投研团队。
+一个人 + Claude Code / Codex = 一个投研团队。
 
 > 📮 **仓库是全量框架，公众号是精选。** 真正值得深研的公司，加上报告之外我自己的判断与取舍，都在微信公众号「**复利炼丹炉**」——[扫码关注 ↓](#精选研究首发于公众号)
 
@@ -114,7 +114,7 @@ LLM心算不可靠。PE算错一个小数点、市值单位搞混港币和人民
 
 ```bash
 # 市值手算校验：股价 × 总股本，与报告数据对比
-python3 tools/financial_rigor.py verify-market-cap \
+uv run python tools/financial_rigor.py verify-market-cap \
   --price 510 --shares 9.11e9 --reported 4.65e12 --currency HKD
 # ✅ 验证通过, 偏差仅 0.08%
 ```
@@ -238,9 +238,9 @@ AI Berkshire 确保：**同样的输入 → 结构一致、深度一致的输出
 
 想控制成本时，优先调整 workflow，而不是期待完整深度研究变得便宜：快速排除公司可先用 [`/quality-screen`](.claude/skills/quality-screen/SKILL.md)，股价异动归因可用 [`/news-pulse`](.claude/skills/news-pulse/SKILL.md)。只有当结果值得继续深入时，再运行 [`/investment-research`](.claude/skills/investment-research/SKILL.md) 或 [`/investment-team`](.claude/skills/investment-team/SKILL.md)。
 
-### 1. 安装 Claude Code
+### 1. 安装 Claude Code 或 Codex
 
-本仓库仅维护 Claude Code commands。
+本仓库维护一套 canonical workflow，并分别提供 Claude Code 与 Codex 的本地项目入口。
 
 ```bash
 npm install -g @anthropic-ai/claude-code
@@ -260,7 +260,7 @@ claude --dangerously-skip-permissions
 
 ### 2. 在仓库内启动
 
-本项目只支持在仓库内运行，不复制 Skill 到 Claude Code 全局 commands 目录：
+本项目只支持在仓库内运行，不把 Skill 复制到 Claude Code 或 Codex 的全局目录：
 
 ```bash
 git clone https://github.com/xbtlin/ai-berkshire.git
@@ -269,6 +269,8 @@ claude
 ```
 
 Claude Code 会自动发现 `.claude/skills/*/SKILL.md` 中的项目本地 Skill。`.claude/skills/*/SKILL.md` 是可维护的工作流源文件，`templates/`、`tools/` 与 `.claude/rules/` 共同构成完整运行环境，因此不支持脱离仓库单独安装。
+
+Codex 会自动读取根目录的 `AGENTS.md`，并发现 `.agents/skills/*/SKILL.md`。这些 Codex 文件只是指向 `.claude/skills/` canonical workflow 的薄适配层，不包含第二份研究正文。Codex 中使用 `$skill-name <参数>` 或让 Codex 根据 skill 描述自动选择。
 
 ### 3. 使用
 
