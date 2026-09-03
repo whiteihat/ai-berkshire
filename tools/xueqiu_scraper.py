@@ -17,13 +17,13 @@
 
 用法示例：
   # 段永平关于拼多多
-  python3 xueqiu_scraper.py \\
+  uv run python xueqiu_scraper.py \\
       --user-id 1247347556 \\
       --keywords 拼多多,PDD,Temu,黄峥 \\
       --output ../reports/拼多多/段永平雪球发言-PDD相关.md
 
   # 其他用户 + 其他关键词
-  python3 xueqiu_scraper.py --user-id 6784593966 --keywords 茅台 --output /tmp/out.md
+  uv run python xueqiu_scraper.py --user-id 6784593966 --keywords 茅台 --output /tmp/out.md
 
 登录态缓存默认 /tmp/xueqiu_state.json，可用 --state-path 覆盖。
 """

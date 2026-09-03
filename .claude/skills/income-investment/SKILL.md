@@ -43,7 +43,7 @@ Use or refer to existing workflows instead of reproducing them:
 2. Prefer annual and interim reports, earnings releases, investor documents, regulatory filings, official releases, and official exchange data, in that order. Use secondary sources only to fill gaps and label them as secondary.
 3. Apply `.claude/skills/financial-data/SKILL.md`: verify decision-critical financial data with at least two independent sources when available and flag discrepancies above 1%.
 4. Date or period-label every time-sensitive figure. Separate every material statement as **Verified fact**, **Estimate**, **Assumption**, or **Analytical judgment**.
-5. Use `python3 tools/financial_rigor.py` for exact payout, yield, valuation, market-cap, portfolio-income, and scenario arithmetic. Never rely on mental arithmetic for a decision-sensitive result.
+5. Use `uv run python tools/financial_rigor.py` for exact payout, yield, valuation, market-cap, portfolio-income, and scenario arithmetic. Never rely on mental arithmetic for a decision-sensitive result.
 6. After saving the report, run the `tools/report_audit.py extract` and `verdict` workflow. A report that fails audit is a draft, not publishable research.
 
 ## Execution Workflow
@@ -165,9 +165,9 @@ Save the result according to the report routing rule.
 ## Release Audit
 
 ```bash
-python3 tools/report_audit.py extract --report {报告路径}
+uv run python tools/report_audit.py extract --report {报告路径}
 # Verify every extracted item against reliable sources, then:
-python3 tools/report_audit.py verdict --results '<verified JSON>' --report {报告路径}
+uv run python tools/report_audit.py verdict --results '<verified JSON>' --report {报告路径}
 ```
 
 Fix failed items and repeat the audit. Clearly retain unresolved gaps and lower confidence rather than filling them with assumptions.

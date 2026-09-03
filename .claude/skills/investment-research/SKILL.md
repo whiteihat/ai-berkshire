@@ -69,19 +69,19 @@ disable-model-invocation: true
 
 Step 1 — 市值验算（精确十进制，非浮点）：
 ```bash
-python3 tools/financial_rigor.py verify-market-cap \
+uv run python tools/financial_rigor.py verify-market-cap \
   --price {股价} --shares {总股本} --reported {报告市值} --currency {币种}
 ```
 
 Step 2 — 估值指标精确验算（PE/PB/ROE/FCF Yield 等）：
 ```bash
-python3 tools/financial_rigor.py verify-valuation \
+uv run python tools/financial_rigor.py verify-valuation \
   --price {股价} --eps {EPS} --bvps {每股净资产} --fcf-per-share {每股FCF} --dividend {每股股息}
 ```
 
 Step 3 —（仅当主源数据与常识/前值明显冲突，或涉及高杠杆决策如净现金/退出PE 时）人工核查：
 ```bash
-python3 tools/financial_rigor.py cross-validate \
+uv run python tools/financial_rigor.py cross-validate \
   --field {字段名} --values '{"主源": 数值, "核查源": 数值}' --unit {单位}
 ```
 
@@ -163,7 +163,7 @@ python3 tools/financial_rigor.py cross-validate \
 - 反向DCF：当前股价隐含了什么增长预期？
 - 三情景估值 —— **必须通过工具精确计算，禁止心算**：
 ```bash
-python3 tools/financial_rigor.py three-scenario \
+uv run python tools/financial_rigor.py three-scenario \
   --price {股价} --eps {EPS} --shares {总股本亿} \
   --growth {乐观增速} {中性增速} {悲观增速} \
   --pe {乐观PE} {中性PE} {悲观PE} --years 3 --currency {币种}
@@ -194,7 +194,7 @@ $$PE_{终值} = \frac{1 - g/ROIC}{r - g}$$
 **Step 2 — 三条硬约束准出检查（不通过不许把估值写进报告）：**
 
 ```bash
-python3 tools/terminal_value.py audit \
+uv run python tools/terminal_value.py audit \
   --currency {CNY|USD|HKD} --r {资本成本} --roic {稳态ROIC} \
   --g {悲观g},{基准g},{乐观g} --rf {无风险利率} --beta 1.0 \
   --discrete-risks "{风险名}:{情景|尾部档|概率|未建模},..."
@@ -216,10 +216,10 @@ python3 tools/terminal_value.py audit \
 
 ```bash
 # 单点退出 PE，打印完整算式（留存率/分子/分母全部展开，便于报告引用）
-python3 tools/terminal_value.py pe --roic {ROIC} --g {g} --r {r}
+uv run python tools/terminal_value.py pe --roic {ROIC} --g {g} --r {r}
 
 # 从零算 IRR
-python3 tools/terminal_value.py irr \
+uv run python tools/terminal_value.py irr \
   --profit {终值年利润} --mcap {今日市值} --pe {退出PE} \
   --years 10 --payout {股息率-稀释率}
 ```
@@ -256,7 +256,7 @@ python3 tools/terminal_value.py irr \
 
 **Step 1 — 提取抽检清单（15%随机抽样）：**
 ```bash
-python3 tools/report_audit.py extract \
+uv run python tools/report_audit.py extract \
   --report <报告文件路径>
 ```
 输出 JSON 模板，每项含 `fetched_value`（待填）。
@@ -266,7 +266,7 @@ python3 tools/report_audit.py extract \
 
 **Step 3 — 输出判决：**
 ```bash
-python3 tools/report_audit.py verdict \
+uv run python tools/report_audit.py verdict \
   --results '<填好的JSON>' \
   --report <报告文件名>
 ```
@@ -279,7 +279,7 @@ python3 tools/report_audit.py verdict \
 如果报告里出现了十年期 IRR 或终值倍数，把最终定稿用的参数再跑一遍 audit，确认写进报告的数字与准出时的一致：
 
 ```bash
-python3 tools/terminal_value.py audit \
+uv run python tools/terminal_value.py audit \
   --currency {币种} --r {r} --roic {ROIC} --g {三档g} --rf {无风险利率} \
   --beta {β} --discrete-risks "{风险归属清单}"
 ```

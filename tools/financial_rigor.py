@@ -8,11 +8,11 @@ Zero external dependencies — uses only Python stdlib (decimal, json, math, arg
 Requires Python >= 3.7.
 
 Usage (called automatically by Skills, no manual execution needed):
-    python3 tools/financial_rigor.py verify-market-cap --price 510 --shares 9.11e9 --reported 4.65e12 --currency HKD
-    python3 tools/financial_rigor.py verify-valuation --price 510 --eps 23.5 --bvps 120 --fcf-per-share 18 --dividend 2.4
-    python3 tools/financial_rigor.py cross-validate --field revenue --values '{"年报": 7518, "Yahoo": 7500, "StockAnalysis": 7520}' --unit 亿
-    python3 tools/financial_rigor.py benford --values '[1234, 2345, 3456, ...]'
-    python3 tools/financial_rigor.py calc --expr '510 * 9.11e9'
+    uv run python tools/financial_rigor.py verify-market-cap --price 510 --shares 9.11e9 --reported 4.65e12 --currency HKD
+    uv run python tools/financial_rigor.py verify-valuation --price 510 --eps 23.5 --bvps 120 --fcf-per-share 18 --dividend 2.4
+    uv run python tools/financial_rigor.py cross-validate --field revenue --values '{"年报": 7518, "Yahoo": 7500, "StockAnalysis": 7520}' --unit 亿
+    uv run python tools/financial_rigor.py benford --values '[1234, 2345, 3456, ...]'
+    uv run python tools/financial_rigor.py calc --expr '510 * 9.11e9'
 """
 
 import argparse

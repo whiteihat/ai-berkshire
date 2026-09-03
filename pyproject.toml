@@ -1,12 +1,17 @@
 [project]
 name = "ai-berkshire"
 version = "0.1.0"
-description = "AI 时代的价值投资研究框架 — Claude Code 投研 Skill 合集"
+description = "AI 时代的价值投资研究框架 — Claude Code / Codex 投研 Skill 合集"
 requires-python = ">=3.9"
 dependencies = [
     "tushare", # 官方 tushare（默认源），ttshare 代理不可用时的兜底
     "ttshare", # tushare 第三方代理（显式指定 tsdoc 源），优先使用
     "tickflow>=0.1.24",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
 ]
 
 [[tool.uv.index]]

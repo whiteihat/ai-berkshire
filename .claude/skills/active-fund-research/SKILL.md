@@ -47,10 +47,10 @@ disable-model-invocation: true
 > **数据源规范**：唯一数据入口是 [.claude/skills/financial-data/SKILL.md](../../skills/financial-data/SKILL.md) 规定的统一数据访问层 `tools/data_loader.py`；职责（查代码、读基金基本盘、份额、经理档案）不再内嵌命令。
 
 ```bash
-python tools/data_loader.py get fund {code} --field basic    # 基本盘（类型/费率/基准/经理）
-python tools/data_loader.py get fund {code} --field shares   # 规模与份额变动
-python tools/data_loader.py get fund {code} --field manager  # 历任经理档案
-python tools/data_loader.py search {基金名/代码}              # 查代码（基金+指数分节）
+uv run python tools/data_loader.py get fund {code} --field basic    # 基本盘（类型/费率/基准/经理）
+uv run python tools/data_loader.py get fund {code} --field shares   # 规模与份额变动
+uv run python tools/data_loader.py get fund {code} --field manager  # 历任经理档案
+uv run python tools/data_loader.py search {基金名/代码}              # 查代码（基金+指数分节）
 ```
 
 该基金数据缺失/无权限时，按 financial-data 备用来源（天天基金持仓/经理/持有人页）人工核查，并在报告中标注"副源补齐"。
@@ -63,7 +63,7 @@ python tools/data_loader.py search {基金名/代码}              # 查代码�
 
 **2.1 任职期业绩**（从任职日算起，避免把前任业绩记到现任头上）：
 ```bash
-python tools/data_loader.py get fund {code} --field nav     # 净值与区间收益（复权口径）
+uv run python tools/data_loader.py get fund {code} --field nav     # 净值与区间收益（复权口径）
 ```
 输出：任职以来年化收益/最大回撤/分年度超额（相对业绩基准，基准见 basic）。
 
@@ -122,7 +122,7 @@ python tools/data_loader.py get fund {code} --field nav     # 净值与区间收
 ## 数据抽检（准出流程）
 
 ```bash
-python3 tools/report_audit.py extract --report {报告路径}   # 15%随机抽检
+uv run python tools/report_audit.py extract --report {报告路径}   # 15%随机抽检
 ```
 【准出】全部≤1%偏差；【打回】修正后重审。
 

@@ -84,9 +84,9 @@ disable-model-invocation: true
   5. 估值分析：PE/PS/PB/EV等，与历史及同业对比
   6. 安全边际评估：内在价值 vs 当前股价
   7. **金融严谨性验证（必须使用Bash调用工具，禁止心算）**：
-     - 市值验算：`python3 tools/financial_rigor.py verify-market-cap --price {价格} --shares {股本} --reported {报告市值} --currency {币种}`
-     - 估值验算：`python3 tools/financial_rigor.py verify-valuation --price {价格} --eps {EPS} --bvps {每股净资产}`
-     - 三情景估值：`python3 tools/financial_rigor.py three-scenario --price {价格} --eps {EPS} --shares {股本亿} --growth {乐观} {中性} {悲观} --pe {乐观PE} {中性PE} {悲观PE}`
+     - 市值验算：`uv run python tools/financial_rigor.py verify-market-cap --price {价格} --shares {股本} --reported {报告市值} --currency {币种}`
+     - 估值验算：`uv run python tools/financial_rigor.py verify-valuation --price {价格} --eps {EPS} --bvps {每股净资产}`
+     - 三情景估值：`uv run python tools/financial_rigor.py three-scenario --price {价格} --eps {EPS} --shares {股本亿} --growth {乐观} {中性} {悲观} --pe {乐观PE} {中性PE} {悲观PE}`
      - 取数走 financial-data 主源 + 合理性校验（异常才 cross-validate 人工核查）
      - 将工具输出结果直接嵌入报告中作为验证记录
 
@@ -172,13 +172,13 @@ disable-model-invocation: true
 
 ```bash
 # Step 1 — 提取抽检清单（15%随机抽样）
-python3 tools/report_audit.py extract \
+uv run python tools/report_audit.py extract \
   --report <报告文件路径>
 
 # Step 2 — 对清单每项从可靠信源取数（参见 .claude/skills/financial-data/SKILL.md）
 
 # Step 3 — 输出准出/打回判决
-python3 tools/report_audit.py verdict \
+uv run python tools/report_audit.py verdict \
   --results '<填好的JSON>' \
   --report <报告文件名>
 ```

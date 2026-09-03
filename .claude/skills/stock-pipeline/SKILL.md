@@ -19,8 +19,8 @@ disable-model-invocation: true
 先用统一数据访问层 `tools/data_loader.py` 获取/更新该公司的落盘数据，后续所有阶段基于这份数据工作：
 
 ```bash
-python tools/data_loader.py get stock {代码} {公司名}        # 本地优先 → 缺失自动更新落盘
-python tools/data_loader.py status stock {代码} {公司名}      # 查看缓存覆盖情况（可选）
+uv run python tools/data_loader.py get stock {代码} {公司名}        # 本地优先 → 缺失自动更新落盘
+uv run python tools/data_loader.py status stock {代码} {公司名}      # 查看缓存覆盖情况（可选）
 ```
 
 - 数据不足/过旧时，`get` 会自动触发更新落盘；若更新失败，如实说明并降级用已有数据。

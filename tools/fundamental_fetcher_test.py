@@ -1,7 +1,7 @@
 """fundamental_fetcher.py 单元测试。
 
 使用 pytest 框架，按功能模块划分测试类，覆盖核心链路的正常与异常场景。
-运行方式：pytest tools/fundamental_fetcher_test.py -v
+运行方式：uv run pytest tools/fundamental_fetcher_test.py -v
 """
 
 import json

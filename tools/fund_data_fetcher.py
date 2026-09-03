@@ -5,12 +5,12 @@
 与 fundamental_fetcher.py（个股基本面落盘）同风格，报告生成时直接从 local/ 读取。
 
 用法：
-    python tools/fund_data_fetcher.py fetch 510300              # 单只基金落盘
-    python tools/fund_data_fetcher.py fetch 510300 --years 3    # 指定年数
-    python tools/fund_data_fetcher.py update 510300             # 增量更新（只拉缺失期间）
-    python tools/fund_data_fetcher.py check 510300              # 检查落盘完整性
-    python tools/fund_data_fetcher.py list                      # 列出已落盘的基金
-    python tools/fund_data_fetcher.py batch funds.txt           # 批量落盘
+    uv run python tools/fund_data_fetcher.py fetch 510300              # 单只基金落盘
+    uv run python tools/fund_data_fetcher.py fetch 510300 --years 3    # 指定年数
+    uv run python tools/fund_data_fetcher.py update 510300             # 增量更新（只拉缺失期间）
+    uv run python tools/fund_data_fetcher.py check 510300              # 检查落盘完整性
+    uv run python tools/fund_data_fetcher.py list                      # 列出已落盘的基金
+    uv run python tools/fund_data_fetcher.py batch funds.txt           # 批量落盘
 
 目录结构：
     local/fund_{code}/
@@ -559,7 +559,7 @@ def check_fund(code):
     print()
     if issues:
         print(f"⚠️  缺失 {len(issues)} 项: {', '.join(issues)}")
-        print(f"  建议执行: python tools/fund_data_fetcher.py update {code}")
+        print(f"  建议执行: uv run python tools/fund_data_fetcher.py update {code}")
     else:
         print("✅ 数据完整")
     print(sep)

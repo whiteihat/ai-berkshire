@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ETF/指数行情备源 — TickFlow（免费层提供日K与标的信息，完整服务提供实时行情）。
 
-为 Claude Code Skills 提供场内行情补位：tushare fund_daily/index_daily 无权限
+为 Claude Code 与 Codex 工作流提供场内行情补位：tushare fund_daily/index_daily 无权限
 或需盘中实时行情时使用。与 tools/tushare_data.py 完全独立，互不影响。
 
 能力边界（TickFlow 是行情服务，以下数据**没有**，勿当成基金产品数据源）：
@@ -14,9 +14,9 @@ token 读取（token 只存本机，严禁提交到 git；local/ 已被 .gitigno
     local/tickflow_key.txt；免费层无需 token（仅日K/标的信息）。
 
 用法（由 Skills 自动调用）：
-    python3 tools/tickflow_data.py daily 510300.SH     # 日K + 区间收益（免费层可用）
-    python3 tools/tickflow_data.py daily 000300.SH     # 指数日K（免费层可用）
-    python3 tools/tickflow_data.py quote 510300.SH     # 实时行情（需注册完整服务）
+    uv run python tools/tickflow_data.py daily 510300.SH     # 日K + 区间收益（免费层可用）
+    uv run python tools/tickflow_data.py daily 000300.SH     # 指数日K（免费层可用）
+    uv run python tools/tickflow_data.py quote 510300.SH     # 实时行情（需注册完整服务）
 
 依赖：tickflow（uv 管理，uv add tickflow）。其余仅 stdlib + pandas。
 """

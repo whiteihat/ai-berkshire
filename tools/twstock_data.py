@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """台股数据工具 — FinMind 开放数据 API，零外部依赖（仅 stdlib）。
 
-为 Claude Code Skills 提供台股行情、估值、财务、月营收等数据。
+为 Claude Code 与 Codex 工作流提供台股行情、估值、财务、月营收等数据。
 设计原则：独立模块，不影响现有工具；与 ashare_data.py 同风格。
 
 数据源：FinMind (api.finmindtrade.com)，覆盖上市(twse)/上柜(tpex)全部股票。
@@ -11,12 +11,12 @@
     2. 本地文件 local/finmind_token.txt（local/ 目录已被 .gitignore 永久排除）
 
 用法（由 Skills 自动调用）：
-    python3 tools/twstock_data.py quote 2330        # 最新行情 + 估值 + 市值验算
-    python3 tools/twstock_data.py valuation 2330    # PER/PBR/殖利率 + 52周高低
-    python3 tools/twstock_data.py financials 2330   # 近5年年度核心财务 + 最新季度
-    python3 tools/twstock_data.py revenue 2330      # 近13个月月营收及同比（台股独有月度披露）
-    python3 tools/twstock_data.py dividend 2330     # 近年股利政策
-    python3 tools/twstock_data.py search 台積        # 搜索股票代码（支持繁体/代码）
+    uv run python tools/twstock_data.py quote 2330        # 最新行情 + 估值 + 市值验算
+    uv run python tools/twstock_data.py valuation 2330    # PER/PBR/殖利率 + 52周高低
+    uv run python tools/twstock_data.py financials 2330   # 近5年年度核心财务 + 最新季度
+    uv run python tools/twstock_data.py revenue 2330      # 近13个月月营收及同比（台股独有月度披露）
+    uv run python tools/twstock_data.py dividend 2330     # 近年股利政策
+    uv run python tools/twstock_data.py search 台積        # 搜索股票代码（支持繁体/代码）
 
 注意：
     - 所有金额单位为新台币（TWD）

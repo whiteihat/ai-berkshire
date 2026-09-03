@@ -1,7 +1,7 @@
 """data_loader.py 单元测试。
 
 使用 pytest 框架，按功能模块划分测试类，覆盖统一数据访问层的核心链路。
-运行方式：pytest tools/data_loader_test.py -v
+运行方式：uv run pytest tools/data_loader_test.py -v
 """
 
 import json

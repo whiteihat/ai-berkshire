@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A股/港股/美股数据工具 — Tushare 数据源（多源：ttshare代理/cheapyun代理/官方 API）。
 
-为 Claude Code Skills 提供 A股/港股/美股行情、估值、财务、分红、搜索数据。
+为 Claude Code 与 Codex 工作流提供 A股/港股/美股行情、估值、财务、分红、搜索数据。
 设计原则：独立模块，不影响现有工具；与 twstock_data.py / ashare_data.py 同风格。
 
 数据源优先级：
@@ -21,31 +21,31 @@ token 读取（token 只存本机，严禁提交到 git；local/ 已被 .gitigno
     TUSHARE_TOKEN 环境变量恰好也是官方 tushare 库的默认读取变量，语义一致，不会冲突。
 
 Token 可用性检测：
-    python3 tools/tushare_data.py check     # 检测所有 token 的可用性和接口权限
+    uv run python tools/tushare_data.py check     # 检测所有 token 的可用性和接口权限
 
 用法（由 Skills 自动调用）：
-    python3 tools/tushare_data.py quote 600519        # A股行情快照 + 市值验算
-    python3 tools/tushare_data.py valuation 600519    # PE/PB/市值/52周高低
-    python3 tools/tushare_data.py financials 600519   # 近5年年度核心财务
-    python3 tools/tushare_data.py dividend 600519     # 分红送配记录
-    python3 tools/tushare_data.py search 茅台          # 搜索股票代码（A股+港股+美股）
-    python3 tools/tushare_data.py quote 00700.HK      # 港股行情
-    python3 tools/tushare_data.py quote AAPL          # 美股行情
+    uv run python tools/tushare_data.py quote 600519        # A股行情快照 + 市值验算
+    uv run python tools/tushare_data.py valuation 600519    # PE/PB/市值/52周高低
+    uv run python tools/tushare_data.py financials 600519   # 近5年年度核心财务
+    uv run python tools/tushare_data.py dividend 600519     # 分红送配记录
+    uv run python tools/tushare_data.py search 茅台          # 搜索股票代码（A股+港股+美股）
+    uv run python tools/tushare_data.py quote 00700.HK      # 港股行情
+    uv run python tools/tushare_data.py quote AAPL          # 美股行情
     # ---- 基金命令（fund_* 接口，ts_code 用 .OF 后缀；与股票命令完全隔离）----
-    python3 tools/tushare_data.py fundinfo 510300     # 基金基本盘（类型/费率/经理/跟踪指数）
-    python3 tools/tushare_data.py fundnav 510300      # 净值与业绩（复权净值/区间收益/回撤）
-    python3 tools/tushare_data.py funddaily 510300    # 场内行情/流动性/折溢价（场内份额）
-    python3 tools/tushare_data.py fundshares 510300   # 份额与规模变动（近8期）
-    python3 tools/tushare_data.py fundholdings 161725 # 季报前十大持仓
-    python3 tools/tushare_data.py fundmanager 161725  # 历任基金经理档案
-    python3 tools/tushare_data.py fundholder 161725   # 持有人结构
-    python3 tools/tushare_data.py fundsearch 沪深300   # 搜索基金与指数代码
-    python3 tools/tushare_data.py fundtracking 510300 --index 000300.SH  # 跟踪误差
+    uv run python tools/tushare_data.py fundinfo 510300     # 基金基本盘（类型/费率/经理/跟踪指数）
+    uv run python tools/tushare_data.py fundnav 510300      # 净值与业绩（复权净值/区间收益/回撤）
+    uv run python tools/tushare_data.py funddaily 510300    # 场内行情/流动性/折溢价（场内份额）
+    uv run python tools/tushare_data.py fundshares 510300   # 份额与规模变动（近8期）
+    uv run python tools/tushare_data.py fundholdings 161725 # 季报前十大持仓
+    uv run python tools/tushare_data.py fundmanager 161725  # 历任基金经理档案
+    uv run python tools/tushare_data.py fundholder 161725   # 持有人结构
+    uv run python tools/tushare_data.py fundsearch 沪深300   # 搜索基金与指数代码
+    uv run python tools/tushare_data.py fundtracking 510300 --index 000300.SH  # 跟踪误差
     # ---- 指数命令（index_* 接口）----
-    python3 tools/tushare_data.py indexinfo 000300.SH # 指数基本盘（发布机构/基日/加权方式）
-    python3 tools/tushare_data.py indexdaily 000300.SH   # 指数行情与区间收益
-    python3 tools/tushare_data.py indexvaluation 000300.SH  # 指数估值与历史分位
-    python3 tools/tushare_data.py indexweight 000300.SH    # 成分权重与集中度
+    uv run python tools/tushare_data.py indexinfo 000300.SH # 指数基本盘（发布机构/基日/加权方式）
+    uv run python tools/tushare_data.py indexdaily 000300.SH   # 指数行情与区间收益
+    uv run python tools/tushare_data.py indexvaluation 000300.SH  # 指数估值与历史分位
+    uv run python tools/tushare_data.py indexweight 000300.SH    # 成分权重与集中度
 
 市场覆盖与权限退化：
     - A股：行情/估值/财务/分红/搜索全接口

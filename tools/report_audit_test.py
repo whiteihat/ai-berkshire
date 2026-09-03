@@ -14,7 +14,7 @@
          UnicodeEncodeError 直接退出。
 
 Zero external dependencies — 仅用 unittest，与 report_audit.py 本身保持一致。
-运行：  python tests/test_report_audit.py
+运行：  uv run python -m unittest discover -s tools -p '*_test.py'
 """
 
 import io

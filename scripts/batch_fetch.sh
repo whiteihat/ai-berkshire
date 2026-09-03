@@ -17,17 +17,13 @@ set -euo pipefail
 # 仓库根 = 脚本所在目录的上级
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_DIR="$ROOT/local/config"
-PY="python"
-
-# Windows 下若 python 不可用尝试 python3
-command -v "$PY" >/dev/null 2>&1 || PY="python3"
 
 fetch_stocks() {
   local f
   for f in "$CONFIG_DIR"/stocks-*.txt; do
     [ -f "$f" ] || continue
     echo "===== 批量拉取个股: $(basename "$f") ====="
-    "$PY" "$ROOT/tools/fundamental_fetcher.py" batch "$f"
+    uv run --project "$ROOT" python "$ROOT/tools/fundamental_fetcher.py" batch "$f"
   done
 }
 
@@ -36,7 +32,7 @@ fetch_funds() {
   for f in "$CONFIG_DIR"/funds-*.txt; do
     [ -f "$f" ] || continue
     echo "===== 批量拉取基金: $(basename "$f") ====="
-    "$PY" "$ROOT/tools/fund_data_fetcher.py" batch "$f"
+    uv run --project "$ROOT" python "$ROOT/tools/fund_data_fetcher.py" batch "$f"
   done
 }
 

@@ -26,10 +26,10 @@ _should_retry_period 结合法定披露截止日和公告元数据自动处理�
     data = get("fund", "510300")
     rows = load_local("fund_holdings", "161725")
 
-    python tools/data_loader.py get stock 600938 中国海油
-    python tools/data_loader.py get fund 510300
-    python tools/data_loader.py search 茅台
-    python tools/data_loader.py status 600938 中国海油
+    uv run python tools/data_loader.py get stock 600938 中国海油
+    uv run python tools/data_loader.py get fund 510300
+    uv run python tools/data_loader.py search 茅台
+    uv run python tools/data_loader.py status 600938 中国海油
 
 依赖：纯 stdlib（复用 fetchers，不新增第三方依赖）。
 """

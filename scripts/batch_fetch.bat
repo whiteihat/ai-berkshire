@@ -18,10 +18,6 @@ REM 仓库根 = 脚本所在目录的上级
 set "ROOT=%~dp0.."
 set "ROOT=%ROOT:~0,-1%"
 set "CONFIG_DIR=%ROOT%\local\config"
-set "PY=python"
-
-REM 验证 Python 可用
-where %PY% >nul 2>&1 || set "PY=python3"
 
 REM 默认拉取全部
 set "MODE=%~1"
@@ -43,7 +39,7 @@ goto :done
 for %%F in ("%CONFIG_DIR%\stocks-*.txt") do (
     if exist "%%F" (
         echo ===== 批量拉取个股: %%~nxF =====
-        %PY% "%ROOT%\tools\fundamental_fetcher.py" batch "%%F"
+        uv run --project "%ROOT%" python "%ROOT%\tools\fundamental_fetcher.py" batch "%%F"
     )
 )
 goto :eof
@@ -52,7 +48,7 @@ goto :eof
 for %%F in ("%CONFIG_DIR%\funds-*.txt") do (
     if exist "%%F" (
         echo ===== 批量拉取基金: %%~nxF =====
-        %PY% "%ROOT%\tools\fund_data_fetcher.py" batch "%%F"
+        uv run --project "%ROOT%" python "%ROOT%\tools\fund_data_fetcher.py" batch "%%F"
     )
 )
 goto :eof

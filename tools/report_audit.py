@@ -9,16 +9,16 @@ Requires Python >= 3.7.
 
 工作流程（三步）：
   Step 1 — 提取数据点，随机抽样15%：
-    python3 tools/report_audit.py extract --report reports/xxx.md
+    uv run python tools/report_audit.py extract --report reports/xxx.md
 
   Step 2 — Claude 对抽检清单中的每个数据点，从可靠信源（macrotrends/
             stockanalysis/aastocks/eastmoney）取数，填入 fetched_value
 
   Step 3 — 输入核验结果，输出准出/打回判决：
-    python3 tools/report_audit.py verdict --results '[...]'
+    uv run python tools/report_audit.py verdict --results '[...]'
 
   一步完成（仅提取+打印抽检清单，不做网络验证）：
-    python3 tools/report_audit.py extract --report reports/xxx.md --dry-run
+    uv run python tools/report_audit.py extract --report reports/xxx.md --dry-run
 """
 
 import argparse
@@ -441,25 +441,25 @@ def main():
 工作流程：
 
   Step 1 — 提取数据点并随机抽样 15%，输出抽检清单：
-    python3 tools/report_audit.py extract --report reports/腾讯/腾讯-research-20260408.md
+    uv run python tools/report_audit.py extract --report reports/腾讯/腾讯-research-20260408.md
 
   Step 2 — Claude 对清单中每个数据点，从可靠信源取数，
             填入 fetched_value / fetched_source / fetched_value2 / fetched_source2
 
   Step 3 — 输入核验结果，输出准出/打回判决：
-    python3 tools/report_audit.py verdict --results '[
+    uv run python tools/report_audit.py verdict --results '[
       {"id":1,"label":"营业收入","reported_value":7518,"unit":"亿","fetched_value":7518,"fetched_source":"macrotrends","fetched_value2":7500,"fetched_source2":"stockanalysis"},
       ...
     ]'
 
   一步预览（只打印抽检清单，不核验）：
-    python3 tools/report_audit.py extract --report reports/xxx.md --dry-run
+    uv run python tools/report_audit.py extract --report reports/xxx.md --dry-run
 
   指定抽样比例（默认0.15）：
-    python3 tools/report_audit.py extract --report reports/xxx.md --ratio 0.20
+    uv run python tools/report_audit.py extract --report reports/xxx.md --ratio 0.20
 
   固定随机种子（复现同一批样本）：
-    python3 tools/report_audit.py extract --report reports/xxx.md --seed 42
+    uv run python tools/report_audit.py extract --report reports/xxx.md --seed 42
         """)
 
     sub = parser.add_subparsers(dest='command')

@@ -136,11 +136,11 @@ disable-model-invocation: true
 5. **估值与安全边际更新**
 
    ```bash
-   python3 tools/financial_rigor.py verify-market-cap \
+   uv run python tools/financial_rigor.py verify-market-cap \
      --price {价格} --shares {股本} --reported {报告市值} --currency {币种}
-   python3 tools/financial_rigor.py verify-valuation \
+   uv run python tools/financial_rigor.py verify-valuation \
      --price {价格} --eps {EPS} --bvps {每股净资产}
-   python3 tools/financial_rigor.py three-scenario \
+   uv run python tools/financial_rigor.py three-scenario \
      --price {价格} --eps {EPS} --shares {股本亿} \
      --growth {乐观} {中性} {悲观} --pe {乐观PE} {中性PE} {悲观PE}
    ```

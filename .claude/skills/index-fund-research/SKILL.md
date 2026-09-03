@@ -46,9 +46,9 @@ disable-model-invocation: true
 > **数据源规范**：唯一数据入口是 [.claude/skills/financial-data/SKILL.md](../../skills/financial-data/SKILL.md) 规定的统一数据访问层 `tools/data_loader.py`；不复刻命令。tushare 无权限字段由 data_loader 走备用来源（不做双源比对）。
 
 ```bash
-python tools/data_loader.py search 沪深300                      # 查代码（基金+指数分节）
-python tools/data_loader.py get fund {code} --field basic        # 基金基本盘（费率/经理/跟踪指数）
-python tools/data_loader.py get fund {code} --field shares       # 规模与份额变动
+uv run python tools/data_loader.py search 沪深300                      # 查代码（基金+指数分节）
+uv run python tools/data_loader.py get fund {code} --field basic        # 基金基本盘（费率/经理/跟踪指数）
+uv run python tools/data_loader.py get fund {code} --field shares       # 规模与份额变动
 ```
 
 指数成分/权重/估值分位/历史收益等 `index_*` 细粒度数据，由 financial-data 规范统一说明，需要时用 `tools/data_loader.py` 的 search + 对应 Tushare 细粒度命令人工核对并标注滞后。
@@ -119,7 +119,7 @@ python tools/data_loader.py get fund {code} --field shares       # 规模与份�
 ## 数据抽检（准出流程）
 
 ```bash
-python3 tools/report_audit.py extract --report {报告路径}   # 15%随机抽检
+uv run python tools/report_audit.py extract --report {报告路径}   # 15%随机抽检
 ```
 【准出】全部≤1%偏差；【打回】修正后重审。
 

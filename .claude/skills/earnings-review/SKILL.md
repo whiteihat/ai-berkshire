@@ -84,15 +84,15 @@ disable-model-invocation: true
 
 ```bash
 # 市值校验（股价×总股本 vs 报告市值）
-python3 tools/financial_rigor.py verify-market-cap \
+uv run python tools/financial_rigor.py verify-market-cap \
   --price 101 --shares 1.488e9 --reported 1.44e11 --currency USD
 
 # 估值指标验算
-python3 tools/financial_rigor.py verify-valuation \
+uv run python tools/financial_rigor.py verify-valuation \
   --price 101 --eps 9.6 --bvps 26.5 --fcf-per-share 10.2
 
 # 仅当与前值/常识明显冲突时人工核查
-python3 tools/financial_rigor.py cross-validate \
+uv run python tools/financial_rigor.py cross-validate \
   --metric "revenue" --values 108.3e9 107.9e9 --sources "公司财报" "Yahoo Finance"
 ```
 
@@ -184,12 +184,12 @@ python3 tools/financial_rigor.py cross-validate \
 
 ```bash
 # Step 1 — 提取抽检清单（--report 用路由规则确定的实际报告路径）
-python3 tools/report_audit.py extract --report {报告路径}
+uv run python tools/report_audit.py extract --report {报告路径}
 
 # Step 2 — 按 .claude/skills/financial-data/SKILL.md 的市场优先级核验清单中的每项数据
 
 # Step 3 — 输出准出/打回判决
-python3 tools/report_audit.py verdict --results '<填好的JSON>' --report {报告路径}
+uv run python tools/report_audit.py verdict --results '<填好的JSON>' --report {报告路径}
 ```
 
 **【准出】** 全部通过 → 发布；**【打回】** 有不通过 → 修正后重审。

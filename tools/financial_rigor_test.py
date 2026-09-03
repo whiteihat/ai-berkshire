@@ -11,7 +11,7 @@
        偏差正常时打印 ✅（U+2705）同样会崩，但用户至少能从退出码察觉；
        而在"验算失败"时静默退出，会让人误以为脚本没跑或跑过了。
 
-运行：  python tests/test_financial_rigor.py
+运行：  uv run python -m unittest discover -s tools -p '*_test.py'
 """
 
 import io

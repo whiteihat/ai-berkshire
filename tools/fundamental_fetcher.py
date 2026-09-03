@@ -16,14 +16,14 @@
   - update_stock 在增量更新前先刷新公告列表，确保使用最新披露信息。
 
 用法：
-    python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘（含公告）
-    python tools/fundamental_fetcher.py fetch 600938 中国海油 --years 10  # 指定年数
-    python tools/fundamental_fetcher.py update 600938 中国海油       # 增量更新（智能重试）
-    python tools/fundamental_fetcher.py anns 600938 中国海油         # 单独拉取公告
-    python tools/fundamental_fetcher.py anns 600938 中国海油 --limit 50  # 指定条数
-    python tools/fundamental_fetcher.py check 600938 中国海油        # 检查落盘完整性
-    python tools/fundamental_fetcher.py batch stocks.txt            # 批量落盘
-    python tools/fundamental_fetcher.py list                        # 列出已落盘的股票
+    uv run python tools/fundamental_fetcher.py fetch 600938 中国海油        # 单股落盘（含公告）
+    uv run python tools/fundamental_fetcher.py fetch 600938 中国海油 --years 10  # 指定年数
+    uv run python tools/fundamental_fetcher.py update 600938 中国海油       # 增量更新（智能重试）
+    uv run python tools/fundamental_fetcher.py anns 600938 中国海油         # 单独拉取公告
+    uv run python tools/fundamental_fetcher.py anns 600938 中国海油 --limit 50  # 指定条数
+    uv run python tools/fundamental_fetcher.py check 600938 中国海油        # 检查落盘完整性
+    uv run python tools/fundamental_fetcher.py batch stocks.txt            # 批量落盘
+    uv run python tools/fundamental_fetcher.py list                        # 列出已落盘的股票
 
 目录结构：
     local/{name}_{ts_code}/
@@ -864,7 +864,7 @@ def check_stock(ts_code_6, name):
     print()
     if issues:
         print(f"⚠️  缺失 {len(issues)} 项: {', '.join(issues)}")
-        print("  建议执行: python tools/fundamental_fetcher.py update", ts_code_6, name)
+        print("  建议执行: uv run python tools/fundamental_fetcher.py update", ts_code_6, name)
     else:
         print("✅ 数据完整（核心接口全有，可选接口视公司情况）")
     print(sep)

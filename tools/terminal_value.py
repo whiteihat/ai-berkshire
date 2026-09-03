@@ -25,25 +25,25 @@
 用法：
 
     # 单点退出 PE，打印完整算式
-    python3 tools/terminal_value.py pe --roic 0.20 --g 0.02 --r 0.06
+    uv run python tools/terminal_value.py pe --roic 0.20 --g 0.02 --r 0.06
 
     # 单公司三档推演（用内置预设）
-    python3 tools/terminal_value.py company --name 腾讯 --r 0.06 --g-shift -0.01
+    uv run python tools/terminal_value.py company --name 腾讯 --r 0.06 --g-shift -0.01
 
     # 七家横评表 + 排序
-    python3 tools/terminal_value.py table --r 0.06 --g-shift -0.01 --rf 0.017
+    uv run python tools/terminal_value.py table --r 0.06 --g-shift -0.01 --rf 0.017
 
     # 多档 r 敏感性 + 排序稳定性检验
-    python3 tools/terminal_value.py sweep --r 0.06,0.08,0.10,0.12 --g-shift -0.01 --rf 0.017
+    uv run python tools/terminal_value.py sweep --r 0.06,0.08,0.10,0.12 --g-shift -0.01 --rf 0.017
 
     # 分母宽度体检（哪些格子跌破 5pct 有效性下限）
-    python3 tools/terminal_value.py check --r 0.06 --g-shift -0.01
+    uv run python tools/terminal_value.py check --r 0.06 --g-shift -0.01
 
     # 从零算 IRR（不依赖预设，给利润和市值即可）
-    python3 tools/terminal_value.py irr --profit 5390 --mcap 34420 --pe 22.5 --years 10 --payout 0.015
+    uv run python tools/terminal_value.py irr --profit 5390 --mcap 34420 --pe 22.5 --years 10 --payout 0.015
 
     # 用自己的公司配置
-    python3 tools/terminal_value.py table --r 0.08 --config my_companies.json
+    uv run python tools/terminal_value.py table --r 0.08 --config my_companies.json
 """
 
 import argparse

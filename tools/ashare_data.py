@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """A股数据工具 — 腾讯行情 + 东方财富搜索/财务，零外部依赖（仅 stdlib）。
 
-为 Claude Code Skills 提供 A 股实时行情、财务数据等数据。
+为 Claude Code 与 Codex 工作流提供 A 股实时行情、财务数据等数据。
 设计原则：独立模块，不影响现有工具；使用 curl 直连绕过系统代理。
 
 用法（由 Skills 自动调用）：
-    python3.11 tools/ashare_data.py quote 600519                    # 实时行情
-    python3.11 tools/ashare_data.py financials 600519               # 核心财务数据（近5年）
-    python3.11 tools/ashare_data.py valuation 600519                # 估值指标
-    python3.11 tools/ashare_data.py search 茅台                      # 搜索股票代码
+    uv run python tools/ashare_data.py quote 600519                    # 实时行情
+    uv run python tools/ashare_data.py financials 600519               # 核心财务数据（近5年）
+    uv run python tools/ashare_data.py valuation 600519                # 估值指标
+    uv run python tools/ashare_data.py search 茅台                      # 搜索股票代码
 
 需要 Python >= 3.8，零外部依赖。
 """
