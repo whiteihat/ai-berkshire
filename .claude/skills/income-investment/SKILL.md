@@ -41,7 +41,7 @@ Use or refer to existing workflows instead of reproducing them:
 
 1. Run `date` before research. Put the data cutoff date in the report header.
 2. Prefer annual and interim reports, earnings releases, investor documents, regulatory filings, official releases, and official exchange data, in that order. Use secondary sources only to fill gaps and label them as secondary.
-3. Apply `.claude/skills/financial-data/SKILL.md`: verify decision-critical financial data with at least two independent sources when available and flag discrepancies above 1%.
+3. Apply `.claude/skills/financial-data/SKILL.md`: use its primary source and reasonableness checks; manually cross-check only for material anomalies, conflicting definitions, or high-leverage decisions.
 4. Date or period-label every time-sensitive figure. Separate every material statement as **Verified fact**, **Estimate**, **Assumption**, or **Analytical judgment**.
 5. Use `uv run python tools/financial_rigor.py` for exact payout, yield, valuation, market-cap, portfolio-income, and scenario arithmetic. Never rely on mental arithmetic for a decision-sensitive result.
 6. After saving the report, run the `tools/report_audit.py extract` and `verdict` workflow. A report that fails audit is a draft, not publishable research.
